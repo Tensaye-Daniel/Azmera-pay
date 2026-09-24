@@ -1,0 +1,1 @@
+﻿# Deals tests package

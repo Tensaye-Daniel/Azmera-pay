@@ -1,0 +1,25 @@
+# Local development infrastructure for Azmera Pay.
+# Not required to run the marketing landing page (frontend-only).
+# `docker compose up -d` provides Postgres + Redis for the future Django backend.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: azmera-pay-postgres
+    environment:
+      POSTGRES_USER: azmera
+      POSTGRES_PASSWORD: azmera
+      POSTGRES_DB: azmera_pay
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: azmera-pay-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:

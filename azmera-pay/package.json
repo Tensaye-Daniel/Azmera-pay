@@ -1,0 +1,11 @@
+{
+  "name": "azmera-pay",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --dir frontend dev",
+    "build": "pnpm --dir frontend build",
+    "lint": "pnpm --dir frontend lint",
+    "preview": "pnpm --dir frontend preview",
+    "install:frontend": "pnpm --dir frontend install"
+  }
+}

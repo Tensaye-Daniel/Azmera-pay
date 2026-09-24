@@ -1,0 +1,1 @@
+﻿# RolePermission, IsOwner guards

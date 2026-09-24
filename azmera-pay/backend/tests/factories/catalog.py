@@ -1,0 +1,1 @@
+﻿# Product/Unit/Availability factories

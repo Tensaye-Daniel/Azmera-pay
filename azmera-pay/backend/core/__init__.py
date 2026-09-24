@@ -1,0 +1,1 @@
+﻿# Cross-app service core

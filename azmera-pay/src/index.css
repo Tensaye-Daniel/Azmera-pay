@@ -1,16 +1,16 @@
 @import "tailwindcss";
 
 @theme {
-  --color-forest: #14513d;
-  --color-forest-dark: #0d4432;
-  --color-forest-deeper: #093527;
-  --color-cream: #f8f5e9;
-  --color-warmwhite: #fffdf5;
-  --color-gold: #c29b4d;
-  --color-gold-dark: #a87f33;
-  --color-sage: #edf3df;
-  --color-sage-dark: #dce7c9;
-  --color-softgreen: #456b5e;
+  --color-forest: #238b45;
+  --color-forest-dark: #006d2c;
+  --color-forest-deeper: #165f30;
+  --color-gold: #bdb76b;
+  --color-gold-dark: #a29a52;
+  --color-mint: #c7e9c0;
+  --color-mint-dark: #b4dca8;
+  --color-snow: #ffffff;
+  --color-stone: #6e675f;
+  --color-stone-dark: #4c443c;
 
   --font-serif: "Fraunces", Georgia, "Times New Roman", serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
@@ -30,8 +30,8 @@
 
 :root {
   font-family: var(--font-sans);
-  color: #174d3c;
-  background: var(--color-cream);
+  color: #2c241d;
+  background: var(--color-snow);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -46,12 +46,12 @@ body {
   margin: 0;
   min-width: 320px;
   overflow-x: hidden;
-  background-color: var(--color-cream);
+  background-color: var(--color-snow);
 }
 
 ::selection {
-  background-color: #c29b4d;
-  color: #0d4432;
+  background-color: #c7e9c0;
+  color: #006d2c;
 }
 
 button,
@@ -67,7 +67,7 @@ button {
 a:focus-visible,
 button:focus-visible,
 input:focus-visible {
-  outline: 3px solid rgba(194, 155, 77, 0.75);
+  outline: 3px solid rgba(189, 183, 107, 0.75);
   outline-offset: 3px;
   border-radius: 6px;
 }

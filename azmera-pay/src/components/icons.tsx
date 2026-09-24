@@ -183,3 +183,50 @@ export function StoreIcon(props: IconProps) {
     </svg>
   )
 }
+
+export function FacebookIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M15 3h-2.5A3.5 3.5 0 0 0 9 6.5V9H6.5v3H9v9h3v-9h2.5l.5-3h-3V6.5c0-.6.4-1 1-1H15Z" />
+    </svg>
+  )
+}
+
+export function InstagramIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
+
+export function XIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="m4 4 16 16M20 4 4 20" />
+    </svg>
+  )
+}
+
+export function TelegramIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="m21.5 4-2.9 16-7.9-5.1" />
+      <path d="M21.5 4 10.7 14.9" />
+      <path d="M10.7 14.9 3.5 12.4" />
+    </svg>
+  )
+}
+
+export function LinkedInIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M4 8v11" />
+      <path d="M4 4.9v.2" />
+      <path d="M8.5 19v-7" />
+      <path d="M8.5 12a3.5 3.5 0 0 1 6.9-1.1V19" />
+    </svg>
+  )
+}

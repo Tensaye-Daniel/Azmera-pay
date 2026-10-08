@@ -1,4 +1,4 @@
-# Local development infrastructure for Azmera Pay.
+# Local development infrastructure for Azmera.
 # Not required to run the marketing landing page (frontend-only).
 # `docker compose up -d` provides Postgres + Redis for the future Django backend.
 

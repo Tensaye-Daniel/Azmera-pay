@@ -1,4 +1,4 @@
-# Azmera Pay developer shortcuts
+# Azmera developer shortcuts
 # On Windows: use `make` via Git Bash / WSL, or run the pnpm/commands directly.
 
 .PHONY: help install build lint dev preview backend-deps compose-up compose-down

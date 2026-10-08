@@ -1,4 +1,4 @@
-# Azmera Pay — Architecture
+# Azmera Architecture
 
 Single-repository monolith. Backend and frontend are clearly separated but live together so a small team can ship end to end.
 

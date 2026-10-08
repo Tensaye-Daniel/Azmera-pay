@@ -17,6 +17,13 @@ azmera-pay/
 └── (root)       # Makefile, docker-compose.yml, .env.example
 ```
 
+## Documentation
+
+- [`docs/SRS.md`](azmera-pay/docs/SRS.md) - software requirements specification (internal)
+- [`docs/architecture.md`](azmera-pay/docs/architecture.md) - architecture and key decisions
+- [`docs/domain.md`](azmera-pay/docs/domain.md) - domain rules and state machines
+- [`docs/api.md`](azmera-pay/docs/api.md) - REST API reference
+
 ## Frontend structure
 
 ```

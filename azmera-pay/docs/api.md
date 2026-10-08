@@ -1,4 +1,4 @@
-# Azmera Pay — API reference (planned, version 1 under /api/v1/)
+# Azmera API reference (planned, version 1 under /api/v1/)
 
 All endpoints return JSON. Auth: `Authorization: Bearer <JWT>` after login.
 

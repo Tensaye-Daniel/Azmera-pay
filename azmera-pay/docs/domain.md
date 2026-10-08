@@ -1,4 +1,4 @@
-# Azmera Pay — Domain rules
+# Azmera Domain rules
 
 ## Roles & dashboards
 Everyone creates their account and inputs their info on their own dashboard.

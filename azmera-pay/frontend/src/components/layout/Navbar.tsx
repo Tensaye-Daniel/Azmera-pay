@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { CloseIcon, MenuIcon } from './icons'
+import { CloseIcon, MenuIcon } from '../ui/icons'
 
 const links = [
   { label: 'Home', href: '#home' },

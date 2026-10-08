@@ -1,5 +1,5 @@
-import { ArrowRightIcon } from './icons'
-import Reveal from './Reveal'
+import { ArrowRightIcon } from '../ui/icons'
+import Reveal from '../ui/Reveal'
 
 export default function CTASection() {
   return (

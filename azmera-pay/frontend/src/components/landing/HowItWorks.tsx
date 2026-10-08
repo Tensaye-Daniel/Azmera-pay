@@ -1,4 +1,4 @@
-import Reveal from './Reveal'
+import Reveal from '../ui/Reveal'
 import {
   GlobeIcon,
   PhoneIcon,
@@ -6,7 +6,7 @@ import {
   SproutIcon,
   TagIcon,
   UsersIcon,
-} from './icons'
+} from '../ui/icons'
 
 const steps = [
   {

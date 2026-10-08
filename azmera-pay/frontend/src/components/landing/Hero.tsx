@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from './icons'
+import { ArrowRightIcon } from '../ui/icons'
 
 export default function Hero() {
   return (

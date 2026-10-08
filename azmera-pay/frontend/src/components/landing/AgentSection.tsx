@@ -1,5 +1,5 @@
-import Reveal from './Reveal'
-import { ArrowRightIcon, LocateIcon, TrendingIcon, UsersIcon } from './icons'
+import Reveal from '../ui/Reveal'
+import { ArrowRightIcon, LocateIcon, TrendingIcon, UsersIcon } from '../ui/icons'
 
 const benefits = [
   {

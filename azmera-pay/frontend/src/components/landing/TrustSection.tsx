@@ -1,5 +1,5 @@
-import Reveal from './Reveal'
-import { NetworkIcon, ShieldIcon, SproutIcon, TagIcon } from './icons'
+import Reveal from '../ui/Reveal'
+import { NetworkIcon, ShieldIcon, SproutIcon, TagIcon } from '../ui/icons'
 
 const pillars = [
   {

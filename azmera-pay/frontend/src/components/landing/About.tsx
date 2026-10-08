@@ -1,5 +1,5 @@
-import Reveal from './Reveal'
-import { LeafIcon, TrendingIcon, UsersIcon } from './icons'
+import Reveal from '../ui/Reveal'
+import { LeafIcon, TrendingIcon, UsersIcon } from '../ui/icons'
 
 const features = [
   {

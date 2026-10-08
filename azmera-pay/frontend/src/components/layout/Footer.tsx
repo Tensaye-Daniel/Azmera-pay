@@ -1,4 +1,4 @@
-import { FacebookIcon, InstagramIcon, LinkedInIcon, TelegramIcon, XIcon } from './icons'
+import { FacebookIcon, InstagramIcon, LinkedInIcon, TelegramIcon, XIcon } from '../ui/icons'
 
 const socials = [
   { label: 'Facebook', href: '#', icon: FacebookIcon },

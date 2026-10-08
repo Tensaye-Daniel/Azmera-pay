@@ -15,7 +15,7 @@ Each actor gets their **own dashboard** where they create their account and inpu
 
 | Actor | Dashboard | What happens |
 | --- | --- | --- |
-| Agent | `dashboard/buyer` → backend `roles/agent` | Registers farmers, inputs & manages their info, owns a ward |
+| Agent | `pages/agent` → backend `roles/agent` | Registers farmers, submits requests on their behalf, earns per match |
 | Farmer | `pages/farmer` → `roles/farmer` | Asks for inputs (seeds, fertilizer, pesticides) |
 | Supplier | `pages/supplier` → `roles/supplier` | Inputs stock/price info; matched to farmer input or buyer produce requests |
 | Buyer | `pages/buyer` → `roles/buyer` | Creates a produce request with **quantity + amount**; gets matched; pays deposit |
@@ -27,6 +27,30 @@ Each actor gets their **own dashboard** where they create their account and inpu
 3. **Matched & agree** — farmer picks from ranked candidates; when they agree, the **supplier connects the farmer** → a `Connection` is created.
 4. **Buyer side** — the buyer creates a produce `Request` (kind `produce`) with the **quantity and amount** they want; the backend matches suppliers/sellers against it.
 5. **Payments** — on signing the agreement the buyer sends a **% deposit**; when the full transaction completes the **balance is paid** (`Payment.kind`: `deposit` → `balance`).
+
+## Frontend structure
+
+The public site is live; dashboards are scaffolded and not yet built.
+
+```
+frontend/src/
+├── App.tsx                 # mounts the router (react-router-dom v7)
+├── routes/router.tsx       # / -> LandingPage, * -> NotFound (guards: future)
+├── pages/
+│   ├── public/             # LandingPage, NotFound
+│   ├── auth/               # login / register (future)
+│   └── {farmer,agent,buyer,supplier,admin}/   # role dashboards (future)
+├── components/
+│   ├── landing/            # marketing sections (Hero, About, HowItWorks, Buyer/Supplier/Agent, Trust, CTA)
+│   ├── layout/             # Navbar, Footer, LandingLayout
+│   ├── ui/                 # shared primitives (Reveal, icon set)
+│   └── features/           # domain widgets per role (future)
+└── api/ hooks/ store/ types/ utils/ contexts/ data/   # cross-cutting (scaffolded)
+```
+
+- `LandingLayout` renders Navbar + `<Outlet/>` + Footer and contains the skip-link.
+- The landing page composes `components/landing/*` sections; in-page anchor links (`#buyers`, `#suppliers`, `#agents`) are preserved because the landing stays on a single route.
+- Add a page by creating a file under `pages/` and registering it in `routes/router.tsx`.
 
 ## Key decisions
 

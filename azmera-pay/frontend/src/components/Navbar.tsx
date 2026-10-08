@@ -7,6 +7,7 @@ const links = [
   { label: 'How It Works', href: '#how-it-works' },
   { label: 'For Buyers', href: '#buyers' },
   { label: 'For Suppliers', href: '#suppliers' },
+  { label: 'For Agents', href: '#agents' },
 ]
 
 export default function Navbar() {
@@ -42,7 +43,7 @@ export default function Navbar() {
         <a href="#home" className="group flex items-center" onClick={close}>
           <img
             src="/images/logo.png"
-            alt="Azmera Pay"
+            alt="Azmera"
             width={1280}
             height={698}
             className="h-11 w-auto object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-[1.03]"
@@ -98,7 +99,7 @@ export default function Navbar() {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="mb-8 w-max">
-            <img src="/images/logo.png" alt="Azmera Pay" width={1280} height={698} className="h-12 w-auto object-contain drop-shadow-lg" />
+            <img src="/images/logo.png" alt="Azmera" width={1280} height={698} className="h-12 w-auto object-contain drop-shadow-lg" />
           </div>
           <ul className="space-y-2">
             {links.map((link, i) => (

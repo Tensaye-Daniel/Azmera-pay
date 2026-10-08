@@ -5,28 +5,28 @@ const pillars = [
   {
     icon: ShieldIcon,
     title: 'Verified Suppliers',
-    text: 'Connect with trusted tomato and input suppliers.',
+    text: 'Suppliers are onboarded and vetted by local Azmera Agents before they trade on the platform.',
   },
   {
     icon: TagIcon,
     title: 'Transparent Pricing',
-    text: 'Clear pricing and product information.',
+    text: 'Both sides agree on prices and terms directly, with everything clear before anyone commits.',
   },
   {
     icon: NetworkIcon,
     title: 'Direct Connections',
-    text: 'Bring farmers, input suppliers and buyers closer together.',
+    text: 'Farmers, agents, input suppliers and buyers deal with each other directly, with no layers in between.',
   },
   {
     icon: SproutIcon,
     title: 'USSD-First Access',
-    text: 'Trade with a simple USSD code — built for any phone, anywhere in Ethiopia.',
+    text: 'Trade with a simple USSD code that works on any phone, anywhere in Ethiopia.',
   },
 ]
 
 export default function TrustSection() {
   return (
-    <section className="relative overflow-hidden bg-snow py-24 lg:py-32">
+    <section id="why-us" className="relative overflow-hidden bg-snow py-24 lg:py-32">
       <div className="bg-ethiopian-pattern absolute inset-0 opacity-[0.18]" aria-hidden="true" />
       <span
         className="absolute -left-28 top-0 size-96 rounded-full bg-mint blur-3xl"
@@ -39,12 +39,13 @@ export default function TrustSection() {
 
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <p className="text-xs font-semibold tracking-[0.24em] text-gold-dark uppercase">Why Azmera Pay</p>
+          <p className="text-xs font-semibold tracking-[0.24em] text-gold-dark uppercase">Why Azmera</p>
           <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-forest-dark sm:text-5xl">
             Built Around <span className="text-gold-dark">Trust</span>
           </h2>
           <p className="mt-5 text-base leading-relaxed text-stone-dark sm:text-lg">
-            Every feature at Azmera Pay exists to make trade safer, clearer and more human.
+            Every part of Azmera is designed to make agricultural trade safer, clearer and
+            fairer for everyone involved.
           </p>
         </Reveal>
 

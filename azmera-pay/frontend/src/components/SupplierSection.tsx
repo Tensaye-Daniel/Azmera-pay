@@ -4,18 +4,18 @@ import { ArrowRightIcon, GlobeIcon, HeartIcon, LeafIcon } from './icons'
 const benefits = [
   {
     icon: GlobeIcon,
-    title: 'Reach bigger markets',
-    text: 'Get matched with businesses across the country in a simple request-and-match USSD exchange.',
+    title: 'Reach beyond your local market',
+    text: 'Get matched with buyers across the country and sell where demand is strongest.',
   },
   {
     icon: LeafIcon,
-    title: 'Match with input suppliers',
-    text: 'Get matched with trusted seed and fertilizer suppliers to grow a better, bigger crop.',
+    title: 'Source reliable inputs',
+    text: 'Find trusted seed and fertilizer suppliers matched to your location, crop and timing.',
   },
   {
     icon: HeartIcon,
-    title: 'Build trusted buyer relationships',
-    text: 'Repeat buyers who know your farm — and keep coming back.',
+    title: 'Build lasting relationships',
+    text: 'Work with repeat partners who know your business and come back season after season.',
   },
 ]
 
@@ -40,8 +40,9 @@ export default function SupplierSection() {
               <span className="text-gold-dark">Grow Your Market.</span>
             </h2>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-stone-dark sm:text-lg">
-              Azmera Pay helps tomato farmers and input suppliers connect with businesses looking
-              for quality Ethiopian produce — entirely over USSD.
+              Whether you grow tomatoes or supply seeds and fertilizer, Azmera puts your
+              offer in front of the right partners, matched by location, negotiated directly,
+              completed from any phone.
             </p>
 
             <ul className="mt-10 space-y-6">

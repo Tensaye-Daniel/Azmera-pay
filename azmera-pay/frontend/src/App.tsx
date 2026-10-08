@@ -1,4 +1,5 @@
 import About from './components/About'
+import AgentSection from './components/AgentSection'
 import BuyerSection from './components/BuyerSection'
 import CTASection from './components/CTASection'
 import Footer from './components/Footer'
@@ -24,6 +25,7 @@ function App() {
         <HowItWorks />
         <BuyerSection />
         <SupplierSection />
+        <AgentSection />
         <TrustSection />
         <CTASection />
       </main>

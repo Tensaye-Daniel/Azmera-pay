@@ -13,37 +13,37 @@ const steps = [
     icon: SproutIcon,
     step: '01',
     title: 'Register',
-    text: 'Farmers are registered by Azmera Agents with a digital profile — location, crops, production capacity and farming needs.',
+    text: 'Local Azmera Agents register farmers with a digital profile: location, crops, production capacity and needs.',
   },
   {
     icon: PhoneIcon,
     step: '02',
     title: 'Request',
-    text: 'Farmers request inputs like seeds, fertilizer or pesticides. Buyers request products and quantities — for example, 50,000 kg of tomatoes.',
+    text: 'Farmers request inputs like seeds or fertilizer. Buyers request produce and quantities, for example 50,000 kg of tomatoes.',
   },
   {
     icon: GlobeIcon,
     step: '03',
     title: 'Match',
-    text: 'Our system matches requests with suitable suppliers based on location, distance, availability, product, price and more.',
+    text: 'Our engine matches each request with suitable partners based on location, distance, availability and price.',
   },
   {
     icon: UsersIcon,
     step: '04',
     title: 'Connect',
-    text: 'The matched farmer and supplier — or buyer and farmer — connect directly and discuss the details.',
+    text: 'Matched parties connect directly by phone or in person to discuss the details of the deal.',
   },
   {
     icon: TagIcon,
     step: '05',
     title: 'Agree',
-    text: 'Both sides agree on quantity, price, delivery and the terms of the transaction.',
+    text: 'Both sides agree on quantity, price, delivery and payment terms before anything moves.',
   },
   {
     icon: ShieldIcon,
     step: '06',
     title: 'Trade',
-    text: 'Azmera Pay brings them together so the transaction can move forward with confidence.',
+    text: 'The deal goes forward on clear terms, with Azmera supporting both sides through the transaction.',
   },
 ]
 
@@ -58,12 +58,11 @@ export default function HowItWorks() {
         <Reveal className="mx-auto max-w-3xl text-center">
           <p className="text-xs font-semibold tracking-[0.24em] text-gold-dark uppercase">The process</p>
           <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-forest-dark sm:text-5xl">
-            How Azmera Pay Works
+            How Azmera Works
           </h2>
           <p className="mt-5 text-base leading-relaxed text-stone-dark sm:text-lg">
-            Register → Request → Match → Connect → Agree → Trade. Azmera Pay connects farmers,
-            suppliers and buyers through a smart, location-based matching system — right from any
-            phone.
+            Six simple steps take you from registration to a completed trade, connecting
+            farmers, agents, suppliers and buyers through location-based matching, from any phone.
           </p>
         </Reveal>
 

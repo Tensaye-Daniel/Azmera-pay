@@ -40,9 +40,8 @@ export default function Hero() {
           </h1>
 
           <p className="mx-auto mt-8 max-w-2xl text-base leading-relaxed text-forest-dark/80 sm:text-lg">
-            Azmera Pay matches tomato farmers with buyers — and with input suppliers for seeds and
-            fertilizer — using a smart, location-based matching system, right from any phone. Your
-            partner in agricultural growth.
+            Azmera connects Ethiopian tomato farmers with buyers and input suppliers through
+            smart, location-based matching, from registration to final sale, all from any phone.
           </p>
 
           <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
@@ -58,6 +57,13 @@ export default function Hero() {
               className="inline-flex items-center justify-center gap-2 rounded-full border border-forest/50 bg-snow/50 px-8 py-4 text-sm font-semibold text-forest-dark backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:bg-forest hover:text-snow"
             >
               I’m a Supplier
+              <ArrowRightIcon className="size-4" />
+            </a>
+            <a
+              href="#agents"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-forest/50 bg-snow/50 px-8 py-4 text-sm font-semibold text-forest-dark backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:bg-forest hover:text-snow"
+            >
+              I’m an Agent
               <ArrowRightIcon className="size-4" />
             </a>
           </div>

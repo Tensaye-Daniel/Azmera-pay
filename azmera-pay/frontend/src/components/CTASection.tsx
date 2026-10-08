@@ -28,22 +28,29 @@ export default function CTASection() {
               <span className="text-gold">Together.</span>
             </h2>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-snow/85 sm:text-lg">
-              Whether you’re a tomato farmer, input supplier or buyer, Azmera Pay matches you
-              with the right market — right from any phone.
+              Whether you’re a farmer, agent, input supplier or buyer, Azmera matches you
+              with the right partner, with no smartphone or internet required.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:gap-4">
               <a
-href="#buyers"
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-gold px-8 py-4 text-sm font-semibold text-forest-deeper shadow-[0_14px_40px_rgba(0,0,0,0.25)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-snow"
+                href="#buyers"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-gold px-8 py-4 text-sm font-semibold text-forest-deeper shadow-[0_14px_40px_rgba(0,0,0,0.25)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-snow"
               >
                 I’m a Buyer
                 <ArrowRightIcon className="size-4" />
               </a>
               <a
-href="#suppliers"
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-snow/50 bg-snow/10 px-8 py-4 text-sm font-semibold text-snow backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:bg-snow hover:text-forest-deeper"
+                href="#suppliers"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-snow/50 bg-snow/10 px-8 py-4 text-sm font-semibold text-snow backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:bg-snow hover:text-forest-deeper"
               >
                 I’m a Supplier
+                <ArrowRightIcon className="size-4" />
+              </a>
+              <a
+                href="#agents"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-snow/50 bg-snow/10 px-8 py-4 text-sm font-semibold text-snow backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:bg-snow hover:text-forest-deeper"
+              >
+                I’m an Agent
                 <ArrowRightIcon className="size-4" />
               </a>
             </div>

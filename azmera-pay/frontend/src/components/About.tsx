@@ -5,17 +5,17 @@ const features = [
   {
     icon: LeafIcon,
     title: 'Support Farmers',
-    text: 'Tomato farmers list and sell using simple USSD codes — with Azmera Agents helping them reach bigger markets.',
+    text: 'Farmers list their harvest and their needs with simple USSD codes, guided by local Azmera Agents, on any phone.',
   },
   {
     icon: UsersIcon,
     title: 'Connect Markets',
-    text: 'We bring tomato buyers, farmers and input suppliers together in one trusted platform.',
+    text: 'Buyers, farmers and input suppliers meet in one trusted marketplace, matched by location and availability.',
   },
   {
     icon: TrendingIcon,
     title: 'Build a Stronger Future',
-    text: 'More income, better opportunities, and a healthier food system for Ethiopia.',
+    text: 'Fairer prices, shorter supply chains and stronger incomes for everyone in Ethiopia’s agricultural economy.',
   },
 ]
 
@@ -42,10 +42,10 @@ export default function About() {
             Built for a <span className="text-gold-dark">Stronger Tomorrow</span>
           </h2>
           <p className="mt-6 text-base leading-relaxed text-stone-dark sm:text-lg">
-            Azmera Pay is a USSD-first digital marketplace that matches Ethiopian tomato farmers
-            with buyers — and with input suppliers for seeds, fertilizer and more. We make trade
-            simpler, faster and fairer — so that local farmers can grow, businesses can thrive, and
-            Ethiopia’s agricultural potential can reach more people.
+            Azmera is a USSD-first marketplace that connects Ethiopian tomato farmers with
+            buyers and input suppliers for seeds, fertilizer and more. We make trade simpler,
+            faster and fairer, so farmers earn more, businesses find reliable supply, and
+            Ethiopia’s agricultural potential reaches further.
           </p>
         </Reveal>
 

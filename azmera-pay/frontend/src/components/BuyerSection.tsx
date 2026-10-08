@@ -15,7 +15,7 @@ const benefits = [
   {
     icon: ShieldIcon,
     title: 'Trade with confidence',
-    text: 'Agree on quantity, price and delivery — then trade through Azmera Pay.',
+    text: 'Agree on quantity, price and delivery, then complete your trade through Azmera.',
   },
 ]
 
@@ -56,8 +56,8 @@ export default function BuyerSection() {
               <span className="text-gold-dark">Straight from the Farm.</span>
             </h2>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-stone-dark sm:text-lg">
-              Azmera Pay connects your business with tomato farmers who can supply the exact
-              quantities you need — matched by location, at the right distance, entirely over USSD.
+              Tell us what you need and how much. Azmera matches you with farmers who can
+              supply it, at the right distance, with terms agreed directly between you.
             </p>
 
             <ul className="mt-10 space-y-6">

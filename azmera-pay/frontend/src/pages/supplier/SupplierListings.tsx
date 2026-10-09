@@ -5,10 +5,45 @@ import {
   TagIcon,
   ArrowRightIcon,
 } from '../../components/ui/icons'
+import StockListingForm, {
+  type StockListingFormData,
+} from '../../components/features/supplier/StockListingForm'
+
+type Listing = StockListingFormData & {
+  id: number
+  status: 'active' | 'inactive'
+}
 
 export default function SupplierListings() {
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('all')
+  const [listings, setListings] = useState<Listing[]>([])
+  const [showForm, setShowForm] = useState(false)
+
+  function handleAddListing(data: StockListingFormData) {
+    const newListing: Listing = {
+      ...data,
+      id: Date.now(),
+      status: 'active',
+    }
+
+    setListings((current) => [...current, newListing])
+    setShowForm(false)
+  }
+
+  const filteredListings = listings.filter((listing) => {
+    const matchesSearch = listing.productName
+      .toLowerCase()
+      .includes(search.trim().toLowerCase())
+
+    const matchesStatus = status === 'all' || listing.status === status
+
+    return matchesSearch && matchesStatus
+  })
+
+  const uniqueProductCount = new Set(
+    listings.map((listing) => listing.productName.toLowerCase()),
+  ).size
 
   return (
     <div className="mx-auto max-w-6xl space-y-8">
@@ -27,14 +62,20 @@ export default function SupplierListings() {
 
         <button
           type="button"
-          disabled
-          title="Listing creation will be enabled when the listing workflow is implemented."
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-forest px-5 py-3 text-sm font-semibold text-white opacity-60"
+          onClick={() => setShowForm(true)}
+          className="inline-flex items-center gap-2 rounded-xl bg-forest px-5 py-3 text-sm font-semibold text-white transition hover:bg-forest-dark"
         >
           <span className="text-lg leading-none">+</span>
           Add listing
         </button>
       </section>
+
+      {showForm && (
+        <StockListingForm
+          onSubmit={handleAddListing}
+          onCancel={() => setShowForm(false)}
+        />
+      )}
 
       <section className="grid gap-4 sm:grid-cols-2">
         <article className="rounded-2xl border border-forest/10 bg-white p-5">
@@ -42,9 +83,11 @@ export default function SupplierListings() {
             <p className="text-sm font-medium text-stone">Total listings</p>
             <StoreIcon className="size-5 text-forest" />
           </div>
-          <p className="mt-3 text-3xl font-semibold text-forest-deeper">—</p>
+          <p className="mt-3 text-3xl font-semibold text-forest-deeper">
+            {listings.length}
+          </p>
           <p className="mt-2 text-xs text-stone">
-            Will appear when listings are connected.
+            All listings you have added.
           </p>
         </article>
 
@@ -53,9 +96,11 @@ export default function SupplierListings() {
             <p className="text-sm font-medium text-stone">Listed products</p>
             <TagIcon className="size-5 text-forest" />
           </div>
-          <p className="mt-3 text-3xl font-semibold text-forest-deeper">—</p>
+          <p className="mt-3 text-3xl font-semibold text-forest-deeper">
+            {uniqueProductCount}
+          </p>
           <p className="mt-2 text-xs text-stone">
-            Product totals depend on your saved listings.
+            Distinct products across your listings.
           </p>
         </article>
       </section>
@@ -70,7 +115,7 @@ export default function SupplierListings() {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search your listings..."
-              className="w-full rounded-xl border border-forest/15 bg-white py-3 pl-10 pr-4 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/10"
+              className="w-full rounded-xl border border-forest/15 bg-white py-3 pl-4 pr-4 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/10"
             />
           </label>
 
@@ -88,34 +133,88 @@ export default function SupplierListings() {
           </label>
         </div>
 
-        <div className="mt-8 rounded-2xl border border-dashed border-forest/20 bg-[#f7faf6] px-5 py-12 text-center">
-          <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-mint/50 text-forest-deeper">
-            <StoreIcon className="size-7" />
-          </div>
+        <div className="mt-8 space-y-4">
+          
+          {filteredListings.map((listing) => (
+            <article
+              key={listing.id}
+              className="rounded-2xl border border-forest/10 bg-white p-5"
+            >
+              <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                <div>
+                  <h2 className="font-serif text-xl font-semibold text-forest-deeper">
+                    {listing.productName}
+                  </h2>
 
-          <h2 className="mt-5 font-serif text-xl font-semibold text-forest-deeper">
-            Your listings will appear here
-          </h2>
+                  <p className="mt-2 text-sm text-stone">
+                    Quantity: {listing.quantity} {listing.unit}
+                  </p>
 
-          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-stone">
-            Once your supplier listings are available, you can review your
-            products, update prices and quantities, and manage their status here.
-          </p>
+                  <p className="mt-1 text-sm text-stone">
+                    Price: ETB {listing.unitPrice.toFixed(2)} per {listing.unit}
+                  </p>
 
-          <p className="mt-4 text-xs text-stone">
-            Search: {search.trim() ? 'Ready to filter connected listings' : 'No search applied'}
-            {' · '}
-            Status: {status === 'all' ? 'All' : status}
-          </p>
+                  <p className="mt-1 text-sm text-stone">
+                    Available: {listing.validFrom} to {listing.validTo}
+                  </p>
 
-          <Link
-            to="/supplier"
-            className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-forest hover:text-forest-dark"
-          >
-            Back to overview
-            <ArrowRightIcon className="size-4" />
-          </Link>
+                  <p className="mt-2 text-xs font-semibold text-forest">
+                    Status: {listing.status}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setListings((current) =>
+                      current.map((item) =>
+                        item.id === listing.id
+                          ? {
+                              ...item,
+                              status:
+                                item.status === 'active'
+                                  ? 'inactive'
+                                  : 'active',
+                            }
+                          : item,
+                      ),
+                    )
+                  }}
+                  className="rounded-full border border-forest/20 px-4 py-2 text-sm font-semibold text-forest transition hover:bg-forest/5"
+                >
+                  {listing.status === 'active' ? 'Deactivate' : 'Activate'}
+                </button>
+              </div>
+            </article>
+          ))}
+          {listings.length === 0 && (
+            <div className="rounded-2xl border border-dashed border-forest/20 bg-[#f7faf6] px-5 py-12 text-center">
+              <StoreIcon className="mx-auto size-8 text-forest" />
+
+              <h2 className="mt-4 font-serif text-xl font-semibold text-forest-deeper">
+                No listings yet
+              </h2>
+
+              <p className="mt-2 text-sm text-stone">
+                Click Add listing to create your first product listing.
+              </p>
+            </div>
+          )}
+
+          {listings.length > 0 && filteredListings.length === 0 && (
+            <p className="py-8 text-center text-sm text-stone">
+              No listings match your search or selected status.
+            </p>
+          )}
         </div>
+
+        <Link
+          to="/supplier"
+          className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-forest hover:text-forest-dark"
+        >
+          Back to overview
+          <ArrowRightIcon className="size-4" />
+        </Link>
       </section>
     </div>
   )

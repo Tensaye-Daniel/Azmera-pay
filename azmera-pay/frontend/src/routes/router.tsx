@@ -4,6 +4,9 @@ import SupplierLayout from '../layouts/SupplierLayout'
 import LandingPage from '../pages/public/LandingPage'
 import NotFound from '../pages/public/NotFound'
 import SupplierDashboard from '../pages/supplier/SupplierDashboard'
+import SupplierListings from '../pages/supplier/SupplierListings'
+import SupplierRequests from '../pages/supplier/SupplierRequests'
+import SupplierMatches from '../pages/supplier/SupplierMatches'
 
 const router = createBrowserRouter([
 {
@@ -17,6 +20,10 @@ path: '/supplier',
 element: <SupplierLayout />,
 children: [
 { index: true, element: <SupplierDashboard /> },
+{ path: 'listings', element: <SupplierListings /> },
+{ path: 'requests', element: <SupplierRequests /> },
+{ path: 'matches', element: <SupplierMatches /> },
+
 ],
 },
 {

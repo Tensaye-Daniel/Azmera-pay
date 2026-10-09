@@ -58,7 +58,7 @@ icon: NetworkIcon,
 export default function SupplierDashboard() {
 return ( <div className="mx-auto max-w-6xl space-y-8"> <section className="relative overflow-hidden rounded-3xl bg-forest-deeper px-6 py-8 text-white sm:px-9 sm:py-10"> <div className="bg-ethiopian-pattern pointer-events-none absolute inset-0 opacity-10" />
 
-```
+
     <div className="relative max-w-2xl">
       <p className="mb-3 text-sm font-medium tracking-wide text-mint">
         SUPPLIER WORKSPACE

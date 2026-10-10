@@ -31,6 +31,20 @@ export default function SupplierListings() {
     setShowForm(false)
   }
 
+  function toggleListingStatus(id: number) {
+    setListings((current) =>
+      current.map((listing) =>
+        listing.id === id
+          ? {
+              ...listing,
+              status:
+                listing.status === 'active' ? 'inactive' : 'active',
+            }
+          : listing,
+      ),
+    )
+  }
+
   const filteredListings = listings.filter((listing) => {
     const matchesSearch = listing.productName
       .toLowerCase()
@@ -47,14 +61,17 @@ export default function SupplierListings() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-8">
+      {/* Page heading */}
       <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
         <div>
           <p className="text-sm font-medium uppercase tracking-wider text-forest">
             Supplier workspace
           </p>
+
           <h1 className="mt-2 font-serif text-3xl font-semibold text-forest-deeper">
             My Listings
           </h1>
+
           <p className="mt-2 text-sm leading-6 text-stone">
             Manage the agricultural products, prices, and quantities you offer.
           </p>
@@ -62,14 +79,17 @@ export default function SupplierListings() {
 
         <button
           type="button"
-          onClick={() => setShowForm(true)}
-          className="inline-flex items-center gap-2 rounded-xl bg-forest px-5 py-3 text-sm font-semibold text-white transition hover:bg-forest-dark"
+          onClick={() => setShowForm((current) => !current)}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-forest px-5 py-3 text-sm font-semibold text-white transition hover:bg-forest-dark"
         >
-          <span className="text-lg leading-none">+</span>
-          Add listing
+          <span className="text-lg leading-none">
+            {showForm ? '−' : '+'}
+          </span>
+          {showForm ? 'Close form' : 'Add listing'}
         </button>
       </section>
 
+      {/* Add listing form */}
       {showForm && (
         <StockListingForm
           onSubmit={handleAddListing}
@@ -77,15 +97,18 @@ export default function SupplierListings() {
         />
       )}
 
+      {/* Summary cards */}
       <section className="grid gap-4 sm:grid-cols-2">
         <article className="rounded-2xl border border-forest/10 bg-white p-5">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-stone">Total listings</p>
             <StoreIcon className="size-5 text-forest" />
           </div>
+
           <p className="mt-3 text-3xl font-semibold text-forest-deeper">
             {listings.length}
           </p>
+
           <p className="mt-2 text-xs text-stone">
             All listings you have added.
           </p>
@@ -96,30 +119,32 @@ export default function SupplierListings() {
             <p className="text-sm font-medium text-stone">Listed products</p>
             <TagIcon className="size-5 text-forest" />
           </div>
+
           <p className="mt-3 text-3xl font-semibold text-forest-deeper">
             {uniqueProductCount}
           </p>
+
           <p className="mt-2 text-xs text-stone">
             Distinct products across your listings.
           </p>
         </article>
       </section>
 
+      {/* Search and status filter */}
       <section className="rounded-2xl border border-forest/10 bg-white p-5 sm:p-6">
         <div className="grid gap-4 sm:grid-cols-[1fr_200px]">
-          <label className="relative block">
+          <label>
             <span className="sr-only">Search listings</span>
-
             <input
               type="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search your listings..."
-              className="w-full rounded-xl border border-forest/15 bg-white py-3 pl-4 pr-4 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/10"
+              className="w-full rounded-xl border border-forest/15 bg-white px-4 py-3 text-sm outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/10"
             />
           </label>
 
-          <label className="block">
+          <label>
             <span className="sr-only">Filter by status</span>
             <select
               value={status}
@@ -133,80 +158,120 @@ export default function SupplierListings() {
           </label>
         </div>
 
-        <div className="mt-8 space-y-4">
-          
-          {filteredListings.map((listing) => (
-            <article
-              key={listing.id}
-              className="rounded-2xl border border-forest/10 bg-white p-5"
-            >
-              <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-                <div>
-                  <h2 className="font-serif text-xl font-semibold text-forest-deeper">
-                    {listing.productName}
-                  </h2>
+        {/* Listings table */}
+        <div className="mt-6 overflow-x-auto rounded-xl border border-forest/10">
+          <table className="w-full min-w-[850px] border-collapse text-left">
+            <thead className="bg-[#f7faf6]">
+              <tr>
+                <th className="px-5 py-4 text-xs font-semibold uppercase tracking-wide text-stone">
+                  Product
+                </th>
+                <th className="px-5 py-4 text-xs font-semibold uppercase tracking-wide text-stone">
+                  Quantity
+                </th>
+                <th className="px-5 py-4 text-xs font-semibold uppercase tracking-wide text-stone">
+                  Price / unit
+                </th>
+                <th className="px-5 py-4 text-xs font-semibold uppercase tracking-wide text-stone">
+                  Availability
+                </th>
+                <th className="px-5 py-4 text-xs font-semibold uppercase tracking-wide text-stone">
+                  Status
+                </th>
+              </tr>
+            </thead>
 
-                  <p className="mt-2 text-sm text-stone">
-                    Quantity: {listing.quantity} {listing.unit}
-                  </p>
-
-                  <p className="mt-1 text-sm text-stone">
-                    Price: ETB {listing.unitPrice.toFixed(2)} per {listing.unit}
-                  </p>
-
-                  <p className="mt-1 text-sm text-stone">
-                    Available: {listing.validFrom} to {listing.validTo}
-                  </p>
-
-                  <p className="mt-2 text-xs font-semibold text-forest">
-                    Status: {listing.status}
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setListings((current) =>
-                      current.map((item) =>
-                        item.id === listing.id
-                          ? {
-                              ...item,
-                              status:
-                                item.status === 'active'
-                                  ? 'inactive'
-                                  : 'active',
-                            }
-                          : item,
-                      ),
-                    )
-                  }}
-                  className="rounded-full border border-forest/20 px-4 py-2 text-sm font-semibold text-forest transition hover:bg-forest/5"
+            <tbody className="divide-y divide-forest/10">
+              {filteredListings.map((listing) => (
+                <tr
+                  key={listing.id}
+                  className="transition hover:bg-[#f7faf6]/70"
                 >
-                  {listing.status === 'active' ? 'Deactivate' : 'Activate'}
-                </button>
-              </div>
-            </article>
-          ))}
-          {listings.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-forest/20 bg-[#f7faf6] px-5 py-12 text-center">
-              <StoreIcon className="mx-auto size-8 text-forest" />
+                  <td className="px-5 py-4">
+                    <span className="font-medium text-forest-deeper">
+                      {listing.productName}
+                    </span>
+                  </td>
 
-              <h2 className="mt-4 font-serif text-xl font-semibold text-forest-deeper">
-                No listings yet
-              </h2>
+                  <td className="px-5 py-4 text-sm text-stone">
+                    {listing.quantity} {listing.unit}
+                  </td>
 
-              <p className="mt-2 text-sm text-stone">
-                Click Add listing to create your first product listing.
-              </p>
-            </div>
-          )}
+                  <td className="whitespace-nowrap px-5 py-4 text-sm text-stone">
+                    ETB {listing.unitPrice.toFixed(2)}
+                  </td>
 
-          {listings.length > 0 && filteredListings.length === 0 && (
-            <p className="py-8 text-center text-sm text-stone">
-              No listings match your search or selected status.
-            </p>
-          )}
+                  <td className="whitespace-nowrap px-5 py-4 text-sm text-stone">
+                    <span>{listing.validFrom}</span>
+                    <span className="mx-1">–</span>
+                    <span>{listing.validTo}</span>
+                  </td>
+
+                  {/* Status is the final column */}
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${
+                          listing.status === 'active'
+                            ? 'bg-green-50 text-green-700'
+                            : 'bg-stone-100 text-stone-600'
+                        }`}
+                      >
+                        <span
+                          className={`size-1.5 rounded-full ${
+                            listing.status === 'active'
+                              ? 'bg-green-600'
+                              : 'bg-stone-400'
+                          }`}
+                        />
+                        {listing.status === 'active' ? 'Active' : 'Inactive'}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={() => toggleListingStatus(listing.id)}
+                        aria-label={`${
+                          listing.status === 'active'
+                            ? 'Deactivate'
+                            : 'Activate'
+                        } ${listing.productName}`}
+                        className="whitespace-nowrap text-xs font-semibold text-forest underline-offset-4 hover:underline"
+                      >
+                        {listing.status === 'active'
+                          ? 'Deactivate'
+                          : 'Activate'}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+
+              {filteredListings.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-5 py-12 text-center">
+                    <StoreIcon className="mx-auto size-8 text-forest" />
+
+                    <p className="mt-3 font-medium text-forest-deeper">
+                      {listings.length === 0
+                        ? 'No listings yet'
+                        : 'No matching listings'}
+                    </p>
+
+                    <p className="mt-1 text-sm text-stone">
+                      {listings.length === 0
+                        ? 'Click Add listing to create your first product listing.'
+                        : 'Try another product name or status filter.'}
+                    </p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
+
+        <p className="mt-3 text-xs text-stone">
+          Showing {filteredListings.length} of {listings.length} listings
+        </p>
 
         <Link
           to="/supplier"

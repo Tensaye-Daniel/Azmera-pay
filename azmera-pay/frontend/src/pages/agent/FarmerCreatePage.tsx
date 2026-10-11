@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import FarmerForm from '../../components/features/agent/FarmerForm'
+import FarmerRegistrationWizard from '../../components/features/agent/FarmerRegistrationWizard'
 
 export default function FarmerCreatePage() {
   const navigate = useNavigate()
@@ -11,12 +11,12 @@ export default function FarmerCreatePage() {
           Register a farmer
         </h1>
         <p className="mt-1 text-sm text-stone">
-          The farmer gets an Azmera account number to order inputs over USSD.
+          Complete the four steps to submit the farmer for verification. The
+          farmer gets an Azmera account number to order inputs over USSD.
         </p>
       </div>
 
-      <FarmerForm
-        mode="create"
+      <FarmerRegistrationWizard
         onSuccess={(farmer) =>
           navigate(`/agent/farmers/${farmer.id}`, { replace: true })
         }

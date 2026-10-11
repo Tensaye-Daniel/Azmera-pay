@@ -21,3 +21,8 @@ export const LAND_OWNERSHIP_OPTIONS = [
   { value: 'leased', label: 'Leased' },
   { value: 'communal', label: 'Communal' },
 ] as const
+
+export const GENDER_OPTIONS = [
+  { value: 'male', label: 'Male' },
+  { value: 'female', label: 'Female' },
+] as const

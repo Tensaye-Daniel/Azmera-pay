@@ -6,6 +6,18 @@ interface FarmerListProps {
   farmers: Farmer[]
 }
 
+const statusLabels: Record<Farmer['status'], string> = {
+  registered: 'Registered',
+  pending: 'Pending verification',
+  unverified: 'Unverified',
+}
+
+const statusClasses: Record<Farmer['status'], string> = {
+  registered: 'bg-mint/60 text-forest-deeper',
+  pending: 'bg-[#fdf2d4] text-[#8a6d1b]',
+  unverified: 'bg-[#f1eed8] text-[#756b32]',
+}
+
 export default function FarmerList({ farmers }: FarmerListProps) {
   if (farmers.length === 0) {
     return (
@@ -64,12 +76,11 @@ export default function FarmerList({ farmers }: FarmerListProps) {
                 <td className="px-5 py-4">
                   <span
                     className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-                      farmer.status === 'registered'
-                        ? 'bg-mint/60 text-forest-deeper'
-                        : 'bg-[#f1eed8] text-[#756b32]'
+                      statusClasses[farmer.status] ??
+                      'bg-[#f1eed8] text-[#756b32]'
                     }`}
                   >
-                    {farmer.status}
+                    {statusLabels[farmer.status] ?? farmer.status}
                   </span>
                 </td>
                 <td className="px-5 py-4 text-right">

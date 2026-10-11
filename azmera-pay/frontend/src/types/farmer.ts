@@ -1,4 +1,6 @@
-export type FarmerStatus = 'registered' | 'unverified'
+export type FarmerStatus = 'registered' | 'pending' | 'unverified'
+
+export type Gender = 'male' | 'female'
 
 export type LandOwnership = 'owned' | 'leased' | 'communal'
 
@@ -9,6 +11,7 @@ export interface Farmer {
   phone: string
   azmera_account_number: string
   fayda_fin: string | null
+  gender: Gender | ''
   region: string
   woreda: string
   kebele: string
@@ -27,6 +30,7 @@ export interface FarmerRegistrationInput {
   full_name: string
   phone: string
   fayda_fin?: string
+  gender?: Gender | ''
   region: string
   woreda: string
   kebele?: string

@@ -13,6 +13,7 @@ PAYLOAD = {
     "full_name": "Alemitu Bekele",
     "phone": "+251911200001",
     "fayda_fin": "123456789012345",
+    "gender": "female",
     "region": "oromiya",
     "woreda": "Adama",
     "kebele": "Kebele 02",
@@ -32,7 +33,8 @@ def test_agent_registers_a_farmer(agent_client):
     assert resp.data["azmera_account_number"] == farmer.azmera_account_number
     assert farmer.azmera_account_number.startswith("AZM-")
     assert farmer.region == "Oromia"  # spelling variant normalized to canonical
-    assert farmer.status == "registered"
+    assert farmer.gender == "female"
+    assert farmer.status == "pending"  # submitted for verification
 
     # No farmer web login: the farmer's User row has no usable password.
     assert farmer.user.role == Role.FARMER

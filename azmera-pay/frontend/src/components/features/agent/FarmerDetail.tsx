@@ -12,6 +12,23 @@ const landOwnershipLabels: Record<Farmer['land_ownership'], string> = {
   communal: 'Communal',
 }
 
+const statusLabels: Record<Farmer['status'], string> = {
+  registered: 'Registered',
+  pending: 'Pending verification',
+  unverified: 'Unverified',
+}
+
+const statusClasses: Record<Farmer['status'], string> = {
+  registered: 'bg-mint/60 text-forest-deeper',
+  pending: 'bg-[#fdf2d4] text-[#8a6d1b]',
+  unverified: 'bg-[#f1eed8] text-[#756b32]',
+}
+
+const genderLabels: Record<string, string> = {
+  male: 'Male',
+  female: 'Female',
+}
+
 function DetailRow({
   label,
   value,
@@ -60,13 +77,12 @@ export default function FarmerDetail({ farmer }: { farmer: Farmer }) {
           <div className="flex items-center gap-3">
             <span
               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium ${
-                farmer.status === 'registered'
-                  ? 'bg-mint/60 text-forest-deeper'
-                  : 'bg-[#f1eed8] text-[#756b32]'
+                statusClasses[farmer.status] ??
+                'bg-[#f1eed8] text-[#756b32]'
               }`}
             >
               <CheckIcon className="size-3.5" />
-              {farmer.status}
+              {statusLabels[farmer.status] ?? farmer.status}
             </span>
             <Link
               to={`/agent/farmers/${farmer.id}/edit`}
@@ -86,6 +102,10 @@ export default function FarmerDetail({ farmer }: { farmer: Farmer }) {
             <DetailRow
               label="Fayda FIN"
               value={farmer.fayda_fin ?? 'Not provided'}
+            />
+            <DetailRow
+              label="Gender"
+              value={farmer.gender ? genderLabels[farmer.gender] : 'Not provided'}
             />
             <DetailRow
               label="Primary crop"

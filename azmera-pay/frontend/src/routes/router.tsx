@@ -15,6 +15,7 @@ import FarmerListPage from '../pages/agent/FarmerListPage'
 import FarmerCreatePage from '../pages/agent/FarmerCreatePage'
 import FarmerDetailPage from '../pages/agent/FarmerDetailPage'
 import FarmerEditPage from '../pages/agent/FarmerEditPage'
+import AgentSettings from '../pages/agent/AgentSettings'
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,7 @@ const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <AgentDashboard /> },
+      { path: 'settings', element: <AgentSettings /> },
       { path: 'farmers', element: <FarmerListPage /> },
       { path: 'farmers/new', element: <FarmerCreatePage /> },
       { path: 'farmers/:id', element: <FarmerDetailPage /> },

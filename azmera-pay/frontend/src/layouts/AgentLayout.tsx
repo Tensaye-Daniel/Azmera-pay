@@ -5,6 +5,7 @@ import {
   MenuIcon,
   UsersIcon,
   SproutIcon,
+  SettingsIcon,
 } from '../components/ui/icons'
 import { useAuthStore } from '../store/auth'
 
@@ -29,8 +30,10 @@ function OverviewIcon(props: SVGProps<SVGSVGElement>) {
 }
 
 const navigation = [
-  { label: 'Overview', to: '/agent', icon: OverviewIcon, end: true },
+  { label: 'Dashboard', to: '/agent', icon: OverviewIcon, end: true },
   { label: 'My Farmers', to: '/agent/farmers', icon: UsersIcon },
+  { label: 'Register', to: '/agent/farmers/new', icon: SproutIcon, end: true },
+  { label: 'Settings', to: '/agent/settings', icon: SettingsIcon, end: true },
 ]
 
 const focusRing =
@@ -143,9 +146,11 @@ export default function AgentLayout() {
   }
 
   const currentPage =
-    navigation.find(({ to, end }) =>
-      end ? pathname === to : pathname.startsWith(to),
-    )?.label ?? 'Agent'
+    navigation
+      .filter(({ to, end }) =>
+        end ? pathname === to : pathname.startsWith(to),
+      )
+      .sort((a, b) => b.to.length - a.to.length)[0]?.label ?? 'Agent'
 
   return (
     <div className="min-h-screen bg-[#f7faf6] text-stone-dark">

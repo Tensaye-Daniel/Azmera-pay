@@ -11,7 +11,13 @@ FAYDA_FIN_PATTERN = r"^\d{15}$"
 
 class FarmerStatus(models.TextChoices):
     REGISTERED = "registered", "Registered"
+    PENDING = "pending", "Pending verification"
     UNVERIFIED = "unverified", "Unverified"
+
+
+class Gender(models.TextChoices):
+    MALE = "male", "Male"
+    FEMALE = "female", "Female"
 
 
 class LandOwnership(models.TextChoices):
@@ -45,6 +51,12 @@ class FarmerProfile(UUIDModel, TimeStampedModel):
         blank=True,
         help_text="Optional Fayda national ID number (15 digits).",
     )
+    gender = models.CharField(
+        max_length=16,
+        choices=Gender.choices,
+        blank=True,
+        help_text="Farmer gender, captured during agent registration.",
+    )
     region = models.CharField(max_length=64)
     woreda = models.CharField(max_length=128)
     kebele = models.CharField(max_length=128, blank=True)
@@ -57,7 +69,7 @@ class FarmerProfile(UUIDModel, TimeStampedModel):
         max_length=16,
         choices=FarmerStatus.choices,
         default=FarmerStatus.REGISTERED,
-        help_text="Farmers start as 'registered'; verification is out of scope.",
+        help_text="Farmers submitted by agents start as 'pending' verification.",
     )
 
     class Meta:

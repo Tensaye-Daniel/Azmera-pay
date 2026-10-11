@@ -23,6 +23,7 @@ class FarmerProfileSerializer(serializers.ModelSerializer):
             "phone",
             "azmera_account_number",
             "fayda_fin",
+            "gender",
             "region",
             "woreda",
             "kebele",

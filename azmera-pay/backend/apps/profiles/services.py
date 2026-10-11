@@ -31,6 +31,7 @@ def register_farmer(
     full_name,
     phone,
     fayda_fin=None,
+    gender="",
     region,
     woreda,
     kebele="",
@@ -56,6 +57,7 @@ def register_farmer(
         registered_by=agent,
         azmera_account_number=generate_azmera_account_number(),
         fayda_fin=fayda_fin,
+        gender=gender,
         region=region,
         woreda=woreda,
         kebele=kebele,
@@ -64,5 +66,5 @@ def register_farmer(
         land_ownership=land_ownership,
         land_ownership_notes=land_ownership_notes,
         notes=notes,
-        status=FarmerStatus.REGISTERED,
+        status=FarmerStatus.PENDING,
     )

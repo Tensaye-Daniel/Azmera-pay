@@ -5,7 +5,12 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from apps.common.utils import normalize_phone
-from apps.profiles.models import FAYDA_FIN_PATTERN, FarmerProfile, LandOwnership
+from apps.profiles.models import (
+    FAYDA_FIN_PATTERN,
+    FarmerProfile,
+    Gender,
+    LandOwnership,
+)
 from apps.profiles.serializers import FarmerProfileSerializer
 from apps.profiles.services import register_farmer
 from core.matching.constants import ETHIOPIAN_REGIONS, canonical_region
@@ -22,6 +27,9 @@ class FarmerRegistrationSerializer(serializers.Serializer):
     full_name = serializers.CharField(max_length=150)
     phone = serializers.CharField(max_length=20)
     fayda_fin = serializers.CharField(max_length=15, required=False, allow_blank=True)
+    gender = serializers.ChoiceField(
+        choices=Gender.choices, required=False, allow_blank=True
+    )
     region = serializers.CharField(max_length=64)
     woreda = serializers.CharField(max_length=128)
     kebele = serializers.CharField(max_length=128, required=False, allow_blank=True)

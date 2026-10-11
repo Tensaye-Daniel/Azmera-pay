@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { fetchMe, login } from '../../api/auth'
 import { useAuthStore } from '../../store/auth'
 import { PhoneIcon, SproutIcon } from '../../components/ui/icons'
@@ -123,9 +123,14 @@ export default function AgentLogin() {
           </button>
         </form>
 
-        <p className="mt-6 rounded-xl bg-[#f7faf6] px-4 py-3 text-xs leading-5 text-stone">
-          Demo agent: <span className="font-medium">+251911000001</span> /{' '}
-          <span className="font-medium">demo-pass-123</span>
+        <p className="mt-6 text-center text-sm text-stone">
+          New to Azmera?{' '}
+          <Link
+            to="/register"
+            className="font-semibold text-forest transition-colors hover:text-forest-dark"
+          >
+            Create an agent account
+          </Link>
         </p>
       </div>
     </div>

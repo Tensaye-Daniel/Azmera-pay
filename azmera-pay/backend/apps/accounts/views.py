@@ -2,7 +2,7 @@
 from rest_framework import generics, permissions
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from .serializers import MeSerializer
+from .serializers import AgentRegisterSerializer, MeSerializer
 
 
 class MeView(generics.RetrieveAPIView):
@@ -13,4 +13,14 @@ class MeView(generics.RetrieveAPIView):
         return self.request.user
 
 
-__all__ = ["TokenObtainPairView", "TokenRefreshView", "MeView"]
+class AgentRegisterView(generics.CreateAPIView):
+    serializer_class = AgentRegisterSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+__all__ = [
+    "TokenObtainPairView",
+    "TokenRefreshView",
+    "MeView",
+    "AgentRegisterView",
+]

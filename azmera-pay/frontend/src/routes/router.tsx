@@ -10,6 +10,7 @@ import SupplierListings from '../pages/supplier/SupplierListings'
 import SupplierRequests from '../pages/supplier/SupplierRequests'
 import SupplierMatches from '../pages/supplier/SupplierMatches'
 import AgentLogin from '../pages/auth/AgentLogin'
+import AgentSignup from '../pages/auth/AgentSignup'
 import AgentDashboard from '../pages/agent/AgentDashboard'
 import FarmerListPage from '../pages/agent/FarmerListPage'
 import FarmerCreatePage from '../pages/agent/FarmerCreatePage'
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
   {
     path: '/login',
     element: <AgentLogin />,
+  },
+  {
+    path: '/register',
+    element: <AgentSignup />,
   },
   {
     path: '/agent',

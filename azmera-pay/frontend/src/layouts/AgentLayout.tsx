@@ -1,0 +1,282 @@
+import { useEffect, useState, type SVGProps } from 'react'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import {
+  CloseIcon,
+  MenuIcon,
+  UsersIcon,
+  SproutIcon,
+  SettingsIcon,
+} from '../components/ui/icons'
+import { useAuthStore } from '../store/auth'
+
+function OverviewIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" />
+      <rect x="13.5" y="3.5" width="7" height="7" rx="1.5" />
+      <rect x="3.5" y="13.5" width="7" height="7" rx="1.5" />
+      <rect x="13.5" y="13.5" width="7" height="7" rx="1.5" />
+    </svg>
+  )
+}
+
+const navigation = [
+  { label: 'Dashboard', to: '/agent', icon: OverviewIcon, end: true },
+  { label: 'My Farmers', to: '/agent/farmers', icon: UsersIcon },
+  { label: 'Register', to: '/agent/farmers/new', icon: SproutIcon, end: true },
+  { label: 'Settings', to: '/agent/settings', icon: SettingsIcon, end: true },
+]
+
+const focusRing =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/40 focus-visible:ring-offset-2'
+
+const getInitials = (name: string): string =>
+  name
+    .split(' ')
+    .filter(Boolean)
+    .map((part: string) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
+
+function NavItems() {
+  return (
+    <ul className="space-y-1">
+      {navigation.map(({ label, to, icon: Icon, end }) => (
+        <li key={to}>
+          <NavLink
+            to={to}
+            end={end}
+            className={({ isActive }) =>
+              `group relative flex items-center gap-3 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${focusRing} ${
+                isActive
+                  ? 'bg-forest text-white shadow-sm'
+                  : 'text-stone-dark hover:bg-mint/40 hover:text-forest-deeper'
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <span
+                  className={`grid size-8 shrink-0 place-items-center rounded-lg transition-colors ${
+                    isActive
+                      ? 'bg-white/15'
+                      : 'bg-mint/30 group-hover:bg-mint/60'
+                  }`}
+                >
+                  <Icon className="size-5" />
+                </span>
+                <span>{label}</span>
+              </>
+            )}
+          </NavLink>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function RegisterCard() {
+  return (
+    <div className="rounded-2xl border border-forest/10 bg-[#f7faf6] p-4">
+      <div className="flex items-center gap-2.5">
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-mint/60 text-forest-deeper">
+          <SproutIcon className="size-5" />
+        </span>
+        <p className="text-sm font-semibold text-forest-deeper">
+          New farmer
+        </p>
+      </div>
+      <p className="mt-3 text-xs leading-5 text-stone">
+        Register a farmer so they can order inputs over USSD with their Azmera
+        account number.
+      </p>
+      <NavLink
+        to="/agent/farmers/new"
+        className={`mt-3 block rounded-xl bg-forest px-3 py-2 text-center text-sm font-semibold text-white transition-colors hover:bg-forest-deeper ${focusRing}`}
+      >
+        Register farmer
+      </NavLink>
+    </div>
+  )
+}
+
+export default function AgentLayout() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [lastPathname, setLastPathname] = useState<string | null>(null)
+  const { pathname } = useLocation()
+  const user = useAuthStore((state) => state.user)
+  const logout = useAuthStore((state) => state.logout)
+  const navigate = useNavigate()
+
+  if (lastPathname !== pathname) {
+    setLastPathname(pathname)
+    setMobileMenuOpen(false)
+  }
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return undefined
+
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileMenuOpen(false)
+    }
+    const previousOverflow = document.body.style.overflow
+
+    document.addEventListener('keydown', onKeyDown)
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = previousOverflow
+    }
+  }, [mobileMenuOpen])
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login', { replace: true })
+  }
+
+  const currentPage =
+    navigation
+      .filter(({ to, end }) =>
+        end ? pathname === to : pathname.startsWith(to),
+      )
+      .sort((a, b) => b.to.length - a.to.length)[0]?.label ?? 'Agent'
+
+  return (
+    <div className="min-h-screen bg-[#f7faf6] text-stone-dark">
+      <a
+        href="#agent-main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-forest focus:px-5 focus:py-3 focus:font-semibold focus:text-white"
+      >
+        Skip to content
+      </a>
+
+      <header className="sticky top-0 z-40 border-b border-forest/10 bg-white/95 shadow-[0_1px_0_0_rgba(0,0,0,0.02),0_4px_16px_-12px_rgba(0,0,0,0.12)] backdrop-blur-md">
+        <div className="mx-auto flex h-[68px] max-w-[1600px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-7">
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((open) => !open)}
+              aria-label={mobileMenuOpen ? 'Close navigation' : 'Open navigation'}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="agent-mobile-nav"
+              className={`grid size-10 shrink-0 place-items-center rounded-xl border border-forest/15 text-forest transition-colors hover:bg-mint/40 lg:hidden ${focusRing}`}
+            >
+              {mobileMenuOpen ? (
+                <CloseIcon className="size-5" />
+              ) : (
+                <MenuIcon className="size-5" />
+              )}
+            </button>
+
+            <NavLink
+              to="/agent"
+              aria-label="Azmera Pay home"
+              className={`flex min-w-0 items-center rounded-lg ${focusRing}`}
+            >
+              <img
+                src="/images/logo.png"
+                alt="Azmera Pay"
+                className="h-9 w-auto object-contain sm:h-10"
+              />
+            </NavLink>
+
+            <div className="hidden items-center gap-3 md:flex" aria-hidden="true">
+              <span className="h-6 w-px bg-forest/15" />
+              <span className="text-sm font-medium text-stone">
+                {currentPage}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex min-w-0 items-center gap-2.5 rounded-full border border-forest/10 bg-[#f7faf6] py-1 pl-1 pr-1 sm:pl-4 sm:pr-1">
+            <div className="hidden min-w-0 text-right sm:block">
+              <p className="text-sm font-semibold leading-5 text-forest-deeper">
+                {user?.full_name}
+              </p>
+              <p className="text-xs leading-4 text-stone">Agent</p>
+            </div>
+
+            <div
+              role="img"
+              aria-label={user?.full_name ?? 'Agent'}
+              className="grid size-9 shrink-0 place-items-center rounded-full bg-mint/60 text-sm font-semibold text-forest-deeper ring-2 ring-white"
+            >
+              {getInitials(user?.full_name ?? 'Agent')}
+            </div>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              className={`rounded-full px-3 py-1.5 text-xs font-semibold text-stone transition-colors hover:bg-mint/40 hover:text-forest-deeper ${focusRing}`}
+            >
+              Sign out
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto flex max-w-[1600px]">
+        <aside className="sticky top-[68px] hidden h-[calc(100vh-68px)] w-[208px] shrink-0 flex-col border-r border-forest/10 bg-white px-3 py-6 lg:flex">
+          <p className="mb-3 px-3 text-xs font-semibold tracking-wide text-stone/75">
+            Agent workspace
+          </p>
+
+          <nav aria-label="Agent navigation">
+            <NavItems />
+          </nav>
+
+          <div className="mt-auto">
+            <RegisterCard />
+          </div>
+        </aside>
+
+        <button
+          type="button"
+          tabIndex={-1}
+          aria-label="Close navigation menu"
+          onClick={() => setMobileMenuOpen(false)}
+          className={`fixed inset-0 top-[68px] z-30 bg-stone-dark/30 backdrop-blur-sm transition-[opacity,visibility] duration-200 motion-reduce:transition-none lg:hidden ${
+            mobileMenuOpen ? 'visible opacity-100' : 'invisible opacity-0'
+          }`}
+        />
+
+        <aside
+          id="agent-mobile-nav"
+          className={`fixed bottom-0 left-0 top-[68px] z-40 flex w-[min(300px,85vw)] flex-col border-r border-forest/10 bg-white px-3 py-5 shadow-xl transition-[transform,visibility] duration-200 motion-reduce:transition-none lg:hidden ${
+            mobileMenuOpen ? 'visible translate-x-0' : 'invisible -translate-x-full'
+          }`}
+        >
+          <p className="mb-3 px-3 text-xs font-semibold tracking-wide text-stone/75">
+            Agent workspace
+          </p>
+
+          <nav aria-label="Mobile agent navigation">
+            <NavItems />
+          </nav>
+
+          <div className="mt-auto">
+            <RegisterCard />
+          </div>
+        </aside>
+
+        <main
+          id="agent-main"
+          className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
+        >
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  )
+}

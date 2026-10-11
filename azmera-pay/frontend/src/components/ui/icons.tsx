@@ -165,6 +165,15 @@ export function ClockIcon(props: IconProps) {
   )
 }
 
+export function SettingsIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="12" cy="12" r="3.1" />
+      <path d="M12 2.8v3M12 18.2v3M21.2 12h-3M5.8 12h-3M18.5 5.5l-2.1 2.1M7.6 16.4l-2.1 2.1M18.5 18.5l-2.1-2.1M7.6 7.6 5.5 5.5" />
+    </svg>
+  )
+}
+
 export function PhoneIcon(props: IconProps) {
   return (
     <svg {...base(props)}>

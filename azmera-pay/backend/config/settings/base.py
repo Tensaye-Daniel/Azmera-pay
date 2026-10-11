@@ -1,4 +1,5 @@
 ﻿# Shared Django settings, env-driven via django-environ
+from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -17,7 +18,9 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 DEBUG = env("DEBUG")
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
+
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
 
 
 INSTALLED_APPS = [
@@ -29,11 +32,21 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     "rest_framework",
+    "rest_framework_simplejwt",
+    "corsheaders",
+
+    "apps.accounts",
+    "apps.common",
+    "apps.profiles",
+    "apps.requests",
+    "apps.channels",
+    "apps.dashboard",
     "apps.catalog",
 ]
 
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -72,6 +85,8 @@ DATABASES = {
 }
 
 
+AUTH_USER_MODEL = "accounts.User"
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -86,6 +101,24 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "apps.common.pagination.DefaultPagination",
+    "PAGE_SIZE": 25,
+}
+
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(seconds=env.int("JWT_ACCESS_TTL", default=300)),
+    "REFRESH_TOKEN_LIFETIME": timedelta(seconds=env.int("JWT_REFRESH_TTL", default=2592000)),
+}
 
 
 LANGUAGE_CODE = "en-us"

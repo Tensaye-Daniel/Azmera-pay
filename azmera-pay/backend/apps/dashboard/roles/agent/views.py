@@ -1,1 +1,71 @@
-﻿# Viewsets for the agent dashboard (profile info, requests, deals, payments)
+﻿# Agent dashboard viewsets: farmers (register, list mine, detail, update, summary).
+from django.db.models import Count
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
+from apps.accounts.models import Role
+from apps.common.permissions import IsAdminOrAgent
+from apps.profiles.models import FarmerProfile, FarmerStatus
+from apps.profiles.serializers import FarmerProfileSerializer
+
+from .serializers import FarmerRegistrationSerializer, FarmerUpdateSerializer
+
+RECENT_FARMERS_LIMIT = 5
+
+
+class FarmerViewSet(viewsets.ModelViewSet):
+    """Agent registers farmers and works with the farmers they registered.
+
+    Agents only ever see `registered_by = self`. Admins may view every record.
+    """
+
+    permission_classes = [IsAdminOrAgent]
+    http_method_names = ["get", "post", "patch", "head", "options"]
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return FarmerRegistrationSerializer
+        if self.action == "partial_update":
+            return FarmerUpdateSerializer
+        return FarmerProfileSerializer
+
+    def get_queryset(self):
+        queryset = FarmerProfile.objects.select_related("user", "registered_by")
+        if self.request.user.role == Role.ADMIN:
+            return queryset
+        return queryset.filter(registered_by=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        farmer = serializer.save()
+        output = FarmerProfileSerializer(farmer, context=self.get_serializer_context()).data
+        headers = self.get_success_headers(output)
+        return Response(output, status=status.HTTP_201_CREATED, headers=headers)
+
+    @action(detail=False, methods=["get"])
+    def summary(self, request, *args, **kwargs):
+        """Dashboard counts by status plus the most recently registered farmers."""
+        queryset = self.filter_queryset(self.get_queryset())
+
+        counts = {
+            row["status"]: row["count"]
+            for row in queryset.values("status").annotate(count=Count("id"))
+        }
+
+        recent = queryset[:RECENT_FARMERS_LIMIT]
+        recent_data = FarmerProfileSerializer(
+            recent, many=True, context=self.get_serializer_context()
+        ).data
+
+        return Response(
+            {
+                "total": queryset.count(),
+                "by_status": {
+                    status_value: counts.get(status_value, 0)
+                    for status_value in FarmerStatus.values
+                },
+                "recent": recent_data,
+            }
+        )

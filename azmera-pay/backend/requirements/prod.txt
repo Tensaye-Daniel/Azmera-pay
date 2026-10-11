@@ -1,1 +1,2 @@
-﻿# Future: gunicorn, whitenoise
+﻿# Production runtime dependencies
+-r base.txt

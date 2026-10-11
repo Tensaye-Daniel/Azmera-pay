@@ -1,1 +1,2 @@
-﻿# /ussd, /sms webhook routes
+﻿# /ussd/... webhook routes (USSD callback added in the farmer channel phase).
+urlpatterns = []

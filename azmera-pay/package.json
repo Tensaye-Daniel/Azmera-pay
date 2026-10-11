@@ -2,6 +2,9 @@
   "name": "azmera-pay",
   "private": true,
   "scripts": {
+    "start": "node scripts/start.mjs",
+    "start:backend": "node scripts/start.mjs --backend-only",
+    "start:frontend": "node scripts/start.mjs --frontend-only",
     "dev": "pnpm --dir frontend dev",
     "build": "pnpm --dir frontend build",
     "lint": "pnpm --dir frontend lint",

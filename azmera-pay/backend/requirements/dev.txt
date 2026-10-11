@@ -1,1 +1,6 @@
-﻿# Future: pytest, pytest-django, factory-boy, ipython, django-debug-toolbar
+﻿# Development / test dependencies
+-r base.txt
+
+pytest==9.1.1
+pytest-django==4.14.0
+factory-boy==3.3.3

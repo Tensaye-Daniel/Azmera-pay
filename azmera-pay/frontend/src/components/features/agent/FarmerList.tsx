@@ -68,11 +68,11 @@ export default function FarmerList({ farmers }: FarmerListProps) {
                 <td className="px-5 py-4">
                   <span
                     className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-                      statusClasses[farmer.status] ??
+                      FARMER_STATUS_CLASSES[farmer.status] ??
                       'bg-[#f1eed8] text-[#756b32]'
                     }`}
                   >
-                    {statusLabels[farmer.status] ?? farmer.status}
+                    {FARMER_STATUS_LABELS[farmer.status] ?? farmer.status}
                   </span>
                 </td>
                 <td className="px-5 py-4 text-right">

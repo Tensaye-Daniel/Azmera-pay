@@ -5,28 +5,17 @@ import {
   CheckIcon,
 } from '../../ui/icons'
 import type { Farmer } from '../../../types/farmer'
+import {
+  FARMER_STATUS_CLASSES,
+  FARMER_STATUS_LABELS,
+  GENDER_LABELS,
+  getInitials,
+} from '../../../utils/farmer'
 
 const landOwnershipLabels: Record<Farmer['land_ownership'], string> = {
   owned: 'Owned',
   leased: 'Leased',
   communal: 'Communal',
-}
-
-const statusLabels: Record<Farmer['status'], string> = {
-  registered: 'Registered',
-  pending: 'Pending verification',
-  unverified: 'Unverified',
-}
-
-const statusClasses: Record<Farmer['status'], string> = {
-  registered: 'bg-mint/60 text-forest-deeper',
-  pending: 'bg-[#fdf2d4] text-[#8a6d1b]',
-  unverified: 'bg-[#f1eed8] text-[#756b32]',
-}
-
-const genderLabels: Record<string, string> = {
-  male: 'Male',
-  female: 'Female',
 }
 
 function DetailRow({
@@ -54,13 +43,7 @@ export default function FarmerDetail({ farmer }: { farmer: Farmer }) {
           <div className="flex items-center gap-4">
             <span className="grid size-12 place-items-center rounded-2xl bg-mint/60 text-forest-deeper">
               <span className="text-lg font-semibold">
-                {farmer.full_name
-                  .split(' ')
-                  .filter(Boolean)
-                  .map((part) => part[0])
-                  .join('')
-                  .slice(0, 2)
-                  .toUpperCase()}
+                {getInitials(farmer.full_name)}
               </span>
             </span>
             <div>
@@ -77,12 +60,12 @@ export default function FarmerDetail({ farmer }: { farmer: Farmer }) {
           <div className="flex items-center gap-3">
             <span
               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium ${
-                statusClasses[farmer.status] ??
+                FARMER_STATUS_CLASSES[farmer.status] ??
                 'bg-[#f1eed8] text-[#756b32]'
               }`}
             >
               <CheckIcon className="size-3.5" />
-              {statusLabels[farmer.status] ?? farmer.status}
+              {FARMER_STATUS_LABELS[farmer.status] ?? farmer.status}
             </span>
             <Link
               to={`/agent/farmers/${farmer.id}/edit`}
@@ -105,7 +88,7 @@ export default function FarmerDetail({ farmer }: { farmer: Farmer }) {
             />
             <DetailRow
               label="Gender"
-              value={farmer.gender ? genderLabels[farmer.gender] : 'Not provided'}
+              value={farmer.gender ? GENDER_LABELS[farmer.gender] : 'Not provided'}
             />
             <DetailRow
               label="Primary crop"

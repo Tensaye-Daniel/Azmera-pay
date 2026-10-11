@@ -1,21 +1,13 @@
 import { Link } from 'react-router-dom'
 import { PhoneIcon } from '../../ui/icons'
 import type { Farmer } from '../../../types/farmer'
+import {
+  FARMER_STATUS_CLASSES,
+  FARMER_STATUS_LABELS,
+} from '../../../utils/farmer'
 
 interface FarmerListProps {
   farmers: Farmer[]
-}
-
-const statusLabels: Record<Farmer['status'], string> = {
-  registered: 'Registered',
-  pending: 'Pending verification',
-  unverified: 'Unverified',
-}
-
-const statusClasses: Record<Farmer['status'], string> = {
-  registered: 'bg-mint/60 text-forest-deeper',
-  pending: 'bg-[#fdf2d4] text-[#8a6d1b]',
-  unverified: 'bg-[#f1eed8] text-[#756b32]',
 }
 
 export default function FarmerList({ farmers }: FarmerListProps) {

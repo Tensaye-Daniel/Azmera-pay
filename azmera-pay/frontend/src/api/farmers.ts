@@ -1,5 +1,6 @@
 import { client } from './client'
 import type {
+  AgentSummary,
   Farmer,
   FarmerRegistrationInput,
   Paginated,
@@ -8,6 +9,13 @@ import type {
 export async function listFarmers(): Promise<Paginated<Farmer>> {
   const { data } = await client.get<Paginated<Farmer>>(
   '/dashboard/agent/farmers',
+  )
+  return data
+}
+
+export async function getAgentSummary(): Promise<AgentSummary> {
+  const { data } = await client.get<AgentSummary>(
+    '/dashboard/agent/farmers/summary',
   )
   return data
 }

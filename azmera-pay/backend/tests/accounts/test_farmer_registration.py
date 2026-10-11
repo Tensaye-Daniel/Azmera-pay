@@ -2,7 +2,7 @@
 import pytest
 
 from apps.accounts.models import Role
-from apps.profiles.models import FarmerProfile
+from apps.profiles.models import FarmerProfile, FarmerStatus
 
 from tests.factories.accounts import create_web_user
 from tests.factories.profiles import FarmerProfileFactory
@@ -139,6 +139,20 @@ def test_non_agent_cannot_access_agent_dashboard(api_client):
     resp = api_client.get("/api/v1/dashboard/agent/farmers")
 
     assert resp.status_code == 403
+
+
+def test_agent_summary_counts_and_recent(agent_client, agent):
+    FarmerProfileFactory(registered_by=agent, status=FarmerStatus.REGISTERED)
+    FarmerProfileFactory(registered_by=agent, status=FarmerStatus.PENDING)
+    FarmerProfileFactory(registered_by=agent, status=FarmerStatus.PENDING)
+    FarmerProfileFactory()  # another agent's farmer - excluded from the summary
+
+    resp = agent_client.get("/api/v1/dashboard/agent/farmers/summary")
+
+    assert resp.status_code == 200
+    assert resp.data["total"] == 3
+    assert resp.data["by_status"] == {"registered": 1, "pending": 2, "unverified": 0}
+    assert len(resp.data["recent"]) == 3
 
 
 def test_agent_can_update_a_farmer(agent_client, agent):

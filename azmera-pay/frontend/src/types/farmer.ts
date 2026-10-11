@@ -47,3 +47,9 @@ export interface Paginated<T> {
   previous: string | null
   results: T[]
 }
+
+export interface AgentSummary {
+  total: number
+  by_status: Record<FarmerStatus, number>
+  recent: Farmer[]
+}

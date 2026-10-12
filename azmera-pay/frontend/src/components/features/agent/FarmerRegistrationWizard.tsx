@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { registerFarmer } from '../../../api/farmers'
 import {
   ETHIOPIAN_REGIONS,
@@ -14,12 +14,19 @@ import type {
 import { normalizeApiError } from '../../../utils/apiError'
 import Button from '../../ui/Button'
 import Field from '../../ui/Field'
+import FileUpload from '../../ui/FileUpload'
 import Notice from '../../ui/Notice'
 import ProgressSteps from '../../ui/ProgressSteps'
 import Select from '../../ui/Select'
 import TextInput from '../../ui/TextInput'
 import Textarea from '../../ui/Textarea'
-import { LocateIcon, PhoneIcon, SproutIcon, UsersIcon } from '../../ui/icons'
+import {
+  CheckCircleIcon,
+  DocumentIcon,
+  PhoneIcon,
+  SproutIcon,
+  UsersIcon,
+} from '../../ui/icons'
 
 interface FarmerRegistrationWizardProps {
   onSuccess: (farmer: Farmer) => void
@@ -55,6 +62,38 @@ const EMPTY_FORM: FormState = {
   land_ownership_notes: '',
 }
 
+type DocumentKey = 'farmer_id' | 'field_photo' | 'farming_proof'
+
+type Documents = Record<DocumentKey, File | null>
+
+const EMPTY_DOCUMENTS: Documents = {
+  farmer_id: null,
+  field_photo: null,
+  farming_proof: null,
+}
+
+const DOCUMENT_FIELDS: {
+  key: DocumentKey
+  label: string
+  hint: string
+}[] = [
+  {
+    key: 'farmer_id',
+    label: 'Farmer ID',
+    hint: 'National ID, Fayda card, or kebele ID.',
+  },
+  {
+    key: 'field_photo',
+    label: 'Farm field photo',
+    hint: 'A photo of the farm or main plot.',
+  },
+  {
+    key: 'farming_proof',
+    label: 'Proof of farming',
+    hint: 'Land certificate, lease, or cooperative letter.',
+  },
+]
+
 interface Step {
   title: string
   heading: string
@@ -85,11 +124,18 @@ const STEPS: (Step & { icon: typeof UsersIcon })[] = [
     icon: SproutIcon,
   },
   {
+    title: 'Documents',
+    heading: 'Supporting documents',
+    description: 'Attach the farmer\u2019s identity and farming evidence.',
+    fields: [],
+    icon: DocumentIcon,
+  },
+  {
     title: 'Review',
     heading: 'Review & submit',
     description: 'Confirm the details before submitting for verification.',
     fields: [],
-    icon: LocateIcon,
+    icon: CheckCircleIcon,
   },
 ]
 
@@ -127,6 +173,7 @@ export default function FarmerRegistrationWizard({
   const [errors, setErrors] = useState<FieldErrors>({})
   const [generalError, setGeneralError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [documents, setDocuments] = useState<Documents>(EMPTY_DOCUMENTS)
 
   const update = (key: keyof FormState) => (value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -137,6 +184,14 @@ export default function FarmerRegistrationWizard({
       return next
     })
   }
+
+  const setDocument = (key: DocumentKey) => (file: File | null) => {
+    setDocuments((prev) => ({ ...prev, [key]: file }))
+  }
+
+  const attachedCount = DOCUMENT_FIELDS.filter(
+    ({ key }) => documents[key] !== null,
+  ).length
 
   const validateStep = (index: number): FieldErrors => {
     const next: FieldErrors = {}
@@ -438,6 +493,32 @@ export default function FarmerRegistrationWizard({
           </div>
         )}
 
+        {step === 2 && (
+          <div className="space-y-5">
+            <Notice variant="info">
+              Attach clear copies now so the verification team can review the
+              farmer. Document storage is not wired to the farmer profile yet —
+              originals may still be requested later.
+            </Notice>
+
+            <div className="grid gap-5 sm:grid-cols-2">
+              {DOCUMENT_FIELDS.map((doc) => (
+                <Field key={doc.key} id={doc.key} label={doc.label}>
+                  <FileUpload
+                    file={documents[doc.key]}
+                    onChange={setDocument(doc.key)}
+                    hint={doc.hint}
+                  />
+                </Field>
+              ))}
+            </div>
+
+            <p className="text-xs text-stone">
+              {attachedCount} of {DOCUMENT_FIELDS.length} attachments added.
+            </p>
+          </div>
+        )}
+
         {isReview && (
           <div className="space-y-4">
             <ReviewSection title="Farmer details">
@@ -483,6 +564,16 @@ export default function FarmerRegistrationWizard({
                   )?.label ?? '—'
                 }
               />
+            </ReviewSection>
+
+            <ReviewSection title="Supporting documents">
+              {DOCUMENT_FIELDS.map((doc) => (
+                <ReviewItem
+                  key={doc.key}
+                  label={doc.label}
+                  value={documents[doc.key]?.name ?? 'Not attached'}
+                />
+              ))}
             </ReviewSection>
 
             <p className="text-xs leading-5 text-stone">

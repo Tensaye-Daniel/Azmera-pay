@@ -7,6 +7,7 @@ import {
   SproutIcon,
   SettingsIcon,
 } from '../components/ui/icons'
+import AgentFooter from '../components/layout/AgentFooter'
 import { useAuthStore } from '../store/auth'
 
 function OverviewIcon(props: SVGProps<SVGSVGElement>) {
@@ -276,12 +277,16 @@ export default function AgentLayout() {
           </div>
         </aside>
 
-        <main
-          id="agent-main"
-          className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
-        >
-          <Outlet />
-        </main>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <main
+            id="agent-main"
+            className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
+          >
+            <Outlet />
+          </main>
+
+          <AgentFooter />
+        </div>
       </div>
     </div>
   )

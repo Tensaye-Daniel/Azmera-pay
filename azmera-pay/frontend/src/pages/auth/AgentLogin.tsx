@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { fetchMe, login } from '../../api/auth'
 import AgentSignupFooter from '../../components/features/agent/AgentSignupFooter'
 import AgentSignupHero from '../../components/features/agent/AgentSignupHero'
+import ScrollToTop from '../../components/layout/ScrollToTop'
 import Button from '../../components/ui/Button'
 import Field from '../../components/ui/Field'
 import Notice from '../../components/ui/Notice'
@@ -91,6 +92,7 @@ export default function AgentLogin() {
 
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden bg-white lg:grid lg:grid-cols-[42%_1fr]">
+      <ScrollToTop />
       <AgentSignupHero
         showOnMobile
         headline="Welcome Back to Azmera"
@@ -98,8 +100,15 @@ export default function AgentLogin() {
       />
 
       <div className="flex flex-1 flex-col lg:min-h-screen">
-        <main className="flex flex-1 items-center justify-center px-4 py-10 sm:px-6 lg:px-10">
-          <div className="w-full max-w-xl">
+        <main className="relative flex flex-1 items-center justify-center px-4 py-10 sm:px-6 lg:px-10">
+          <div
+            className="pointer-events-none absolute inset-0 overflow-hidden"
+            aria-hidden="true"
+          >
+            <div className="bg-ethiopian-pattern absolute inset-0 opacity-[0.12]" />
+            <span className="absolute -top-16 right-[-4rem] size-72 rounded-full bg-mint blur-3xl" />
+          </div>
+          <div className="relative w-full max-w-xl">
             <div className="rounded-3xl border border-forest/10 bg-white p-6 shadow-[0_18px_50px_rgba(22,95,48,0.10)] sm:p-8">
               <header className="mb-6">
                 <h2 className="font-serif text-2xl font-semibold text-forest-deeper">

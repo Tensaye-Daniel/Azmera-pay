@@ -153,7 +153,13 @@ export default function AgentLayout() {
       .sort((a, b) => b.to.length - a.to.length)[0]?.label ?? 'Agent'
 
   return (
-    <div className="min-h-screen bg-[#f7faf6] text-stone-dark">
+    <div className="relative min-h-screen bg-[#f7faf6] text-stone-dark">
+      <div className="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
+        <div className="bg-ethiopian-pattern absolute inset-0 opacity-[0.15]" />
+        <span className="absolute -top-24 right-[-6rem] size-80 rounded-full bg-mint blur-3xl" />
+        <span className="absolute bottom-[-6rem] left-[10%] size-72 rounded-full bg-mint/70 blur-3xl" />
+      </div>
+
       <a
         href="#agent-main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-forest focus:px-5 focus:py-3 focus:font-semibold focus:text-white"
@@ -226,7 +232,7 @@ export default function AgentLayout() {
         </div>
       </header>
 
-      <div className="mx-auto flex max-w-[1600px]">
+      <div className="relative z-10 mx-auto flex max-w-[1600px]">
         <aside className="sticky top-[68px] hidden h-[calc(100vh-68px)] w-[208px] shrink-0 flex-col border-r border-forest/10 bg-white px-3 py-6 lg:flex">
           <p className="mb-3 px-3 text-xs font-semibold tracking-wide text-stone/75">
             Agent workspace

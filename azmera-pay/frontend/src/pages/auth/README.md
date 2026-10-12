@@ -1,1 +1,4 @@
-﻿# Create-account + login flows per role (buyer, agent, supplier, farmer) - registration form then their dashboard
+﻿# Auth pages
+
+- `AgentLogin.tsx` - phone/password sign in
+- `AgentSignup.tsx` - two-column agent sign-up (hero + 4-step wizard), route `/register`

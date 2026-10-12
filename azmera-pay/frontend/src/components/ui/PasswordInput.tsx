@@ -1,17 +1,23 @@
-import { useState, type InputHTMLAttributes } from 'react'
+import { useState, type InputHTMLAttributes, type ReactNode } from 'react'
 import { EyeIcon, EyeOffIcon } from './icons'
 import TextInput from './TextInput'
 
+interface PasswordInputProps extends InputHTMLAttributes<HTMLInputElement> {
+  leadingIcon?: ReactNode
+}
+
 export default function PasswordInput({
   autoComplete = 'new-password',
+  leadingIcon,
   ...props
-}: InputHTMLAttributes<HTMLInputElement>) {
+}: PasswordInputProps) {
   const [visible, setVisible] = useState(false)
 
   return (
     <TextInput
       {...props}
       autoComplete={autoComplete}
+      leadingIcon={leadingIcon}
       type={visible ? 'text' : 'password'}
       trailing={
         <button

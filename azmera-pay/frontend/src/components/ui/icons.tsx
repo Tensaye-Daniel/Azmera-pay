@@ -399,3 +399,21 @@ export function FaydaIcon(props: IconProps) {
     </svg>
   )
 }
+
+export function ChevronDownIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  )
+}
+
+export function LogOutIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M15 4h2.5A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5H15" />
+      <path d="M10 8l-4 4 4 4" />
+      <path d="M6 12h10" />
+    </svg>
+  )
+}

@@ -17,12 +17,12 @@ export default function AgentSignup() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col overflow-x-hidden bg-gradient-to-br from-mint/40 via-white to-mint/25">
-      <main className="flex flex-1 items-center justify-center">
-        <div className="mx-auto grid w-full max-w-7xl items-start gap-10 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:items-stretch lg:gap-14 lg:px-8 lg:py-14">
-          <AgentSignupHero />
+    <div className="flex min-h-screen flex-col overflow-x-hidden bg-white lg:grid lg:grid-cols-[42%_1fr]">
+      <AgentSignupHero />
 
-          <div className="mx-auto w-full max-w-xl lg:self-center">
+      <div className="flex flex-1 flex-col lg:min-h-screen">
+        <main className="flex flex-1 items-center justify-center px-4 py-10 sm:px-6 lg:px-10">
+          <div className="w-full max-w-xl">
             {result ? (
               <AgentSignupSuccess
                 result={result}
@@ -32,10 +32,10 @@ export default function AgentSignup() {
               <AgentSignupWizard onSuccess={setResult} />
             )}
           </div>
-        </div>
-      </main>
+        </main>
 
-      <AgentSignupFooter />
+        <AgentSignupFooter />
+      </div>
     </div>
   )
 }

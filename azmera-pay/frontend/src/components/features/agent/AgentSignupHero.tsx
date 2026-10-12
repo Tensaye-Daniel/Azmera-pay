@@ -24,7 +24,7 @@ const BENEFITS: {
 
 export default function AgentSignupHero() {
   return (
-    <section className="relative flex h-full min-h-[560px] flex-col overflow-hidden rounded-3xl border border-white/60 shadow-[0_18px_50px_rgba(22,95,48,0.18)]">
+    <section className="relative hidden flex-col overflow-hidden bg-forest-deeper lg:flex lg:h-full lg:min-h-screen">
       <img
         src="/images/agentPic.jpg"
         alt="Azmera field agent in branded clothing using a smartphone"
@@ -32,11 +32,11 @@ export default function AgentSignupHero() {
       />
 
       <div
-        className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/95 via-white/70 to-transparent"
+        className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/95 via-white/65 to-transparent"
         aria-hidden="true"
       />
 
-      <div className="relative z-10 flex flex-1 flex-col p-7 pb-44 sm:p-9 sm:pb-40">
+      <div className="relative z-10 flex flex-1 flex-col p-7 pb-44 sm:p-10 sm:pb-44">
         <div className="flex flex-wrap items-center gap-3">
           <span className="inline-flex items-center rounded-2xl bg-white px-3 py-2 shadow-sm ring-1 ring-forest/10">
             <img

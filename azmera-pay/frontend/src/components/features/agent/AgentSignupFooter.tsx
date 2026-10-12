@@ -1,5 +1,3 @@
-import { Link } from 'react-router-dom'
-
 export default function AgentSignupFooter() {
   return (
     <footer className="border-t border-forest/10 bg-white/80 backdrop-blur">
@@ -16,12 +14,6 @@ export default function AgentSignupFooter() {
           aria-label="Footer"
           className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2"
         >
-          <Link
-            to="/login"
-            className="text-xs font-medium text-stone transition-colors hover:text-forest-deeper"
-          >
-            Agent log in
-          </Link>
           <a
             href="#terms"
             className="text-xs font-medium text-stone transition-colors hover:text-forest-deeper"

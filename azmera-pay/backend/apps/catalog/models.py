@@ -1,6 +1,9 @@
-﻿# Category, Product, Unit, Availability
+﻿# Category, Products(inputs and crops) and measurement Unit
 
 from django.db import models
+from decimal import Decimal
+from django.core.validators import MinValueValidator
+from django.conf import settings
 
 from apps.common.models import TimeStampedModel, UUIDModel
 
@@ -43,3 +46,47 @@ class Unit(UUIDModel, TimeStampedModel):
 
     def __str__(self):
         return f"{self.name} ({self.code})"
+
+class AvailabilityStatus(models.TextChoices):
+    ACTIVE = "active","Active"
+    PAUSED = "paused","Paused"
+    EXPIRED = "expired","Expired"
+
+class SupplierListing(UUIDModel, TimeStampedModel):
+    supplier = models.ForeignKey(
+      settings.AUTH_USER_MODEL,
+      on_delete = models.PROTECT,
+      related_name="listings",
+    )
+    product = models.ForeignKey(Product, on_delete=models.PROTECT,related_name="listings")
+    available_quantity = models.DecimalField(
+      max_digits=12,
+      decimal_places=2,
+      validators=[MinValueValidator(Decimal("0.01"))],
+    )
+    unit=models.ForeignKey(Unit, on_delete=models.PROTECT, related_name="listings")
+    unit_price=models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.01"))],
+    )
+    region = models.CharField(max_length=100)
+    woreda = models.CharField(max_length=100)
+    availability_status = models.CharField(
+        max_length=10,
+        choices=AvailabilityStatus.choices,
+        default=AvailabilityStatus.ACTIVE,
+    )
+    notes = models.TextField(blank=True)
+
+    class Meta:
+        ordering=["-created_at"]
+        constraints = [
+            models.CheckConstraint(
+                condition = models.Q(available_quantity__gt=0),
+                name="listing_available_quantity_gt_zero",
+            )
+        ]
+    def __str__(self):
+      return f"{self.product} ({self.availability_status})"
+   

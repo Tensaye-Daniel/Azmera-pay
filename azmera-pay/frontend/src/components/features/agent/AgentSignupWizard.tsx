@@ -23,6 +23,7 @@ import {
   BriefcaseIcon,
   CalendarIcon,
   CheckIcon,
+  FaydaIcon,
   HashIcon,
   LocateIcon,
   LockIcon,
@@ -198,6 +199,7 @@ export default function AgentSignupWizard({ onSuccess }: AgentSignupWizardProps)
   const [submitting, setSubmitting] = useState(false)
   const [termsOpen, setTermsOpen] = useState(false)
   const [privacyOpen, setPrivacyOpen] = useState(false)
+  const [faydaNotice, setFaydaNotice] = useState(false)
 
   const update = <K extends keyof AgentRegistrationFormData>(
     key: K,
@@ -274,6 +276,32 @@ export default function AgentSignupWizard({ onSuccess }: AgentSignupWizardProps)
           Join the Azmera team and start making an impact.
         </p>
       </header>
+
+      <Button
+        variant="secondary"
+        fullWidth
+        icon={<FaydaIcon className="size-5" />}
+        onClick={() => setFaydaNotice((value) => !value)}
+      >
+        Continue with Fayda
+      </Button>
+
+      {faydaNotice && (
+        <Notice variant="info" className="mt-3">
+          Continue with Fayda is not connected yet. Fayda (Ethiopia's national
+          digital ID) authentication is not configured in this environment, so
+          no account is created through this button. Please complete the form
+          below.
+        </Notice>
+      )}
+
+      <div className="my-6 flex items-center gap-3" aria-hidden="true">
+        <span className="h-px flex-1 bg-forest/15" />
+        <span className="text-xs font-medium uppercase tracking-wide text-stone">
+          or sign up with your details
+        </span>
+        <span className="h-px flex-1 bg-forest/15" />
+      </div>
 
       <ProgressSteps
         steps={STEP_TITLES}

@@ -25,14 +25,18 @@ const BENEFITS: {
 interface AgentSignupHeroProps {
   headline?: string
   description?: string
+  showOnMobile?: boolean
 }
 
 export default function AgentSignupHero({
   headline = 'Empowering Agriculture, Together',
   description = 'Join Azmera as a field agent and help connect Ethiopian farmers with better agricultural opportunities.',
+  showOnMobile = false,
 }: AgentSignupHeroProps) {
   return (
-    <section className="relative hidden flex-col overflow-hidden bg-forest-deeper lg:flex lg:h-full lg:min-h-screen">
+    <section
+      className={`relative ${showOnMobile ? 'flex min-h-[34rem]' : 'hidden'} flex-col overflow-hidden bg-forest-deeper lg:flex lg:h-full lg:min-h-screen`}
+    >
       <img
         src="/images/agentPic.jpg"
         alt="Azmera field agent in branded clothing using a smartphone"

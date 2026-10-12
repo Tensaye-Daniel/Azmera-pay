@@ -14,7 +14,7 @@ export default function Textarea({
       {...props}
       id={field?.id ?? props.id}
       aria-invalid={invalid || undefined}
-      aria-describedby={field?.invalid ? field.errorId : props['aria-describedby']}
+      aria-describedby={field?.describedBy ?? props['aria-describedby']}
       className={controlClasses(invalid, `min-h-24 resize-y ${className}`)}
     />
   )

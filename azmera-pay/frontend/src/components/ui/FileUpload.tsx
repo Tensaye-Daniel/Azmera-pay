@@ -98,6 +98,7 @@ export default function FileUpload({
         accept={accept}
         disabled={disabled}
         aria-invalid={invalid || undefined}
+        aria-describedby={field?.describedBy}
         onChange={(event) => onChange(event.target.files?.[0] ?? null)}
         className="sr-only"
       />

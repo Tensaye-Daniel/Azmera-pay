@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { AxiosError } from 'axios'
 import { submitAgentRegistration } from '../../../api/agentRegistration'
 import { ETHIOPIAN_REGIONS, GENDER_OPTIONS, ID_TYPE_OPTIONS } from '../../../data/reference'
@@ -724,12 +725,12 @@ export default function AgentSignupWizard({ onSuccess }: AgentSignupWizardProps)
       {!isLastStep && (
         <p className="mt-4 text-center text-sm text-stone">
           Already have an account?{' '}
-          <a
-            href="/login"
+          <Link
+            to="/login"
             className="font-semibold text-forest underline-offset-2 hover:underline"
           >
             Log in
-          </a>
+          </Link>
         </p>
       )}
 

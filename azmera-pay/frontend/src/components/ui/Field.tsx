@@ -22,10 +22,11 @@ export default function Field({
 }: FieldProps) {
   const errorId = `${id}-error`
   const hintId = `${id}-hint`
+  const describedBy = error ? errorId : hint ? hintId : undefined
 
   return (
     <FieldContext.Provider
-      value={{ id, errorId, hintId, invalid: Boolean(error) }}
+      value={{ id, errorId, hintId, describedBy, invalid: Boolean(error) }}
     >
       <div className={className}>
         <label

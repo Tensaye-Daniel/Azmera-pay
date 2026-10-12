@@ -4,6 +4,7 @@ export interface FieldContextValue {
   id: string
   errorId: string
   hintId: string
+  describedBy?: string
   invalid: boolean
 }
 

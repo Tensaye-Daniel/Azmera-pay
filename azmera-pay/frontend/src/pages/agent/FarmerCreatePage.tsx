@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import FarmerRegistrationWizard from '../../components/features/agent/FarmerRegistrationWizard'
+import Button from '../../components/ui/Button'
 import { CheckIcon } from '../../components/ui/icons'
 import type { Farmer } from '../../types/farmer'
 
@@ -23,7 +24,7 @@ export default function FarmerCreatePage() {
   if (registered) {
     return (
       <div className="mx-auto max-w-2xl">
-        <div className="rounded-2xl border border-forest/10 bg-white p-6 text-center shadow-[0_4px_20px_rgba(22,95,48,0.04)] sm:p-8">
+        <div className="rounded-3xl border border-forest/10 bg-white p-6 text-center shadow-[0_18px_50px_rgba(22,95,48,0.08)] sm:p-8">
           <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-mint/60 text-forest-deeper">
             <CheckIcon className="size-7" />
           </span>
@@ -47,41 +48,33 @@ export default function FarmerCreatePage() {
               inputs over USSD.
             </p>
 
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              className="mt-4"
               onClick={copyAccountNumber}
-              className="mt-4 rounded-xl border border-forest/20 px-4 py-2 text-sm font-semibold text-forest-deeper transition-colors hover:bg-mint/30"
             >
               {copied ? 'Copied!' : 'Copy number'}
-            </button>
+            </Button>
           </div>
 
-          <dl className="mx-auto mt-6 max-w-sm space-y-2 text-left text-sm">
-            <div className="flex items-center justify-between gap-4">
+          <dl className="mx-auto mt-6 max-w-sm divide-y divide-forest/5 text-left text-sm">
+            <div className="flex items-center justify-between gap-4 py-2.5">
               <dt className="text-stone">Phone</dt>
               <dd className="font-medium text-stone-dark">{registered.phone}</dd>
             </div>
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center justify-between gap-4 py-2.5">
               <dt className="text-stone">Status</dt>
               <dd className="font-medium text-[#8a6d1b]">Pending verification</dd>
             </div>
           </dl>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <button
-              type="button"
-              onClick={() => navigate(`/agent/farmers/${registered.id}`)}
-              className="rounded-xl bg-forest px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-forest-deeper"
-            >
+            <Button onClick={() => navigate(`/agent/farmers/${registered.id}`)}>
               View farmer details
-            </button>
-            <button
-              type="button"
-              onClick={() => setRegistered(null)}
-              className="rounded-xl border border-forest/20 px-5 py-2.5 text-sm font-semibold text-forest-deeper transition-colors hover:bg-mint/30"
-            >
+            </Button>
+            <Button variant="secondary" onClick={() => setRegistered(null)}>
               Register another farmer
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -89,15 +82,24 @@ export default function FarmerCreatePage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
-      <div>
-        <h1 className="font-serif text-2xl font-semibold text-forest-deeper">
-          Register a farmer
-        </h1>
-        <p className="mt-1 text-sm text-stone">
-          Complete the four steps to submit the farmer for verification. The
-          farmer gets an Azmera account number to order inputs over USSD.
-        </p>
+    <div className="mx-auto max-w-3xl space-y-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-serif text-2xl font-semibold text-forest-deeper">
+            Register a farmer
+          </h1>
+          <p className="mt-1 text-sm text-stone">
+            Add a farmer to your workspace. They receive an Azmera account
+            number to order inputs over USSD.
+          </p>
+        </div>
+
+        <Link
+          to="/agent/farmers"
+          className="text-sm font-semibold text-forest transition-colors hover:text-forest-dark"
+        >
+          View my farmers
+        </Link>
       </div>
 
       <FarmerRegistrationWizard onSuccess={setRegistered} />

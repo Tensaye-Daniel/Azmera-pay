@@ -64,12 +64,6 @@ export default function Navbar() {
         </ul>
 
         <div className="flex items-center gap-3">
-          <a
-            href="#"
-            className="hidden rounded-full border border-forest/30 px-5 py-2.5 text-sm font-semibold text-forest-dark transition-all duration-300 hover:border-forest hover:bg-forest hover:text-snow sm:inline-flex"
-          >
-            Log in
-          </a>
           <button
             type="button"
             onClick={() => setOpen(!open)}
@@ -120,13 +114,6 @@ export default function Navbar() {
               </li>
             ))}
           </ul>
-          <a
-            href="#"
-            onClick={close}
-            className="mt-10 inline-flex w-full items-center justify-center rounded-full bg-gold px-8 py-4 text-sm font-semibold text-forest-deeper transition-colors hover:bg-snow"
-          >
-            Log in
-          </a>
         </nav>
       </div>
     </header>

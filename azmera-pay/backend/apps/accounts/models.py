@@ -4,6 +4,8 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
+from apps.common.utils import normalize_phone
+
 
 class Role(models.TextChoices):
     AGENT = "agent", "Agent"
@@ -37,6 +39,19 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("role", Role.ADMIN)
         return self._create_user(phone, password, **extra_fields)
+
+    def get_by_natural_key(self, username):
+        """Match the login identifier regardless of phone format.
+
+        Registration stores phones in E.164 form ('+251912345678'), but users may
+        sign in by typing '0912345678' or '251912345678'. Normalize before lookup
+        so every auth path (web, admin, USSD) accepts the same number.
+        """
+        try:
+            username = normalize_phone(username)
+        except ValueError:
+            pass
+        return self.get(**{self.model.USERNAME_FIELD: username})
 
 
 class User(AbstractBaseUser, PermissionsMixin):

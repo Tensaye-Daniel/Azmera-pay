@@ -1,12 +1,15 @@
-import { useEffect, useState, type SVGProps } from 'react'
+import { useEffect, useRef, useState, type SVGProps } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
+  ChevronDownIcon,
   CloseIcon,
+  LogOutIcon,
   MenuIcon,
   UsersIcon,
   SproutIcon,
   SettingsIcon,
 } from '../components/ui/icons'
+import AgentFooter from '../components/layout/AgentFooter'
 import { useAuthStore } from '../store/auth'
 
 function OverviewIcon(props: SVGProps<SVGSVGElement>) {
@@ -110,6 +113,82 @@ function RegisterCard() {
   )
 }
 
+function AccountMenu({
+  name,
+  onSignOut,
+}: {
+  name: string
+  onSignOut: () => void
+}) {
+  const [open, setOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return undefined
+
+    const onPointerDown = (event: MouseEvent) => {
+      if (!containerRef.current?.contains(event.target as Node)) {
+        setOpen(false)
+      }
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false)
+    }
+
+    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [open])
+
+  return (
+    <div ref={containerRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className={`flex items-center gap-2 rounded-full border border-forest/10 bg-[#f7faf6] py-1 pl-1 pr-2 transition-colors hover:bg-mint/40 ${focusRing}`}
+      >
+        <span
+          className="grid size-8 shrink-0 place-items-center rounded-full bg-mint/60 text-xs font-semibold text-forest-deeper"
+          aria-hidden="true"
+        >
+          {getInitials(name)}
+        </span>
+        <ChevronDownIcon
+          className={`size-4 text-stone transition-transform ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-2xl border border-forest/10 bg-white shadow-[0_18px_45px_rgba(22,95,48,0.15)]"
+        >
+          <div className="border-b border-forest/5 px-4 py-3">
+            <p className="truncate text-sm font-semibold text-forest-deeper">
+              {name}
+            </p>
+            <p className="text-xs text-stone">Agent</p>
+          </div>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={onSignOut}
+            className={`flex w-full items-center gap-2.5 px-4 py-3 text-sm font-medium text-stone-dark transition-colors hover:bg-mint/30 hover:text-forest-deeper ${focusRing}`}
+          >
+            <LogOutIcon className="size-4" />
+            Sign out
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function AgentLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [lastPathname, setLastPathname] = useState<string | null>(null)
@@ -153,7 +232,13 @@ export default function AgentLayout() {
       .sort((a, b) => b.to.length - a.to.length)[0]?.label ?? 'Agent'
 
   return (
-    <div className="min-h-screen bg-[#f7faf6] text-stone-dark">
+    <div className="relative min-h-screen bg-[#f7faf6] text-stone-dark">
+      <div className="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
+        <div className="bg-ethiopian-pattern absolute inset-0 opacity-[0.15]" />
+        <span className="absolute -top-24 right-[-6rem] size-80 rounded-full bg-mint blur-3xl" />
+        <span className="absolute bottom-[-6rem] left-[10%] size-72 rounded-full bg-mint/70 blur-3xl" />
+      </div>
+
       <a
         href="#agent-main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-forest focus:px-5 focus:py-3 focus:font-semibold focus:text-white"
@@ -199,34 +284,14 @@ export default function AgentLayout() {
             </div>
           </div>
 
-          <div className="flex min-w-0 items-center gap-2.5 rounded-full border border-forest/10 bg-[#f7faf6] py-1 pl-1 pr-1 sm:pl-4 sm:pr-1">
-            <div className="hidden min-w-0 text-right sm:block">
-              <p className="text-sm font-semibold leading-5 text-forest-deeper">
-                {user?.full_name}
-              </p>
-              <p className="text-xs leading-4 text-stone">Agent</p>
-            </div>
-
-            <div
-              role="img"
-              aria-label={user?.full_name ?? 'Agent'}
-              className="grid size-9 shrink-0 place-items-center rounded-full bg-mint/60 text-sm font-semibold text-forest-deeper ring-2 ring-white"
-            >
-              {getInitials(user?.full_name ?? 'Agent')}
-            </div>
-
-            <button
-              type="button"
-              onClick={handleLogout}
-              className={`rounded-full px-3 py-1.5 text-xs font-semibold text-stone transition-colors hover:bg-mint/40 hover:text-forest-deeper ${focusRing}`}
-            >
-              Sign out
-            </button>
-          </div>
+          <AccountMenu
+            name={user?.full_name ?? 'Agent'}
+            onSignOut={handleLogout}
+          />
         </div>
       </header>
 
-      <div className="mx-auto flex max-w-[1600px]">
+      <div className="relative z-10 mx-auto flex max-w-[1600px]">
         <aside className="sticky top-[68px] hidden h-[calc(100vh-68px)] w-[208px] shrink-0 flex-col border-r border-forest/10 bg-white px-3 py-6 lg:flex">
           <p className="mb-3 px-3 text-xs font-semibold tracking-wide text-stone/75">
             Agent workspace
@@ -270,12 +335,16 @@ export default function AgentLayout() {
           </div>
         </aside>
 
-        <main
-          id="agent-main"
-          className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
-        >
-          <Outlet />
-        </main>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <main
+            id="agent-main"
+            className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
+          >
+            <Outlet />
+          </main>
+
+          <AgentFooter />
+        </div>
       </div>
     </div>
   )

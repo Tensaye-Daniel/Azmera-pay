@@ -386,3 +386,16 @@ export function SpinnerIcon(props: IconProps) {
     </svg>
   )
 }
+
+export function FaydaIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M4.5 12a7.5 7.5 0 0 1 15 0v1.6" />
+      <path d="M7.6 12.2a4.4 4.4 0 0 1 8.8 0v2.6" />
+      <path d="M10.6 12.4a1.4 1.4 0 0 1 2.8 0V16a1 1 0 0 0 1 1" />
+      <path d="M4.9 15.1A7.5 7.5 0 0 0 7.1 19.3" />
+      <path d="M12 19.5a7.6 7.6 0 0 0 3.5-.85" />
+      <path d="M10 18.7A4.4 4.4 0 0 1 9.1 16" />
+    </svg>
+  )
+}

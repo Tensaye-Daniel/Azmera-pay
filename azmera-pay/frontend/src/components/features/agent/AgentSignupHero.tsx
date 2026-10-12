@@ -22,7 +22,15 @@ const BENEFITS: {
   },
 ]
 
-export default function AgentSignupHero() {
+interface AgentSignupHeroProps {
+  headline?: string
+  description?: string
+}
+
+export default function AgentSignupHero({
+  headline = 'Empowering Agriculture, Together',
+  description = 'Join Azmera as a field agent and help connect Ethiopian farmers with better agricultural opportunities.',
+}: AgentSignupHeroProps) {
   return (
     <section className="relative hidden flex-col overflow-hidden bg-forest-deeper lg:flex lg:h-full lg:min-h-screen">
       <img
@@ -52,12 +60,9 @@ export default function AgentSignupHero() {
 
         <div className="mt-6 max-w-md space-y-3">
           <h1 className="font-serif text-3xl font-semibold leading-tight text-forest-deeper sm:text-4xl">
-            Empowering Agriculture, Together
+            {headline}
           </h1>
-          <p className="text-sm leading-6 text-stone-dark">
-            Join Azmera as a field agent and help connect Ethiopian farmers with
-            better agricultural opportunities.
-          </p>
+          <p className="text-sm leading-6 text-stone-dark">{description}</p>
         </div>
       </div>
 

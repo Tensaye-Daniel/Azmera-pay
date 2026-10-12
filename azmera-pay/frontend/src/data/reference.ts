@@ -26,3 +26,11 @@ export const GENDER_OPTIONS = [
   { value: 'male', label: 'Male' },
   { value: 'female', label: 'Female' },
 ] as const
+
+// Identity document types accepted for agent verification.
+export const ID_TYPE_OPTIONS = [
+  { value: 'national_id', label: 'National ID (Fayda)' },
+  { value: 'kebele_id', label: 'Kebele ID' },
+  { value: 'passport', label: 'Passport' },
+  { value: 'drivers_license', label: 'Driver License' },
+] as const

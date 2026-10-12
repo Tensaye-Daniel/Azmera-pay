@@ -34,6 +34,19 @@ def test_login_rejects_bad_credentials(api_client):
     assert resp.status_code == 401
 
 
+def test_login_accepts_phone_in_any_local_format(api_client):
+    create_web_user(phone="+251911100001", role=Role.AGENT, password="secret1234")
+
+    for phone in ("0911100001", "251911100001", "911100001"):
+        resp = api_client.post(
+            "/api/v1/auth/login",
+            {"phone": phone, "password": "secret1234"},
+            format="json",
+        )
+        assert resp.status_code == 200, phone
+        assert "access" in resp.data
+
+
 def test_me_returns_the_current_user(agent_client, agent):
     resp = agent_client.get("/api/v1/auth/me")
 

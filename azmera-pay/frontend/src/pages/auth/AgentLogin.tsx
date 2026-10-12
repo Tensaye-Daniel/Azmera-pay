@@ -25,7 +25,14 @@ interface LoginErrors {
   password?: string
 }
 
-const PHONE_PATTERN = /^(?:\+251|0)?[79]\d{8}$/
+const PHONE_DIGITS = /^\d{9,12}$/
+
+function normalizePhone(value: string): string {
+  let digits = value.replace(/\D/g, '')
+  if (digits.startsWith('0')) digits = digits.slice(1)
+  if (!digits.startsWith('251')) digits = `251${digits}`
+  return `+${digits}`
+}
 
 export default function AgentLogin() {
   const [identifier, setIdentifier] = useState('')
@@ -62,7 +69,7 @@ export default function AgentLogin() {
     } else if (value.includes('@')) {
       nextErrors.identifier =
         'Email sign-in is not available yet. Please use the phone number linked to your account.'
-    } else if (!PHONE_PATTERN.test(value.replace(/\s+/g, ''))) {
+    } else if (!PHONE_DIGITS.test(value.replace(/\D/g, ''))) {
       nextErrors.identifier =
         'Enter a valid Ethiopian number, e.g. +251912345678.'
     }
@@ -75,7 +82,7 @@ export default function AgentLogin() {
 
     setSubmitting(true)
     try {
-      const tokens = await login(value, password)
+      const tokens = await login(normalizePhone(value), password)
       setSession(tokens.access, tokens.refresh, remember)
       const me = await fetchMe()
       setUser(me)

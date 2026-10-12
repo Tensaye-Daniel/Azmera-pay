@@ -1,6 +1,5 @@
 import type { ComponentType } from 'react'
 import {
-  LeafIcon,
   NetworkIcon,
   SproutIcon,
   UserPlusIcon,
@@ -31,58 +30,57 @@ const BENEFITS: {
 
 export default function AgentSignupHero() {
   return (
-    <section className="flex h-full flex-col gap-8">
-      <div className="flex items-center gap-2.5">
-        <span className="grid size-10 place-items-center rounded-xl bg-forest text-white shadow-sm">
-          <LeafIcon className="size-6" />
+    <section className="relative flex min-h-[520px] flex-col overflow-hidden rounded-3xl border border-white/50 shadow-[0_18px_50px_rgba(22,95,48,0.18)] lg:min-h-[640px]">
+      <img
+        src="/images/agentPic.jpg"
+        alt="Azmera field agent working alongside farmers"
+        className="absolute inset-0 size-full object-cover"
+      />
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-forest-deeper/85 via-forest-deeper/45 to-forest-deeper/90"
+        aria-hidden="true"
+      />
+
+      <div className="relative flex flex-1 flex-col gap-8 p-8 text-white sm:p-10">
+        <span className="inline-flex w-fit items-center rounded-2xl bg-white/95 px-3.5 py-2 shadow-sm">
+          <img
+            src="/images/logo.png"
+            alt="Azmera"
+            className="h-8 w-auto max-w-[9rem] object-contain"
+          />
         </span>
-        <span className="font-serif text-2xl font-semibold text-forest-deeper">
-          Azmera
-        </span>
-      </div>
 
-      <div className="space-y-4">
-        <h1 className="font-serif text-3xl font-semibold leading-tight text-forest-deeper sm:text-4xl">
-          Empowering Agriculture, Together.
-        </h1>
-        <p className="max-w-md text-sm leading-6 text-stone">
-          Join Azmera as a field agent and help connect Ethiopian farmers with
-          better agricultural opportunities.
-        </p>
-      </div>
+        <div className="space-y-4">
+          <h1 className="font-serif text-3xl font-semibold leading-tight sm:text-4xl">
+            Empowering Agriculture, Together.
+          </h1>
+          <p className="max-w-md text-sm leading-6 text-white/85">
+            Join Azmera as a field agent and help connect Ethiopian farmers with
+            better agricultural opportunities.
+          </p>
+        </div>
 
-      <div className="relative overflow-hidden rounded-3xl border border-white/60 bg-white shadow-[0_18px_50px_rgba(22,95,48,0.12)]">
-        <img
-          src="/images/agentPic.jpg"
-          alt="Azmera field agent working alongside farmers"
-          className="aspect-[4/3] w-full object-cover"
-        />
-        <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-forest-deeper/35 to-transparent"
-          aria-hidden="true"
-        />
-        <p className="absolute bottom-4 left-4 rounded-full bg-white/85 px-3 py-1 text-xs font-semibold text-forest-deeper backdrop-blur">
-          Field agents on the ground
-        </p>
+        <ul className="mt-auto grid gap-3">
+          {BENEFITS.map((benefit) => (
+            <li
+              key={benefit.title}
+              className="flex items-start gap-3 rounded-2xl bg-white/10 p-3 backdrop-blur-sm"
+            >
+              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/15 text-white">
+                <benefit.icon className="size-5" />
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-white">
+                  {benefit.title}
+                </p>
+                <p className="text-xs leading-5 text-white/80">
+                  {benefit.description}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
-
-      <ul className="mt-auto space-y-3">
-        {BENEFITS.map((benefit) => (
-          <li key={benefit.title} className="flex items-start gap-3">
-            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-forest/10 text-forest-deeper">
-              <benefit.icon className="size-5" />
-            </span>
-            <div>
-              <p className="text-sm font-semibold text-stone-dark">
-                {benefit.title}
-              </p>
-              <p className="text-xs leading-5 text-stone">
-                {benefit.description}
-              </p>
-            </div>
-          </li>
-        ))}
-      </ul>
     </section>
   )
 }

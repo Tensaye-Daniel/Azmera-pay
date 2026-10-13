@@ -291,7 +291,7 @@ export default function AgentLayout() {
         </div>
       </header>
 
-      <div className="relative z-10 mx-auto flex max-w-[1600px]">
+      <div className="relative z-10 mx-auto flex min-h-[calc(100vh-68px)] max-w-[1600px]">
         <aside className="sticky top-[68px] hidden h-[calc(100vh-68px)] w-[208px] shrink-0 flex-col border-r border-forest/10 bg-white px-3 py-6 lg:flex">
           <p className="mb-3 px-3 text-xs font-semibold tracking-wide text-stone/75">
             Agent workspace

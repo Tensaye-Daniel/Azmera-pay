@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { listFarmers } from '../../api/farmers'
 import FarmerList from '../../components/features/agent/FarmerList'
@@ -9,8 +9,10 @@ export default function FarmerListPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
-  useEffect(() => {
+  const load = useCallback(() => {
     let cancelled = false
+    setLoading(true)
+    setError(false)
     listFarmers()
       .then((data) => {
         if (!cancelled) setFarmers(data.results)
@@ -25,6 +27,8 @@ export default function FarmerListPage() {
       cancelled = true
     }
   }, [])
+
+  useEffect(() => load(), [load])
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -47,11 +51,32 @@ export default function FarmerListPage() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-stone">Loading farmers…</p>
+        <div className="overflow-hidden rounded-2xl border border-forest/10 bg-white shadow-[0_4px_20px_rgba(22,95,48,0.04)]">
+          {[0, 1, 2, 3].map((row) => (
+            <div
+              key={row}
+              className="flex items-center gap-4 border-b border-forest/5 px-5 py-4 last:border-b-0"
+            >
+              <div className="size-10 shrink-0 animate-pulse rounded-full bg-mint/40" />
+              <div className="min-w-0 flex-1 space-y-2">
+                <div className="h-3.5 w-40 max-w-[60%] animate-pulse rounded-full bg-mint/40" />
+                <div className="h-3 w-28 max-w-[40%] animate-pulse rounded-full bg-mint/30" />
+              </div>
+              <div className="h-6 w-24 shrink-0 animate-pulse rounded-full bg-mint/30" />
+            </div>
+          ))}
+        </div>
       ) : error ? (
-        <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          Failed to load farmers. Please try again.
-        </p>
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          Failed to load farmers.{' '}
+          <button
+            type="button"
+            onClick={load}
+            className="font-semibold underline underline-offset-2"
+          >
+            Try again
+          </button>
+        </div>
       ) : (
         <FarmerList farmers={farmers} />
       )}

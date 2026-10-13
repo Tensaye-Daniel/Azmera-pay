@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { listFarmers } from '../../api/farmers'
 import FarmerList from '../../components/features/agent/FarmerList'
@@ -8,11 +8,10 @@ export default function FarmerListPage() {
   const [farmers, setFarmers] = useState<Farmer[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [reloadKey, setReloadKey] = useState(0)
 
-  const load = useCallback(() => {
+  useEffect(() => {
     let cancelled = false
-    setLoading(true)
-    setError(false)
     listFarmers()
       .then((data) => {
         if (!cancelled) setFarmers(data.results)
@@ -26,9 +25,13 @@ export default function FarmerListPage() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [reloadKey])
 
-  useEffect(() => load(), [load])
+  const reload = () => {
+    setLoading(true)
+    setError(false)
+    setReloadKey((key) => key + 1)
+  }
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -71,7 +74,7 @@ export default function FarmerListPage() {
           Failed to load farmers.{' '}
           <button
             type="button"
-            onClick={load}
+            onClick={reload}
             className="font-semibold underline underline-offset-2"
           >
             Try again

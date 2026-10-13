@@ -11,11 +11,8 @@ import {
 import { getAgentSummary } from '../../api/farmers'
 import { useAuthStore } from '../../store/auth'
 import type { AgentSummary } from '../../types/farmer'
-import {
-  FARMER_STATUS_CLASSES,
-  FARMER_STATUS_LABELS,
-  getInitials,
-} from '../../utils/farmer'
+import { getInitials } from '../../utils/farmer'
+import StatusBadge from '../../components/features/agent/StatusBadge'
 
 export default function AgentDashboard() {
   const user = useAuthStore((state) => state.user)
@@ -255,14 +252,7 @@ export default function AgentDashboard() {
                     </p>
                   </div>
 
-                  <span
-                    className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${
-                      FARMER_STATUS_CLASSES[farmer.status] ??
-                      'bg-[#f1eed8] text-[#756b32]'
-                    }`}
-                  >
-                    {FARMER_STATUS_LABELS[farmer.status] ?? farmer.status}
-                  </span>
+                  <StatusBadge status={farmer.status} />
                 </Link>
               </li>
             ))}

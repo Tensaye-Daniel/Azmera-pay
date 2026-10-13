@@ -1,10 +1,7 @@
 import { Link } from 'react-router-dom'
 import { PhoneIcon } from '../../ui/icons'
 import type { Farmer } from '../../../types/farmer'
-import {
-  FARMER_STATUS_CLASSES,
-  FARMER_STATUS_LABELS,
-} from '../../../utils/farmer'
+import StatusBadge from './StatusBadge'
 
 interface FarmerListProps {
   farmers: Farmer[]
@@ -66,14 +63,7 @@ export default function FarmerList({ farmers }: FarmerListProps) {
                 </td>
                 <td className="px-5 py-4 text-stone">{farmer.primary_crop}</td>
                 <td className="px-5 py-4">
-                  <span
-                    className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-                      FARMER_STATUS_CLASSES[farmer.status] ??
-                      'bg-[#f1eed8] text-[#756b32]'
-                    }`}
-                  >
-                    {FARMER_STATUS_LABELS[farmer.status] ?? farmer.status}
-                  </span>
+                  <StatusBadge status={farmer.status} />
                 </td>
                 <td className="px-5 py-4 text-right">
                   <Link

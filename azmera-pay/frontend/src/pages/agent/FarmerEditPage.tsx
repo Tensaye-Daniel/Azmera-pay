@@ -64,6 +64,7 @@ export default function FarmerEditPage() {
         onSuccess={(saved) =>
           navigate(`/agent/farmers/${saved.id}`, { replace: true })
         }
+        onCancel={() => navigate(-1)}
       />
     </div>
   )

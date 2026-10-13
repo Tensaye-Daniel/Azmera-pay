@@ -238,21 +238,21 @@ export default function AgentDashboard() {
                       {farmer.full_name}
                     </p>
                     <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-stone">
-                      <span className="flex items-center gap-1.5">
-                        <PhoneIcon className="size-3.5" />
-                        {farmer.phone}
+                      <span className="flex min-w-0 items-center gap-1.5">
+                        <PhoneIcon className="size-3.5 shrink-0" />
+                        <span className="break-all">{farmer.phone}</span>
                       </span>
-                      <span className="font-mono">
+                      <span className="break-all font-mono">
                         {farmer.azmera_account_number}
                       </span>
-                      <span>
+                      <span className="break-words">
                         {farmer.region}
                         {farmer.woreda ? ` · ${farmer.woreda}` : ''}
                       </span>
                     </p>
                   </div>
 
-                  <StatusBadge status={farmer.status} />
+                  <StatusBadge status={farmer.status} className="shrink-0" />
                 </Link>
               </li>
             ))}

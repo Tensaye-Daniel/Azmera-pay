@@ -37,21 +37,20 @@ export default function FarmerList({ farmers }: FarmerListProps) {
             className="rounded-2xl border border-forest/10 bg-white p-4 shadow-[0_4px_20px_rgba(22,95,48,0.04)]"
           >
             <div className="flex items-start justify-between gap-3">
-              <p className="font-semibold text-forest-deeper">
+              <p className="min-w-0 break-words font-semibold text-forest-deeper">
                 {farmer.full_name}
               </p>
-              <StatusBadge status={farmer.status} />
+              <StatusBadge status={farmer.status} className="shrink-0" />
             </div>
-            <p className="mt-1 flex items-center gap-1.5 text-xs text-stone">
-              <PhoneIcon className="size-3.5" />
-              {farmer.phone}
+            <p className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-stone">
+              <PhoneIcon className="size-3.5 shrink-0" />
+              <span className="min-w-0 break-all">{farmer.phone}</span>
             </p>
-            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone">
-              <span className="font-mono font-medium text-stone-dark">
+            <div className="mt-3 flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone">
+              <span className="min-w-0 break-all font-mono font-medium text-stone-dark">
                 {farmer.azmera_account_number}
               </span>
-              <span>
-                {farmer.region}
+              <span className="min-w-0">{farmer.region}
                 {farmer.woreda ? ` · ${farmer.woreda}` : ''}
               </span>
             </div>

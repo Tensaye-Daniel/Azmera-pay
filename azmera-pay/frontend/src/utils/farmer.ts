@@ -9,7 +9,13 @@ export const FARMER_STATUS_LABELS: Record<FarmerStatus, string> = {
 export const FARMER_STATUS_CLASSES: Record<FarmerStatus, string> = {
   registered: 'bg-mint/60 text-forest-deeper',
   pending: 'bg-[#fdf2d4] text-[#8a6d1b]',
-  unverified: 'bg-[#f1eed8] text-[#756b32]',
+  unverified: 'bg-stone/10 text-stone-dark',
+}
+
+export const FARMER_STATUS_DOTS: Record<FarmerStatus, string> = {
+  registered: 'bg-forest-dark',
+  pending: 'bg-[#b58900]',
+  unverified: 'bg-stone',
 }
 
 export const GENDER_LABELS: Record<string, string> = {

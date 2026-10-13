@@ -13,16 +13,20 @@ const landOwnershipLabels: Record<Farmer['land_ownership'], string> = {
 function DetailRow({
   label,
   value,
+  breakWords = false,
 }: {
   label: string
   value: string
+  breakWords?: boolean
 }) {
   return (
     <div className="py-3">
       <dt className="text-xs font-semibold uppercase tracking-wide text-stone">
         {label}
       </dt>
-      <dd className="mt-1 text-sm font-medium text-stone-dark">{value}</dd>
+      <dd className={`mt-1 text-sm font-medium text-stone-dark ${breakWords ? 'break-all' : ''}`}>
+        {value}
+      </dd>
     </div>
   )
 }
@@ -65,10 +69,12 @@ export default function FarmerDetail({ farmer }: { farmer: Farmer }) {
             <DetailRow
               label="Azmera account number"
               value={farmer.azmera_account_number}
+              breakWords
             />
             <DetailRow
               label="Fayda FIN"
               value={farmer.fayda_fin ?? 'Not provided'}
+              breakWords
             />
             <DetailRow
               label="Gender"
@@ -87,7 +93,7 @@ export default function FarmerDetail({ farmer }: { farmer: Farmer }) {
             <DetailRow label="Region" value={farmer.region} />
             <DetailRow
               label="Woreda"
-              value={farmer.woreda}
+              value={farmer.woreda || 'Not provided'}
             />
             <DetailRow
               label="Kebele"

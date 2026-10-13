@@ -29,55 +29,95 @@ export default function FarmerList({ farmers }: FarmerListProps) {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-forest/10 bg-white shadow-[0_4px_20px_rgba(22,95,48,0.04)]">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[720px] text-left text-sm">
-          <thead className="border-b border-forest/10 bg-[#f7faf6] text-xs font-semibold uppercase tracking-wide text-stone">
-            <tr>
-              <th className="px-5 py-3.5">Farmer</th>
-              <th className="px-5 py-3.5">Account number</th>
-              <th className="px-5 py-3.5">Location</th>
-              <th className="px-5 py-3.5">Crop</th>
-              <th className="px-5 py-3.5">Status</th>
-              <th className="px-5 py-3.5 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-forest/5">
-            {farmers.map((farmer) => (
-              <tr key={farmer.id} className="hover:bg-mint/20">
-                <td className="px-5 py-4">
-                  <p className="font-semibold text-forest-deeper">
-                    {farmer.full_name}
-                  </p>
-                  <p className="mt-0.5 flex items-center gap-1.5 text-xs text-stone">
-                    <PhoneIcon className="size-3.5" />
-                    {farmer.phone}
-                  </p>
-                </td>
-                <td className="px-5 py-4 font-mono text-xs font-medium text-stone-dark">
-                  {farmer.azmera_account_number}
-                </td>
-                <td className="px-5 py-4 text-stone">
-                  {farmer.region}
-                  {farmer.woreda ? ` · ${farmer.woreda}` : ''}
-                </td>
-                <td className="px-5 py-4 text-stone">{farmer.primary_crop}</td>
-                <td className="px-5 py-4">
-                  <StatusBadge status={farmer.status} />
-                </td>
-                <td className="px-5 py-4 text-right">
-                  <Link
-                    to={`/agent/farmers/${farmer.id}`}
-                    className="text-sm font-semibold text-forest transition-colors hover:text-forest-dark"
-                  >
-                    View
-                  </Link>
-                </td>
+    <>
+      <ul className="space-y-3 md:hidden">
+        {farmers.map((farmer) => (
+          <li
+            key={farmer.id}
+            className="rounded-2xl border border-forest/10 bg-white p-4 shadow-[0_4px_20px_rgba(22,95,48,0.04)]"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <p className="font-semibold text-forest-deeper">
+                {farmer.full_name}
+              </p>
+              <StatusBadge status={farmer.status} />
+            </div>
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-stone">
+              <PhoneIcon className="size-3.5" />
+              {farmer.phone}
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone">
+              <span className="font-mono font-medium text-stone-dark">
+                {farmer.azmera_account_number}
+              </span>
+              <span>
+                {farmer.region}
+                {farmer.woreda ? ` · ${farmer.woreda}` : ''}
+              </span>
+            </div>
+            {farmer.primary_crop && (
+              <p className="mt-1 text-xs text-stone">{farmer.primary_crop}</p>
+            )}
+            <Link
+              to={`/agent/farmers/${farmer.id}`}
+              className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition-colors hover:text-forest-dark"
+            >
+              View details
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      <div className="hidden overflow-hidden rounded-2xl border border-forest/10 bg-white shadow-[0_4px_20px_rgba(22,95,48,0.04)] md:block">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[720px] text-left text-sm">
+            <thead className="border-b border-forest/10 bg-[#f7faf6] text-xs font-semibold uppercase tracking-wide text-stone">
+              <tr>
+                <th className="px-5 py-3.5">Farmer</th>
+                <th className="px-5 py-3.5">Account number</th>
+                <th className="px-5 py-3.5">Location</th>
+                <th className="px-5 py-3.5">Crop</th>
+                <th className="px-5 py-3.5">Status</th>
+                <th className="px-5 py-3.5 text-right">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-forest/5">
+              {farmers.map((farmer) => (
+                <tr key={farmer.id} className="hover:bg-mint/20">
+                  <td className="px-5 py-4">
+                    <p className="font-semibold text-forest-deeper">
+                      {farmer.full_name}
+                    </p>
+                    <p className="mt-0.5 flex items-center gap-1.5 text-xs text-stone">
+                      <PhoneIcon className="size-3.5" />
+                      {farmer.phone}
+                    </p>
+                  </td>
+                  <td className="px-5 py-4 font-mono text-xs font-medium text-stone-dark">
+                    {farmer.azmera_account_number}
+                  </td>
+                  <td className="px-5 py-4 text-stone">
+                    {farmer.region}
+                    {farmer.woreda ? ` · ${farmer.woreda}` : ''}
+                  </td>
+                  <td className="px-5 py-4 text-stone">{farmer.primary_crop}</td>
+                  <td className="px-5 py-4">
+                    <StatusBadge status={farmer.status} />
+                  </td>
+                  <td className="px-5 py-4 text-right">
+                    <Link
+                      to={`/agent/farmers/${farmer.id}`}
+                      className="rounded-lg px-3 py-1.5 text-sm font-semibold text-forest transition-colors hover:bg-mint/40 hover:text-forest-dark"
+                    >
+                      View
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

@@ -108,6 +108,9 @@ class SupplierProfile(models.Model):
         unique=True,
     )
     company_name = models.CharField(max_length=200)
+    region = models.CharField(max_length=100, blank=True)
+    woreda = models.CharField(max_length=100, blank=True)
+    product_categories = models.JSONField(default=list, blank=True)
 
     class Meta:
         ordering = ["company_name"]

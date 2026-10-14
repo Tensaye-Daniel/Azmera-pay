@@ -242,3 +242,43 @@ class SupplierApprovalTokenRefreshSerializer(TokenRefreshSerializer):
             )
 
         return super().validate(attrs)
+    
+from apps.catalog.models import ProductCategory
+
+
+class SupplierProfileSerializer(serializers.ModelSerializer):
+    """Read and update the authenticated supplier's shop information."""
+
+    product_categories = serializers.ListField(
+        child=serializers.ChoiceField(choices=ProductCategory.choices),
+        allow_empty=True,
+    )
+
+    class Meta:
+        model = SupplierProfile
+        fields = [
+            "company_name",
+            "region",
+            "woreda",
+            "product_categories",
+        ]
+        read_only_fields = ["company_name"]
+
+    def validate_region(self, value):
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError("Region is required.")
+        return value
+
+    def validate_woreda(self, value):
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError("Woreda is required.")
+        return value
+
+    def validate_product_categories(self, value):
+        if len(value) != len(set(value)):
+            raise serializers.ValidationError(
+                "Each product category can only be selected once."
+            )
+        return value

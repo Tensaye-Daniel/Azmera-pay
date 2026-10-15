@@ -1,5 +1,7 @@
 from django.contrib import admin
+
 from apps.accounts.models import Role
+
 from .models import Product, SupplierListing, Unit
 
 

@@ -46,30 +46,30 @@ UNIT_ID = UUID("22222222-2222-2222-2222-222222222222")
 
 def make_request(**changes):
     """Farmer wants 10 units, paying at most 100 each, in Oromia / Adama."""
-    values = dict(
-        product_id=PRODUCT_ID,
-        unit_id=UNIT_ID,
-        quantity=D("10"),
-        max_unit_price=D("100"),
-        region="Oromia",
-        woreda="Adama",
-    )
+    values = {
+        "product_id": PRODUCT_ID,
+        "unit_id": UNIT_ID,
+        "quantity": D("10"),
+        "max_unit_price": D("100"),
+        "region": "Oromia",
+        "woreda": "Adama",
+    }
     values.update(changes)
     return RequestData(**values)
 
 
 def make_listing(listing_id=None, **changes):
     """A listing that is eligible for REQ by default. Each test changes only what it checks."""
-    values = dict(
-        id=listing_id or uid(1),
-        product_id=PRODUCT_ID,
-        unit_id=UNIT_ID,
-        available_quantity=D("100"),
-        unit_price=D("50"),
-        region="Oromia",
-        woreda="Adama",
-        availability_status="active",
-    )
+    values = {
+        "id": listing_id or uid(1),
+        "product_id": PRODUCT_ID,
+        "unit_id": UNIT_ID,
+        "available_quantity": D("100"),
+        "unit_price": D("50"),
+        "region": "Oromia",
+        "woreda": "Adama",
+        "availability_status": "active",
+    }
     values.update(changes)
     return ListingData(**values)
 

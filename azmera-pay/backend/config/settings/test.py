@@ -6,7 +6,6 @@ os.environ.setdefault("DB_URL", "sqlite://:memory:")
 
 from .base import *  # noqa: F401, E402, F403
 
-
 DEBUG = False
 
 ALLOWED_HOSTS = ["testserver"]

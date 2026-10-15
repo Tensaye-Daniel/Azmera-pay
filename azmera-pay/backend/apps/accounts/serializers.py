@@ -4,12 +4,17 @@
 from django.contrib.auth import get_user_model, password_validation
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
-
-from apps.common.utils import normalize_phone
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .models import Role, SupplierApprovalStatus, SupplierProfile
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.serializers import (
+    TokenObtainPairSerializer,
+    TokenRefreshSerializer,
+)
+
+from apps.catalog.models import ProductCategory
+from apps.common.utils import normalize_phone
+
+from .models import Role, SupplierApprovalStatus, SupplierProfile
+
 User = get_user_model()
 
 
@@ -242,8 +247,6 @@ class SupplierApprovalTokenRefreshSerializer(TokenRefreshSerializer):
             )
 
         return super().validate(attrs)
-    
-from apps.catalog.models import ProductCategory
 
 
 class SupplierProfileSerializer(serializers.ModelSerializer):

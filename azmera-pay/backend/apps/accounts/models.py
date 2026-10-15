@@ -1,5 +1,7 @@
 ﻿# User model - phone is the login identifier. Farmers get a User row but no
 # usable password (USSD login is the phone number; there is no farmer web login).
+import contextlib
+
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
@@ -52,10 +54,8 @@ class UserManager(BaseUserManager):
         sign in by typing '0912345678' or '251912345678'. Normalize before lookup
         so every auth path (web, admin, USSD) accepts the same number.
         """
-        try:
+        with contextlib.suppress(ValueError):
             username = normalize_phone(username)
-        except ValueError:
-            pass
         return self.get(**{self.model.USERNAME_FIELD: username})
 
 
@@ -63,7 +63,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     """Azmera user. `phone` is the unique identifier used for both web and USSD."""
 
     phone = models.CharField(max_length=20, unique=True)
-    email = models.EmailField(blank=True, null=True)
+    email = models.EmailField(blank=True, default="")
     full_name = models.CharField(max_length=150)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.FARMER)
     supplier_approval_status = models.CharField(max_length=20, choices=SupplierApprovalStatus.choices, default=SupplierApprovalStatus.NOT_REQUIRED)

@@ -1,7 +1,14 @@
 ﻿# /auth routes: register, login (JWT pair), token refresh, current user.
 from django.urls import path
-from rest_framework_simplejwt.views import TokenRefreshView
-from .views import AgentRegisterView, MeView, SupplierApprovalTokenView, SupplierRegisterView,SupplierApprovalTokenRefreshView,SupplierProfileView
+
+from .views import (
+    AgentRegisterView,
+    MeView,
+    SupplierApprovalTokenRefreshView,
+    SupplierApprovalTokenView,
+    SupplierProfileView,
+    SupplierRegisterView,
+)
 
 urlpatterns = [
     path("auth/register", AgentRegisterView.as_view(), name="register"),

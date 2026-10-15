@@ -125,7 +125,6 @@ def test_supplier_can_only_see_own_listings(
         full_name="Supplier Two",
     )
 
-    from apps.catalog.models import SupplierListing
 
     other_listing = SupplierListing.objects.create(
         supplier=other_supplier,
@@ -153,7 +152,6 @@ def test_supplier_can_only_see_own_listings(
 def test_supplier_cannot_access_another_suppliers_listing(
     supplier_client, supplier, product, unit
 ):
-    from apps.catalog.models import SupplierListing
 
     other_supplier = create_web_user(
         phone="+251911200003",

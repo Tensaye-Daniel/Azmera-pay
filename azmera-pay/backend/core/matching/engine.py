@@ -27,7 +27,6 @@ from .constants import (
     normalize_text,
 )
 
-
 ZERO = Decimal("0")
 ONE = Decimal("1")
 CENT = Decimal("0.01")

@@ -1,7 +1,7 @@
 import pytest
 from rest_framework import status
 
-from apps.accounts.models import Role, SupplierApprovalStatus
+from apps.accounts.models import Role, SupplierApprovalStatus, SupplierProfile
 from apps.catalog.models import AvailabilityStatus, SupplierListing
 from tests.factories.accounts import create_web_user
 from tests.factories.catalog import ProductFactory, UnitFactory
@@ -20,6 +20,14 @@ def supplier():
     )
     user.supplier_approval_status = SupplierApprovalStatus.APPROVED
     user.save(update_fields=["supplier_approval_status"])
+    SupplierProfile.objects.create(
+        user=user,
+        tin_number="1234567890",
+        company_name="Supplier One Shop",
+        region="Oromia",
+        woreda="Adama",
+        product_categories=["seed"],
+    )
     return user
 
 
@@ -216,3 +224,40 @@ def test_unapproved_supplier_cannot_manage_listings(
 
     assert get_response.status_code == status.HTTP_403_FORBIDDEN
     assert post_response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_approved_supplier_without_shop_setup_cannot_manage_listings(
+    api_client, product, unit
+):
+    supplier = create_web_user(
+        phone="+251911200011",
+        role=Role.SUPPLIER,
+        full_name="Setup Incomplete Supplier",
+    )
+    supplier.supplier_approval_status = SupplierApprovalStatus.APPROVED
+    supplier.save(update_fields=["supplier_approval_status"])
+    SupplierProfile.objects.create(
+        user=supplier,
+        tin_number="1234567891",
+        company_name="Incomplete Shop",
+    )
+    api_client.force_authenticate(user=supplier)
+
+    get_response = api_client.get(LIST_URL)
+    post_response = api_client.post(
+        LIST_URL,
+        listing_payload(product, unit),
+        format="json",
+    )
+
+    assert get_response.status_code == status.HTTP_403_FORBIDDEN
+    assert "shop setup" in get_response.data["detail"].lower()
+    assert post_response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_approved_supplier_with_complete_shop_setup_can_manage_listings(
+    supplier_client, product
+):
+    response = supplier_client.get(LIST_URL)
+
+    assert response.status_code == status.HTTP_200_OK

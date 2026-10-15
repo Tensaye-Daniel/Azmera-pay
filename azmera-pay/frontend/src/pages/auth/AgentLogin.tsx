@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { AxiosError } from 'axios'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { fetchMe, login } from '../../api/auth'
 import AgentSignupFooter from '../../components/features/agent/AgentSignupFooter'
@@ -50,7 +51,7 @@ export default function AgentLogin() {
   const location = useLocation()
 
   if (user) {
-    return <Navigate to="/agent" replace />
+    return <Navigate to={user.role === 'supplier' ? '/supplier' : '/agent'} replace />
   }
 
   const showComingSoon = (message: string) => {
@@ -87,11 +88,11 @@ export default function AgentLogin() {
       const me = await fetchMe()
       setUser(me)
       const from = (location.state as LocationState | null)?.from?.pathname
-      navigate(from && from !== '/login' ? from : '/agent', { replace: true })
-    } catch {
-      setError(
-        'Unable to sign in. Check your phone number and password and try again.',
-      )
+      navigate(from && from !== '/login' ? from : me.role === 'supplier' ? '/supplier' : '/agent', { replace: true })
+    } catch (cause) {
+      const data = cause instanceof AxiosError ? cause.response?.data as Record<string, unknown> | undefined : undefined
+      const detail = data?.detail ?? data?.non_field_errors
+      setError(Array.isArray(detail) ? detail.map(String).join(' ') : typeof detail === 'string' ? detail : 'Unable to sign in. Check your phone number and password and try again.')
     } finally {
       setSubmitting(false)
     }

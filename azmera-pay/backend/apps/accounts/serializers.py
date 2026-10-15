@@ -79,10 +79,6 @@ class SupplierRegisterSerializer(serializers.ModelSerializer):
         min_length=8,
         trim_whitespace=False,
     )
-    fayda_fin_number = serializers.CharField(
-        write_only=True,
-        max_length=100,
-    )
     tin_number = serializers.CharField(
         write_only=True,
         max_length=100,
@@ -99,7 +95,6 @@ class SupplierRegisterSerializer(serializers.ModelSerializer):
             "phone",
             "email",
             "password",
-            "fayda_fin_number",
             "tin_number",
             "company_name",
         ]
@@ -129,23 +124,6 @@ class SupplierRegisterSerializer(serializers.ModelSerializer):
 
         return value
 
-    def validate_fayda_fin_number(self, value):
-        value = value.strip()
-
-        if not value.isdigit() or len(value) != 12:
-            raise serializers.ValidationError(
-                "Fayda FIN must contain exactly 12 numeric digits."
-            )
-
-        if SupplierProfile.objects.filter(
-            fayda_fin_number=value
-        ).exists():
-            raise serializers.ValidationError(
-                "This Fayda FIN number is already registered."
-            )
-
-        return value
-
     def validate_tin_number(self, value):
         value = value.strip()
 
@@ -170,7 +148,6 @@ class SupplierRegisterSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        fayda_fin_number = validated_data.pop("fayda_fin_number")
         tin_number = validated_data.pop("tin_number")
         company_name = validated_data.pop("company_name")
         password = validated_data.pop("password")
@@ -187,7 +164,6 @@ class SupplierRegisterSerializer(serializers.ModelSerializer):
 
             SupplierProfile.objects.create(
                 user=user,
-                fayda_fin_number=fayda_fin_number,
                 tin_number=tin_number,
                 company_name=company_name,
             )
@@ -201,7 +177,12 @@ class SupplierRegisterSerializer(serializers.ModelSerializer):
             "email": instance.email,
             "role": instance.role,
             "supplier_approval_status": instance.supplier_approval_status,
-            "message": "Registration successful. Your account is awaiting admin approval.",
+            "message": (
+                "Your registration has been submitted successfully and is "
+                "awaiting admin review. Please check your account for the "
+                "decision. Once approved, you can log in to complete your "
+                "shop setup."
+            ),
         }
 
 
@@ -285,3 +266,24 @@ class SupplierProfileSerializer(serializers.ModelSerializer):
                 "Each product category can only be selected once."
             )
         return value
+
+    def validate(self, attrs):
+        setup_fields = {"region", "woreda", "product_categories"}
+        if setup_fields.intersection(attrs):
+            region = attrs.get("region", self.instance.region).strip()
+            woreda = attrs.get("woreda", self.instance.woreda).strip()
+            categories = attrs.get(
+                "product_categories", self.instance.product_categories
+            )
+            errors = {}
+            if not region:
+                errors["region"] = "Region is required."
+            if not woreda:
+                errors["woreda"] = "Woreda is required."
+            if not categories:
+                errors["product_categories"] = (
+                    "Select at least one product category."
+                )
+            if errors:
+                raise serializers.ValidationError(errors)
+        return attrs

@@ -3,7 +3,6 @@ import pytest
 
 from apps.accounts.models import Role
 from apps.profiles.models import FarmerProfile, FarmerStatus
-
 from tests.factories.accounts import create_web_user
 from tests.factories.profiles import FarmerProfileFactory
 

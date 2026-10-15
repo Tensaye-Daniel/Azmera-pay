@@ -1,7 +1,6 @@
 ﻿# Dev settings (debug on, sqlite/postgres, CORS)
 from .base import *
 
-
 DEBUG = True
 
 ALLOWED_HOSTS = [

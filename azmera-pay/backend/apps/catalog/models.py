@@ -1,9 +1,10 @@
 ﻿# Category, Products(inputs and crops) and measurement Unit
 
-from django.db import models
 from decimal import Decimal
-from django.core.validators import MinValueValidator
+
 from django.conf import settings
+from django.core.validators import MinValueValidator
+from django.db import models
 
 from apps.common.models import TimeStampedModel, UUIDModel
 
@@ -89,4 +90,3 @@ class SupplierListing(UUIDModel, TimeStampedModel):
         ]
     def __str__(self):
       return f"{self.product} ({self.availability_status})"
-   

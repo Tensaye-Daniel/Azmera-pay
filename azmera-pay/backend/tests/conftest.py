@@ -3,7 +3,6 @@ import pytest
 from rest_framework.test import APIClient
 
 from apps.accounts.models import Role
-
 from tests.factories.accounts import create_web_user
 
 

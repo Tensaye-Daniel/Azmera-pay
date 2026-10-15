@@ -1,9 +1,18 @@
 ﻿# Auth endpoints - JWT via djangorestframework-simplejwt.
 from rest_framework import generics, permissions
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.exceptions import PermissionDenied
-from .serializers import AgentRegisterSerializer, MeSerializer, SupplierApprovalTokenSerializer,SupplierRegisterSerializer, SupplierApprovalTokenRefreshSerializer,SupplierProfileSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
 from .models import Role, SupplierApprovalStatus, SupplierProfile
+from .serializers import (
+    AgentRegisterSerializer,
+    MeSerializer,
+    SupplierApprovalTokenRefreshSerializer,
+    SupplierApprovalTokenSerializer,
+    SupplierProfileSerializer,
+    SupplierRegisterSerializer,
+)
+
 
 class MeView(generics.RetrieveAPIView):
     serializer_class = MeSerializer

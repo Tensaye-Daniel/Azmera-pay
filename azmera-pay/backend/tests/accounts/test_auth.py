@@ -1,11 +1,9 @@
 # Auth acceptance tests: agent login (JWT), /me, no anonymous access.
 import pytest
-
-from apps.accounts.models import Role
-
-from tests.factories.accounts import create_web_user
-from apps.accounts.models import SupplierApprovalStatus
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from apps.accounts.models import Role, SupplierApprovalStatus
+from tests.factories.accounts import create_web_user
 
 pytestmark = pytest.mark.django_db
 

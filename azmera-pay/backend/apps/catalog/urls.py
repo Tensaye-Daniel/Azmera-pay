@@ -1,7 +1,12 @@
 ﻿# /products, /availability routes
 from django.urls import path
 
-from .views import (ProductListView,SupplierListingDetailView,SupplierListingListCreateView, UnitListView)
+from .views import (
+    ProductListView,
+    SupplierListingDetailView,
+    SupplierListingListCreateView,
+    UnitListView,
+)
 
 urlpatterns = [
     path("products", ProductListView.as_view(),name="product-list"),

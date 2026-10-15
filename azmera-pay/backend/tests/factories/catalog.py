@@ -1,6 +1,7 @@
 ﻿# Product, Unit, and Supplier Listing factories.
-import factory
 from decimal import Decimal
+
+import factory
 
 from apps.accounts.models import Role
 from apps.catalog.models import (

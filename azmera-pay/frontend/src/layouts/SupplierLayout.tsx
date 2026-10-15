@@ -68,6 +68,7 @@ const navigation = [
   { label: 'My Listings', to: '/supplier/listings', icon: ListingsIcon },
   { label: 'Requests', to: '/supplier/requests', icon: UsersIcon },
   { label: 'Matches', to: '/supplier/matches', icon: NetworkIcon },
+  { label: 'Shop Setup', to: '/supplier/shop-setup', icon: StoreIcon },
 ]
 
 // Lets links inside the mobile drawer close it, without passing props around.

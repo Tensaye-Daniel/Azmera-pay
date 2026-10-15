@@ -1,7 +1,7 @@
 import pytest
 from rest_framework import status
 
-from apps.accounts.models import Role
+from apps.accounts.models import Role, SupplierApprovalStatus
 from apps.catalog.models import AvailabilityStatus, SupplierListing
 from tests.factories.accounts import create_web_user
 from tests.factories.catalog import ProductFactory, UnitFactory
@@ -13,11 +13,15 @@ LIST_URL = "/api/v1/catalog/supplier/listings"
 
 @pytest.fixture
 def supplier():
-    return create_web_user(
+    user = create_web_user(
         phone="+251911200001",
         role=Role.SUPPLIER,
         full_name="Supplier One",
     )
+    user.supplier_approval_status = SupplierApprovalStatus.APPROVED
+    user.save(update_fields=["supplier_approval_status"])
+    return user
+
 
 
 @pytest.fixture
@@ -184,3 +188,33 @@ def test_non_supplier_cannot_manage_supplier_listings(
     response = agent_client.get(LIST_URL)
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
+
+@pytest.mark.parametrize(
+    "approval_status",
+    [
+        SupplierApprovalStatus.PENDING,
+        SupplierApprovalStatus.REJECTED,
+    ],
+)
+def test_unapproved_supplier_cannot_manage_listings(
+    api_client, product, unit, approval_status
+):
+    supplier = create_web_user(
+        phone="+251911200010",
+        role=Role.SUPPLIER,
+        full_name="Unapproved Supplier",
+    )
+    supplier.supplier_approval_status = approval_status
+    supplier.save(update_fields=["supplier_approval_status"])
+
+    api_client.force_authenticate(user=supplier)
+
+    get_response = api_client.get(LIST_URL)
+    post_response = api_client.post(
+        LIST_URL,
+        listing_payload(product, unit),
+        format="json",
+    )
+
+    assert get_response.status_code == status.HTTP_403_FORBIDDEN
+    assert post_response.status_code == status.HTTP_403_FORBIDDEN

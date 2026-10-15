@@ -4,6 +4,8 @@ import pytest
 from apps.accounts.models import Role
 
 from tests.factories.accounts import create_web_user
+from apps.accounts.models import SupplierApprovalStatus
+from rest_framework_simplejwt.tokens import RefreshToken
 
 pytestmark = pytest.mark.django_db
 
@@ -58,3 +60,75 @@ def test_me_returns_the_current_user(agent_client, agent):
 
 def test_me_requires_authentication(api_client):
     assert api_client.get("/api/v1/auth/me").status_code == 401
+
+@pytest.mark.parametrize(
+    "approval_status",
+    [
+        SupplierApprovalStatus.PENDING,
+        SupplierApprovalStatus.REJECTED,
+    ],
+)
+def test_unapproved_supplier_cannot_log_in(
+    api_client,
+    approval_status,
+):
+    supplier = create_web_user(
+        phone="+251911100002",
+        role=Role.SUPPLIER,
+        password="secret1234",
+    )
+    supplier.supplier_approval_status = approval_status
+    supplier.save(update_fields=["supplier_approval_status"])
+
+    response = api_client.post(
+        "/api/v1/auth/login",
+        {"phone": supplier.phone, "password": "secret1234"},
+        format="json",
+    )
+
+    assert response.status_code == 400
+    assert "access" not in response.data
+    assert "refresh" not in response.data
+
+
+def test_approved_supplier_can_log_in(api_client):
+    supplier = create_web_user(
+        phone="+251911100003",
+        role=Role.SUPPLIER,
+        password="secret1234",
+    )
+    supplier.supplier_approval_status = SupplierApprovalStatus.APPROVED
+    supplier.save(update_fields=["supplier_approval_status"])
+
+    response = api_client.post(
+        "/api/v1/auth/login",
+        {"phone": supplier.phone, "password": "secret1234"},
+        format="json",
+    )
+
+    assert response.status_code == 200
+    assert "access" in response.data
+    assert "refresh" in response.data
+def test_rejected_supplier_cannot_refresh_token(api_client):
+    supplier = create_web_user(
+        phone="+251911100004",
+        role=Role.SUPPLIER,
+        password="secret1234",
+    )
+    supplier.supplier_approval_status = SupplierApprovalStatus.APPROVED
+    supplier.save(update_fields=["supplier_approval_status"])
+
+    refresh_token = str(RefreshToken.for_user(supplier))
+
+    # Simulate an admin rejecting the supplier after token creation.
+    supplier.supplier_approval_status = SupplierApprovalStatus.REJECTED
+    supplier.save(update_fields=["supplier_approval_status"])
+
+    response = api_client.post(
+        "/api/v1/auth/token/refresh",
+        {"refresh": refresh_token},
+        format="json",
+    )
+
+    assert response.status_code == 401
+    assert "access" not in response.data

@@ -14,6 +14,11 @@ class Role(models.TextChoices):
     BUYER = "buyer", "Buyer"
     ADMIN = "admin", "Admin"
 
+class SupplierApprovalStatus(models.TextChoices):
+    NOT_REQUIRED = "not_required", "Not required"
+    PENDING = "pending", "Pending"
+    APPROVED = "approved", "Approved"
+    REJECTED = "rejected", "Rejected"
 
 class UserManager(BaseUserManager):
     use_in_migrations = True
@@ -61,6 +66,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(blank=True, null=True)
     full_name = models.CharField(max_length=150)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.FARMER)
+    supplier_approval_status = models.CharField(max_length=20, choices=SupplierApprovalStatus.choices, default=SupplierApprovalStatus.NOT_REQUIRED)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
@@ -86,3 +92,28 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def can_use_web(self):
         return self.role in (Role.AGENT, Role.ADMIN, Role.SUPPLIER, Role.BUYER)
+
+class SupplierProfile(models.Model):
+    user = models.OneToOneField(
+        "User",
+        on_delete=models.CASCADE,
+        related_name="supplier_profile",
+    )
+    fayda_fin_number = models.CharField(
+        max_length=100,
+        unique=True,
+    )
+    tin_number = models.CharField(
+        max_length=100,
+        unique=True,
+    )
+    company_name = models.CharField(max_length=200)
+    region = models.CharField(max_length=100, blank=True)
+    woreda = models.CharField(max_length=100, blank=True)
+    product_categories = models.JSONField(default=list, blank=True)
+
+    class Meta:
+        ordering = ["company_name"]
+
+    def __str__(self):
+        return self.company_name

@@ -102,6 +102,8 @@ class SupplierProfile(models.Model):
     fayda_fin_number = models.CharField(
         max_length=100,
         unique=True,
+        blank=True,
+        null=True,
     )
     tin_number = models.CharField(
         max_length=100,

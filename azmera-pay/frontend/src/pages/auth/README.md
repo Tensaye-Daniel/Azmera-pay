@@ -6,4 +6,6 @@
   - Includes a "Remember me" checkbox (persists tokens in `localStorage`; otherwise
     `sessionStorage` for the tab session), a "Forgot password?" notice, and a
     demonstration-only "Continue with Fayda" button. No mock authentication is performed.
-- `AgentSignup.tsx` - two-column agent sign-up (hero + 4-step wizard), route `/register`.
+- `RegistrationChoice.tsx` - account-type selection at `/register`.
+- `AgentSignup.tsx` - two-column agent sign-up (hero + 4-step wizard), route `/register/agent`.
+- `SupplierSignup.tsx` - supplier contact, business, TIN and password form at `/register/supplier`; submits to `POST /api/v1/auth/register/supplier` and explains the pending approval workflow.

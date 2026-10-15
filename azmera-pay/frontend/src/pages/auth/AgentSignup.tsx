@@ -14,7 +14,7 @@ export default function AgentSignup() {
   const navigate = useNavigate()
 
   if (user) {
-    return <Navigate to="/agent" replace />
+    return <Navigate to={user.role === 'supplier' ? '/supplier' : '/agent'} replace />
   }
 
   return (

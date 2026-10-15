@@ -92,6 +92,25 @@ def test_supplier_profile_rejects_invalid_category(
     assert "product_categories" in response.data
 
 
+def test_supplier_profile_rejects_incomplete_shop_setup(
+    api_client, approved_supplier
+):
+    response = api_client.patch(
+        PROFILE_URL,
+        {
+            "region": "Oromia",
+            "woreda": "Adama",
+            "product_categories": [],
+        },
+        format="json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "product_categories" in response.data
+    approved_supplier.supplier_profile.refresh_from_db()
+    assert approved_supplier.supplier_profile.region == ""
+
+
 def test_supplier_cannot_change_registered_company_name(
     api_client, approved_supplier
 ):

@@ -8,6 +8,7 @@ export default function FarmerListPage() {
   const [farmers, setFarmers] = useState<Farmer[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -24,7 +25,13 @@ export default function FarmerListPage() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [reloadKey])
+
+  const reload = () => {
+    setLoading(true)
+    setError(false)
+    setReloadKey((key) => key + 1)
+  }
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -47,11 +54,32 @@ export default function FarmerListPage() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-stone">Loading farmers…</p>
+        <div className="overflow-hidden rounded-2xl border border-forest/10 bg-white shadow-[0_4px_20px_rgba(22,95,48,0.04)]">
+          {[0, 1, 2, 3].map((row) => (
+            <div
+              key={row}
+              className="flex items-center gap-4 border-b border-forest/5 px-5 py-4 last:border-b-0"
+            >
+              <div className="size-10 shrink-0 animate-pulse rounded-full bg-mint/40" />
+              <div className="min-w-0 flex-1 space-y-2">
+                <div className="h-3.5 w-40 max-w-[60%] animate-pulse rounded-full bg-mint/40" />
+                <div className="h-3 w-28 max-w-[40%] animate-pulse rounded-full bg-mint/30" />
+              </div>
+              <div className="h-6 w-24 shrink-0 animate-pulse rounded-full bg-mint/30" />
+            </div>
+          ))}
+        </div>
       ) : error ? (
-        <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          Failed to load farmers. Please try again.
-        </p>
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          Failed to load farmers.{' '}
+          <button
+            type="button"
+            onClick={reload}
+            className="font-semibold underline underline-offset-2"
+          >
+            Try again
+          </button>
+        </div>
       ) : (
         <FarmerList farmers={farmers} />
       )}

@@ -18,6 +18,7 @@ interface FarmerFormProps {
   mode: 'create' | 'edit'
   initial?: Farmer
   onSuccess: (farmer: Farmer) => void
+  onCancel?: () => void
 }
 
 type FieldErrors = Record<string, string>
@@ -40,6 +41,7 @@ export default function FarmerForm({
   mode,
   initial,
   onSuccess,
+  onCancel,
 }: FarmerFormProps) {
   const [form, setForm] = useState<FormState>(() =>
     initial
@@ -275,7 +277,12 @@ export default function FarmerForm({
         </div>
       </div>
 
-      <div className="mt-8 flex items-center justify-end gap-3 border-t border-forest/10 pt-5">
+      <div className="mt-8 flex flex-wrap items-center justify-end gap-3 border-t border-forest/10 pt-5">
+        {onCancel && (
+          <Button type="button" variant="secondary" onClick={onCancel}>
+            Cancel
+          </Button>
+        )}
         <Button type="submit" loading={submitting}>
           {mode === 'edit' ? 'Save changes' : 'Register farmer'}
         </Button>

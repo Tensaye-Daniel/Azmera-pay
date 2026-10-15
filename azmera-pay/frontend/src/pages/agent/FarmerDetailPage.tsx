@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { getFarmer } from '../../api/farmers'
 import FarmerDetail from '../../components/features/agent/FarmerDetail'
+import { ArrowLeftIcon } from '../../components/ui/icons'
 import type { Farmer } from '../../types/farmer'
 
 export default function FarmerDetailPage() {
@@ -52,9 +53,10 @@ export default function FarmerDetailPage() {
     <div className="mx-auto max-w-4xl space-y-6">
       <Link
         to="/agent/farmers"
-        className="text-sm font-semibold text-forest hover:text-forest-dark"
+        className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-forest transition-colors hover:bg-mint/30 hover:text-forest-dark"
       >
-        ← Back to farmers
+        <ArrowLeftIcon className="size-4" />
+        Back to farmers
       </Link>
       <FarmerDetail farmer={farmer} />
     </div>

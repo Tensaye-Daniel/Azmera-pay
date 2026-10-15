@@ -1,16 +1,8 @@
 import { Link } from 'react-router-dom'
-import {
-  PhoneIcon,
-  LocateIcon,
-  CheckIcon,
-} from '../../ui/icons'
+import { PhoneIcon, LocateIcon } from '../../ui/icons'
 import type { Farmer } from '../../../types/farmer'
-import {
-  FARMER_STATUS_CLASSES,
-  FARMER_STATUS_LABELS,
-  GENDER_LABELS,
-  getInitials,
-} from '../../../utils/farmer'
+import { GENDER_LABELS, getInitials } from '../../../utils/farmer'
+import StatusBadge from './StatusBadge'
 
 const landOwnershipLabels: Record<Farmer['land_ownership'], string> = {
   owned: 'Owned',
@@ -21,16 +13,20 @@ const landOwnershipLabels: Record<Farmer['land_ownership'], string> = {
 function DetailRow({
   label,
   value,
+  breakWords = false,
 }: {
   label: string
   value: string
+  breakWords?: boolean
 }) {
   return (
     <div className="py-3">
       <dt className="text-xs font-semibold uppercase tracking-wide text-stone">
         {label}
       </dt>
-      <dd className="mt-1 text-sm font-medium text-stone-dark">{value}</dd>
+      <dd className={`mt-1 text-sm font-medium text-stone-dark ${breakWords ? 'break-all' : ''}`}>
+        {value}
+      </dd>
     </div>
   )
 }
@@ -58,15 +54,7 @@ export default function FarmerDetail({ farmer }: { farmer: Farmer }) {
           </div>
 
           <div className="flex items-center gap-3">
-            <span
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium ${
-                FARMER_STATUS_CLASSES[farmer.status] ??
-                'bg-[#f1eed8] text-[#756b32]'
-              }`}
-            >
-              <CheckIcon className="size-3.5" />
-              {FARMER_STATUS_LABELS[farmer.status] ?? farmer.status}
-            </span>
+            <StatusBadge status={farmer.status} className="px-3 py-1.5" />
             <Link
               to={`/agent/farmers/${farmer.id}/edit`}
               className="rounded-xl bg-forest px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-forest-deeper"
@@ -81,10 +69,12 @@ export default function FarmerDetail({ farmer }: { farmer: Farmer }) {
             <DetailRow
               label="Azmera account number"
               value={farmer.azmera_account_number}
+              breakWords
             />
             <DetailRow
               label="Fayda FIN"
               value={farmer.fayda_fin ?? 'Not provided'}
+              breakWords
             />
             <DetailRow
               label="Gender"
@@ -103,7 +93,7 @@ export default function FarmerDetail({ farmer }: { farmer: Farmer }) {
             <DetailRow label="Region" value={farmer.region} />
             <DetailRow
               label="Woreda"
-              value={farmer.woreda}
+              value={farmer.woreda || 'Not provided'}
             />
             <DetailRow
               label="Kebele"

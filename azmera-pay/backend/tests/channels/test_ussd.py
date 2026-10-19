@@ -1,5 +1,6 @@
-import pytest
 from urllib.parse import urlencode
+
+import pytest
 
 from apps.accounts.models import Role
 from apps.channels.gateways import AfricaTalkingGateway, get_gateway

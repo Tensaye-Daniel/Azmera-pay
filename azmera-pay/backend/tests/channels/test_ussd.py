@@ -1,4 +1,5 @@
 import pytest
+from urllib.parse import urlencode
 
 from apps.accounts.models import Role
 from apps.channels.gateways import AfricaTalkingGateway, get_gateway
@@ -129,7 +130,7 @@ def test_completed_session_is_marked_done(api_client, farmer):
 def test_urlencoded_form_payload_is_parsed(client, farmer):
     response = client.post(
         USSD_URL,
-        payload(text="1"),
+        data=urlencode(payload(text="1")),
         content_type="application/x-www-form-urlencoded",
     )
 

@@ -90,7 +90,7 @@ export default function SupplierSignup() {
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden bg-white lg:grid lg:grid-cols-[42%_1fr]">
       <ScrollToTop />
-      <AgentSignupHero showOnMobile headline="Register as a Supplier" description="Create your supplier account. New supplier accounts are reviewed before dashboard access is enabled." />
+      <AgentSignupHero headline="Register as a Supplier" description="Create your supplier account. New supplier accounts are reviewed before dashboard access is enabled." />
       <div className="flex flex-1 flex-col lg:min-h-screen">
         <main className="relative flex flex-1 items-center justify-center px-4 py-10 sm:px-6 lg:px-10">
           <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true"><div className="bg-ethiopian-pattern absolute inset-0 opacity-[0.12]" /><span className="absolute -top-16 right-[-4rem] size-72 rounded-full bg-mint blur-3xl" /></div>
@@ -99,7 +99,7 @@ export default function SupplierSignup() {
               <div>
                 <Notice variant="success" title="Registration submitted" className="mb-6">{result.message || 'Your supplier registration is awaiting admin approval.'}</Notice>
                 <p className="text-sm leading-6 text-stone-dark">We will review your registration. Once approved, you can sign in with your phone number and password to access supplier features.</p>
-                <Link to="/login" className="mt-6 inline-flex w-full justify-center rounded-xl bg-forest px-5 py-3 text-sm font-semibold text-white hover:bg-forest-deeper">Return to log in</Link>
+                <Link to="/login/supplier" className="mt-6 inline-flex w-full justify-center rounded-xl bg-forest px-5 py-3 text-sm font-semibold text-white hover:bg-forest-deeper">Return to log in</Link>
               </div>
             ) : (
               <>
@@ -121,7 +121,7 @@ export default function SupplierSignup() {
                   </div>
                   <Button type="submit" fullWidth loading={submitting}>{submitting ? 'Submitting…' : 'Submit supplier registration'}</Button>
                 </form>
-                <p className="mt-6 text-center text-sm text-stone">Already have an account? <Link to="/login" className="font-semibold text-forest underline-offset-2 hover:underline">Log in</Link></p>
+                <p className="mt-6 text-center text-sm text-stone">Already have an account? <Link to="/login/supplier" className="font-semibold text-forest underline-offset-2 hover:underline">Log in</Link></p>
               </>
             )}
             <LegalDialog open={termsOpen} title="Terms and Conditions" onClose={() => setTermsOpen(false)}>

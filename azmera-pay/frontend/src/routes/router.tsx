@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 import LandingLayout from '../components/layout/LandingLayout'
 import SupplierLayout from '../layouts/SupplierLayout'
 import AgentLayout from '../layouts/AgentLayout'
@@ -11,7 +11,7 @@ import SupplierListings from '../pages/supplier/SupplierListings'
 import SupplierRequests from '../pages/supplier/SupplierRequests'
 import SupplierMatches from '../pages/supplier/SupplierMatches'
 import SupplierShopSetup from '../pages/supplier/SupplierShopSetup'
-import AgentLogin from '../pages/auth/AgentLogin'
+import Login from '../pages/auth/Login'
 import AgentSignup from '../pages/auth/AgentSignup'
 import AgentDashboard from '../pages/agent/AgentDashboard'
 import FarmerListPage from '../pages/agent/FarmerListPage'
@@ -29,7 +29,8 @@ const router = createBrowserRouter([
       { path: '/', element: <LandingPage /> },
     ],
   },
-  { path: '/login', element: <AgentLogin /> },
+  { path: '/login', element: <Login variant="agent" /> },
+  { path: '/login/supplier', element: <Login variant="supplier" /> },
   { path: '/register', element: <RegistrationChoice /> },
   { path: '/register/agent', element: <AgentSignup /> },
   { path: '/register/supplier', element: <SupplierSignup /> },

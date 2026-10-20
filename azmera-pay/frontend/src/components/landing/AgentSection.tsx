@@ -87,7 +87,7 @@ export default function AgentSection() {
 
             <div className="mt-10">
               <Link
-                to="/register"
+                to="/register/agent"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-forest px-8 py-4 text-sm font-semibold text-snow shadow-[0_10px_30px_rgba(35,139,69,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-forest-dark"
               >
                 Become an Agent

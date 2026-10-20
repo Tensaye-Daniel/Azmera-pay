@@ -120,6 +120,16 @@ SIMPLE_JWT = {
 }
 
 
+# USSD / SMS channel (Africa's Talking). See apps/channels.
+USSD_GATEWAY = env("USSD_GATEWAY", default="mock")
+AFRICASTALKING_USERNAME = env("AFRICASTALKING_USERNAME", default="")
+AFRICASTALKING_API_KEY = env("AFRICASTALKING_API_KEY", default="")
+AFRICASTALKING_SHORTCODE = env("AFRICASTALKING_SHORTCODE", default="")
+# When set, callbacks must present this token as ?token=... or the X-USSD-Secret header.
+USSD_CALLBACK_SECRET = env("USSD_CALLBACK_SECRET", default="")
+USSD_MAX_MESSAGE_LENGTH = env.int("USSD_MAX_MESSAGE_LENGTH", default=182)
+
+
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "UTC"

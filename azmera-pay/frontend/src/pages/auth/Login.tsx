@@ -28,6 +28,26 @@ interface LoginErrors {
 
 const PHONE_DIGITS = /^\d{9,12}$/
 
+type LoginVariant = 'agent' | 'supplier'
+
+const COPY: Record<
+  LoginVariant,
+  { heroDescription: string; cardDescription: string; registerPath: string }
+> = {
+  agent: {
+    heroDescription:
+      'Your work helps connect Ethiopian farmers to better opportunities. Sign in to continue making an impact.',
+    cardDescription: 'Sign in to your Azmera agent account.',
+    registerPath: '/register/agent',
+  },
+  supplier: {
+    heroDescription:
+      'Run your agricultural business with Azmera. Sign in to manage your shop, listings and requests from farmers.',
+    cardDescription: 'Sign in to your Azmera supplier account.',
+    registerPath: '/register/supplier',
+  },
+}
+
 function normalizePhone(value: string): string {
   let digits = value.replace(/\D/g, '')
   if (digits.startsWith('0')) digits = digits.slice(1)
@@ -35,7 +55,8 @@ function normalizePhone(value: string): string {
   return `+${digits}`
 }
 
-export default function AgentLogin() {
+export default function Login({ variant = 'agent' }: { variant?: LoginVariant }) {
+  const copy = COPY[variant]
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [remember, setRemember] = useState(true)
@@ -88,7 +109,7 @@ export default function AgentLogin() {
       const me = await fetchMe()
       setUser(me)
       const from = (location.state as LocationState | null)?.from?.pathname
-      navigate(from && from !== '/login' ? from : me.role === 'supplier' ? '/supplier' : '/agent', { replace: true })
+      navigate(from && !from.startsWith('/login') ? from : me.role === 'supplier' ? '/supplier' : '/agent', { replace: true })
     } catch (cause) {
       const data = cause instanceof AxiosError ? cause.response?.data as Record<string, unknown> | undefined : undefined
       const detail = data?.detail ?? data?.non_field_errors
@@ -102,9 +123,9 @@ export default function AgentLogin() {
     <div className="flex min-h-screen flex-col overflow-x-hidden bg-white lg:grid lg:grid-cols-[42%_1fr]">
       <ScrollToTop />
       <AgentSignupHero
-        showOnMobile
+        showOnMobile={variant === 'agent'}
         headline="Welcome Back to Azmera"
-        description="Your work helps connect Ethiopian farmers to better opportunities. Sign in to continue making an impact."
+        description={copy.heroDescription}
       />
 
       <div className="flex flex-1 flex-col lg:min-h-screen">
@@ -123,7 +144,7 @@ export default function AgentLogin() {
                   Welcome Back
                 </h2>
                 <p className="mt-1 text-sm text-stone">
-                  Sign in to your Azmera agent account.
+                  {copy.cardDescription}
                 </p>
               </header>
 
@@ -229,7 +250,7 @@ export default function AgentLogin() {
               <p className="mt-6 text-center text-sm text-stone">
                 Don&apos;t have an account?{' '}
                 <Link
-                  to="/register"
+                  to={copy.registerPath}
                   className="font-semibold text-forest underline-offset-2 hover:underline"
                 >
                   Create an account

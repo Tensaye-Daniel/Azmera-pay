@@ -16,7 +16,11 @@ export default function RequireAuth({ children, allowedRoles, requireApprovedSup
   const location = useLocation()
 
   if (!accessToken || !user) {
-    return <Navigate to="/login" state={{ from: location }} replace />
+    const loginPath =
+      allowedRoles && allowedRoles.length === 1 && allowedRoles[0] === 'supplier'
+        ? '/login/supplier'
+        : '/login'
+    return <Navigate to={loginPath} state={{ from: location }} replace />
   }
    if (allowedRoles && !allowedRoles.includes(user.role)) {
     const homePath = user.role === 'supplier' ? '/supplier' : '/agent'

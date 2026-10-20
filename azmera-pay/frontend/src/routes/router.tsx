@@ -19,7 +19,6 @@ import FarmerCreatePage from '../pages/agent/FarmerCreatePage'
 import FarmerDetailPage from '../pages/agent/FarmerDetailPage'
 import FarmerEditPage from '../pages/agent/FarmerEditPage'
 import AgentSettings from '../pages/agent/AgentSettings'
-import RegistrationChoice from '../pages/auth/RegistrationChoice'
 import SupplierSignup from '../pages/auth/SupplierSignup'
 
 const router = createBrowserRouter([
@@ -31,7 +30,7 @@ const router = createBrowserRouter([
   },
   { path: '/login', element: <Login variant="agent" /> },
   { path: '/login/supplier', element: <Login variant="supplier" /> },
-  { path: '/register', element: <RegistrationChoice /> },
+  { path: '/register', element: <Navigate to="/register/agent" replace /> },
   { path: '/register/agent', element: <AgentSignup /> },
   { path: '/register/supplier', element: <SupplierSignup /> },
   {

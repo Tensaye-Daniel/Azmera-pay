@@ -62,3 +62,7 @@ export async function fetchMe(): Promise<User> {
   const { data } = await client.get<User>('/auth/me')
   return data
 }
+
+export async function invalidateRefreshToken(refresh: string): Promise<void> {
+  await client.post('/auth/logout', { refresh })
+}

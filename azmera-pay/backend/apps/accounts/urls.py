@@ -4,6 +4,7 @@ from django.urls import path
 from .views import (
     AgentRegisterView,
     MeView,
+    LogoutView,
     SupplierApprovalTokenRefreshView,
     SupplierApprovalTokenView,
     SupplierProfileView,
@@ -16,6 +17,7 @@ urlpatterns = [
     path("auth/login", SupplierApprovalTokenView.as_view(), name="login"),
     path("auth/token/refresh", SupplierApprovalTokenRefreshView.as_view(), name="token-refresh"),
     path("auth/me", MeView.as_view(), name="me"),
+    path("auth/logout", LogoutView.as_view(), name="logout"),
     path(
     "supplier/profile",
     SupplierProfileView.as_view(),

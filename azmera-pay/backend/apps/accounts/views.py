@@ -1,6 +1,10 @@
 ﻿# Auth endpoints - JWT via djangorestframework-simplejwt.
-from rest_framework import generics, permissions
-from rest_framework.exceptions import PermissionDenied
+from rest_framework import generics, permissions, status
+from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from .models import Role, SupplierApprovalStatus, SupplierProfile
@@ -35,6 +39,23 @@ class SupplierApprovalTokenView(TokenObtainPairView):
 
 class SupplierApprovalTokenRefreshView(TokenRefreshView):
     serializer_class = SupplierApprovalTokenRefreshSerializer
+
+
+class LogoutView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        raw_refresh = request.data.get("refresh")
+        if not raw_refresh:
+            raise ValidationError({"refresh": "A refresh token is required."})
+        try:
+            token = RefreshToken(raw_refresh)
+            if str(token.get("user_id")) != str(request.user.pk):
+                raise ValidationError({"refresh": "This token does not belong to you."})
+            token.blacklist()
+        except TokenError as exc:
+            raise ValidationError({"refresh": "Invalid or expired refresh token."}) from exc
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class SupplierProfileView(generics.RetrieveUpdateAPIView):

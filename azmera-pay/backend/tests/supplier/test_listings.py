@@ -68,7 +68,7 @@ def listing_payload(product, unit, **overrides):
     [
         AvailabilityStatus.ACTIVE,
         AvailabilityStatus.PAUSED,
-        AvailabilityStatus.EXPIRED,
+        AvailabilityStatus.INACTIVE,
     ],
 )
 def test_supplier_can_create_listing_with_each_valid_availability(
@@ -82,6 +82,128 @@ def test_supplier_can_create_listing_with_each_valid_availability(
 
     assert response.status_code == status.HTTP_201_CREATED
     assert response.data["availability_status"] == availability
+    assert response.data["product_name"] == product.name
+
+
+def test_supplier_can_create_product_by_name_in_configured_category(
+    supplier_client, unit
+):
+    response = supplier_client.post(
+        LIST_URL,
+        {
+            "name": "NPSB 19-38-7 Fertilizer",
+            "category": "seed",
+            "available_quantity": "20.00",
+            "unit": str(unit.id),
+            "unit_price": "75.50",
+            "region": "Oromia",
+            "woreda": "Adama",
+        },
+        format="json",
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.data["product_name"] == "NPSB 19-38-7 Fertilizer"
+    assert response.data["product_category"] == "seed"
+    listing = SupplierListing.objects.get(id=response.data["id"])
+    assert listing.product.name == "NPSB 19-38-7 Fertilizer"
+
+
+def test_supplier_cannot_create_product_name_in_unconfigured_category(
+    supplier_client, unit
+):
+    response = supplier_client.post(
+        LIST_URL,
+        {
+            "name": "Unconfigured fertilizer",
+            "category": "fertilizer",
+            "available_quantity": "20.00",
+            "unit": str(unit.id),
+            "unit_price": "75.50",
+            "region": "Oromia",
+            "woreda": "Adama",
+        },
+        format="json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert not SupplierListing.objects.filter(product__name="Unconfigured fertilizer").exists()
+
+
+def test_supplier_cannot_create_listing_for_category_not_in_shop_setup(
+    supplier_client, unit
+):
+    fertilizer = ProductFactory(category="fertilizer")
+    response = supplier_client.post(
+        LIST_URL, listing_payload(fertilizer, unit), format="json"
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "product" in response.data
+
+
+def test_supplier_category_input_must_be_a_canonical_category(supplier_client, unit):
+    response = supplier_client.post(
+        LIST_URL,
+        {
+            "name": "Unknown category product",
+            "category": "farm-supplies",
+            "available_quantity": "20.00",
+            "unit": str(unit.id),
+            "unit_price": "75.50",
+            "region": "Oromia",
+            "woreda": "Adama",
+        },
+        format="json",
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "category" in response.data
+
+
+def test_unauthenticated_client_cannot_create_supplier_listing(api_client, unit):
+    product = ProductFactory()
+    response = api_client.post(LIST_URL, listing_payload(product, unit), format="json")
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+def test_supplier_cannot_change_listing_to_unconfigured_category(
+    supplier_client, product, unit
+):
+    created = supplier_client.post(
+        LIST_URL, listing_payload(product, unit), format="json"
+    )
+    fertilizer = ProductFactory(category="fertilizer")
+
+    response = supplier_client.patch(
+        f"{LIST_URL}/{created.data['id']}",
+        {"product": str(fertilizer.id)},
+        format="json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+def test_supplier_can_keep_legacy_category_when_updating_other_fields(
+    supplier_client, supplier, unit
+):
+    fertilizer = ProductFactory(category="fertilizer")
+    listing = SupplierListing.objects.create(
+        supplier=supplier,
+        product=fertilizer,
+        available_quantity="20.00",
+        unit=unit,
+        unit_price="40.00",
+        region="Oromia",
+        woreda="Adama",
+    )
+
+    response = supplier_client.patch(
+        f"{LIST_URL}/{listing.id}", {"notes": "Existing stock"}, format="json"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert str(response.data["product"]) == str(fertilizer.id)
+    assert response.data["product_name"] == fertilizer.name
 
 
 def test_supplier_cannot_create_listing_with_invalid_availability(
@@ -107,14 +229,54 @@ def test_supplier_can_update_listing_availability(
     assert create_response.status_code == status.HTTP_201_CREATED
 
     listing_url = f"{LIST_URL}/{create_response.data['id']}"
+    for next_status in (
+        AvailabilityStatus.PAUSED,
+        AvailabilityStatus.INACTIVE,
+        AvailabilityStatus.ACTIVE,
+    ):
+        response = supplier_client.patch(
+            listing_url,
+            {"availability_status": next_status},
+            format="json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["availability_status"] == next_status
+
+
+def test_legacy_expired_listing_can_be_changed_to_inactive(
+    supplier_client, supplier, product, unit
+):
+    listing = SupplierListing.objects.create(
+        supplier=supplier,
+        product=product,
+        available_quantity="10",
+        unit=unit,
+        unit_price="5",
+        region="Oromia",
+        woreda="Adama",
+        availability_status=AvailabilityStatus.EXPIRED,
+    )
+
     response = supplier_client.patch(
-        listing_url,
-        {"availability_status": AvailabilityStatus.PAUSED},
+        f"{LIST_URL}/{listing.id}",
+        {"availability_status": AvailabilityStatus.INACTIVE},
         format="json",
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.data["availability_status"] == AvailabilityStatus.PAUSED
+    assert response.data["availability_status"] == AvailabilityStatus.INACTIVE
+
+
+def test_supplier_cannot_set_legacy_expired_status_on_new_listing(
+    supplier_client, product, unit
+):
+    response = supplier_client.post(
+        LIST_URL,
+        listing_payload(product, unit, availability_status="expired"),
+        format="json",
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "availability_status" in response.data
 
 
 def test_supplier_can_only_see_own_listings(
@@ -194,6 +356,33 @@ def test_non_supplier_cannot_manage_supplier_listings(
     response = agent_client.get(LIST_URL)
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_non_supplier_cannot_change_listing_status(agent_client, product, unit):
+    supplier = create_web_user(
+        phone="+251911200020",
+        role=Role.SUPPLIER,
+        full_name="Listing Owner",
+    )
+    listing = SupplierListing.objects.create(
+        supplier=supplier,
+        product=product,
+        available_quantity="10",
+        unit=unit,
+        unit_price="5",
+        region="Oromia",
+        woreda="Adama",
+    )
+
+    response = agent_client.patch(
+        f"{LIST_URL}/{listing.id}",
+        {"availability_status": AvailabilityStatus.INACTIVE},
+        format="json",
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    listing.refresh_from_db()
+    assert listing.availability_status == AvailabilityStatus.ACTIVE
 
 @pytest.mark.parametrize(
     "approval_status",

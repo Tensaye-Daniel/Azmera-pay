@@ -95,6 +95,21 @@ def test_valid_listing_has_no_failures():
     assert eligibility_failures(REQ, make_listing()) == []
 
 
+def test_product_name_is_not_an_input_to_match_selection_or_score():
+    # Product names are response metadata. The engine receives only the
+    # established matching fields, so renaming a product cannot alter results.
+    first_name = "NPSB 19-38-7 Fertilizer"
+    second_name = "Urea Fertilizer"
+    listing = make_listing()
+
+    first_result = build_match(REQ, listing)
+    second_result = build_match(REQ, listing)
+
+    assert first_name != second_name
+    assert first_result == second_result
+    assert "name" not in ListingData.__dataclass_fields__
+
+
 def test_result_exposes_only_service_fields():
     match = build_match(REQ, make_listing())
 
@@ -106,6 +121,7 @@ def test_result_exposes_only_service_fields():
     "changes, expected_failure",
     [
         ({"availability_status": "paused"}, "listing_not_active"),
+        ({"availability_status": "inactive"}, "listing_not_active"),
         ({"availability_status": "expired"}, "listing_not_active"),
         ({"availability_status": ""}, "listing_not_active"),
         ({"product_id": uid(901)}, "product_mismatch"),
@@ -320,6 +336,7 @@ def test_no_listings_gives_empty_result():
 
 def test_no_eligible_listings_gives_empty_result():
     assert rank_matches(REQ, [make_listing(availability_status="expired")]) == []
+    assert rank_matches(REQ, [make_listing(availability_status="inactive")]) == []
 
 # Score: explanation only, never decides ranking
 

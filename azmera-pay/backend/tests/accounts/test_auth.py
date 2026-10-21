@@ -59,6 +59,34 @@ def test_me_returns_the_current_user(agent_client, agent):
 def test_me_requires_authentication(api_client):
     assert api_client.get("/api/v1/auth/me").status_code == 401
 
+
+def test_logout_blacklists_authenticated_users_refresh_token(api_client, agent):
+    refresh = str(RefreshToken.for_user(agent))
+    api_client.force_authenticate(user=agent)
+
+    response = api_client.post(
+        "/api/v1/auth/logout", {"refresh": refresh}, format="json"
+    )
+
+    assert response.status_code == 204
+    refresh_response = api_client.post(
+        "/api/v1/auth/token/refresh", {"refresh": refresh}, format="json"
+    )
+    assert refresh_response.status_code == 401
+
+
+def test_logout_does_not_blacklist_another_users_token(api_client, agent):
+    other = create_web_user(phone="+251911100009", role=Role.AGENT)
+    api_client.force_authenticate(user=agent)
+
+    response = api_client.post(
+        "/api/v1/auth/logout",
+        {"refresh": str(RefreshToken.for_user(other))},
+        format="json",
+    )
+
+    assert response.status_code == 400
+
 @pytest.mark.parametrize(
     "approval_status",
     [

@@ -1,204 +1,50 @@
-import {
-StoreIcon,
-UsersIcon,
-NetworkIcon,
-ArrowRightIcon,
-ClockIcon,
-TagIcon,
-} from '../../components/ui/icons'
-
-const summaryCards = [
-{
-label: 'Active listings',
-value: '0',
-description: 'Products you currently offer',
-icon: StoreIcon,
-tone: 'bg-mint/50 text-forest-deeper',
-},
-{
-label: 'New requests',
-value: '0',
-description: 'Requests awaiting your response',
-icon: UsersIcon,
-tone: 'bg-[#f1eed8] text-[#756b32]',
-},
-{
-label: 'Potential matches',
-value: '0',
-description: 'Opportunities to review',
-icon: NetworkIcon,
-tone: 'bg-[#e8f0e7] text-forest',
-},
-]
-
-const quickActions = [
-{
-title: 'Manage your listings',
-description: 'Review the products, prices, and quantities you offer.',
-label: 'View listings',
-to: '/supplier/listings',
-icon: StoreIcon,
-},
-{
-title: 'Review requests',
-description: 'See incoming agricultural requests relevant to your products.',
-label: 'View requests',
-to: '/supplier/requests',
-icon: UsersIcon,
-},
-{
-title: 'Explore matches',
-description: 'Review potential matches between your listings and requests.',
-label: 'View matches',
-to: '/supplier/matches',
-icon: NetworkIcon,
-},
-]
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { fetchMe } from '../../api/auth'
+import { fetchSupplierListings, fetchSupplierProfile, type SupplierListing, type SupplierProfile } from '../../api/supplier'
+import { useAuthStore } from '../../store/auth'
+import SupplierStatCard from '../../components/features/supplier/SupplierStatCard'
+import SupplierListingStatusBadge from '../../components/features/supplier/SupplierListingStatusBadge'
+import { AlertIcon, CheckCircleIcon, ClockIcon, StoreIcon } from '../../components/ui/icons'
 
 export default function SupplierDashboard() {
-return ( <div className="mx-auto max-w-6xl space-y-8"> <section className="relative overflow-hidden rounded-3xl bg-forest-deeper px-6 py-8 text-white sm:px-9 sm:py-10"> <div className="bg-ethiopian-pattern pointer-events-none absolute inset-0 opacity-10" />
+  const cachedUser = useAuthStore((state) => state.user)
+  const [name, setName] = useState(cachedUser?.full_name ?? '')
+  const [shop, setShop] = useState<SupplierProfile | null>(null)
+  const [listings, setListings] = useState<SupplierListing[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
+  useEffect(() => {
+    let active = true
+    void Promise.all([fetchMe(), fetchSupplierProfile(), fetchSupplierListings()]).then(([user, profile, items]) => {
+      if (!active) return
+      setName(user.full_name); setShop(profile); setListings(items)
+    }).catch(() => { if (active) setError('Some account information could not be loaded. Refresh to try again.') })
+      .finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
+  }, [])
 
-    <div className="relative max-w-2xl">
-      <p className="mb-3 text-sm font-medium tracking-wide text-mint">
-        SUPPLIER WORKSPACE
-      </p>
-
-      <h1 className="font-serif text-3xl font-semibold leading-tight sm:text-4xl">
-        Grow your business with Azmera Pay.
-      </h1>
-
-      <p className="mt-4 max-w-xl text-sm leading-6 text-white/80 sm:text-base">
-        Manage your agricultural listings, review requests, and discover
-        opportunities to connect with buyers.
-      </p>
-
-      <a
-        href="/supplier/listings"
-        className="mt-6 inline-flex items-center gap-2 rounded-full bg-gold px-5 py-3 text-sm font-semibold text-forest-deeper transition-colors hover:bg-white"
-      >
-        Manage listings
-        <ArrowRightIcon className="size-4" />
-      </a>
-    </div>
-  </section>
-
-  <section aria-labelledby="overview-heading">
-    <div className="mb-5">
-      <h2
-        id="overview-heading"
-        className="font-serif text-2xl font-semibold text-forest-deeper"
-      >
-        Your overview
-      </h2>
-      <p className="mt-1 text-sm text-stone">
-        A quick look at your supplier activity.
-      </p>
-    </div>
-
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-      {summaryCards.map((card) => {
-        const Icon = card.icon
-
-        return (
-          <article
-            key={card.label}
-            className="rounded-2xl border border-forest/10 bg-white p-5 shadow-[0_4px_20px_rgba(22,95,48,0.04)]"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-medium text-stone">
-                  {card.label}
-                </p>
-                <p className="mt-3 text-3xl font-semibold tracking-tight text-forest-deeper">
-                  {card.value}
-                </p>
-              </div>
-
-              <div
-                className={`grid size-11 place-items-center rounded-xl ${card.tone}`}
-              >
-                <Icon className="size-5" />
-              </div>
-            </div>
-
-            <p className="mt-4 text-xs leading-5 text-stone">
-              {card.description}
-            </p>
-          </article>
-        )
-      })}
-    </div>
-  </section>
-
-  <section aria-labelledby="actions-heading">
-    <div className="mb-5">
-      <h2
-        id="actions-heading"
-        className="font-serif text-2xl font-semibold text-forest-deeper"
-      >
-        Quick actions
-      </h2>
-      <p className="mt-1 text-sm text-stone">
-        Pick up where you need to work.
-      </p>
-    </div>
-
-    <div className="grid gap-4 lg:grid-cols-3">
-      {quickActions.map((action) => {
-        const Icon = action.icon
-
-        return (
-          <article
-            key={action.title}
-            className="group flex flex-col rounded-2xl border border-forest/10 bg-white p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-forest/25 hover:shadow-[0_10px_28px_rgba(22,95,48,0.08)]"
-          >
-            <div className="mb-4 grid size-11 place-items-center rounded-xl bg-mint/50 text-forest-deeper">
-              <Icon className="size-5" />
-            </div>
-
-            <h3 className="font-semibold text-forest-deeper">
-              {action.title}
-            </h3>
-
-            <p className="mt-2 flex-1 text-sm leading-6 text-stone">
-              {action.description}
-            </p>
-
-            <a
-              href={action.to}
-              className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-forest transition-colors hover:text-forest-dark"
-            >
-              {action.label}
-              <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
-            </a>
-          </article>
-        )
-      })}
-    </div>
-  </section>
-
-  <section className="rounded-2xl border border-forest/10 bg-white p-5 sm:p-6">
-    <div className="flex items-start gap-4">
-      <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-[#f1eed8] text-[#756b32]">
-        <ClockIcon className="size-5" />
-      </div>
-
-      <div>
-        <h2 className="font-serif text-xl font-semibold text-forest-deeper">
-          Keep your listings up to date
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-stone">
-          Make sure your available quantities, prices, and listing validity
-          reflect what you can currently supply.
-        </p>
-      </div>
-
-      <TagIcon className="ml-auto hidden size-5 shrink-0 text-gold-dark sm:block" />
-    </div>
-  </section>
-</div>
-
-
-)
+  const active = listings.filter((item) => item.availability_status === 'active').length
+  const paused = listings.filter((item) => item.availability_status === 'paused').length
+  const inactive = listings.filter((item) => item.availability_status === 'inactive' || item.availability_status === 'expired').length
+  return <div className="mx-auto max-w-6xl space-y-7">
+    <section className="rounded-3xl bg-forest-deeper px-6 py-8 text-white sm:px-9 sm:py-10">
+      <p className="text-sm font-medium tracking-wide text-mint">SUPPLIER WORKSPACE</p>
+      <h1 className="mt-3 font-serif text-3xl font-semibold sm:text-4xl">Welcome, {name || 'supplier'}</h1>
+      <p className="mt-2 text-white/80">{shop?.company_name || 'Your shop'} · Keep your products and availability up to date.</p>
+      <Link to="/supplier/listings" className="mt-6 inline-flex rounded-xl bg-gold px-5 py-3 text-sm font-semibold text-forest-deeper">Add a listing</Link>
+    </section>
+    {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-800">{error}</p>}
+    <section aria-label="Listing statistics" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <SupplierStatCard title="Total Listings" value={loading ? '…' : listings.length} description="Products listed by your shop" tone="total" icon={StoreIcon} />
+      <SupplierStatCard title="Active Listings" value={loading ? '…' : active} description="Currently available to the marketplace" tone="active" icon={CheckCircleIcon} />
+      <SupplierStatCard title="Paused Listings" value={loading ? '…' : paused} description="Temporarily unavailable" tone="paused" icon={ClockIcon} />
+      <SupplierStatCard title="Inactive Listings" value={loading ? '…' : inactive} description="Not currently available" tone="inactive" icon={AlertIcon} />
+    </section>
+    <section className="rounded-2xl border border-forest/10 bg-white p-5 sm:p-6"><div className="flex items-center justify-between gap-3"><div><h2 className="font-serif text-xl font-semibold text-forest-deeper">Recently updated</h2><p className="mt-1 text-sm text-stone">Your latest product listings.</p></div><Link to="/supplier/listings" className="text-sm font-semibold text-forest underline">All listings</Link></div>
+      {loading ? <p role="status" className="py-8 text-sm text-stone">Loading account activity…</p> : listings.length === 0 ? <div className="mt-5 rounded-xl bg-[#f7faf6] p-5"><p className="font-semibold text-forest-deeper">Your shop is ready for its first listing</p><p className="mt-1 text-sm text-stone">Add a product name, category, price, and available quantity to get started.</p><Link to="/supplier/listings" className="mt-4 inline-flex text-sm font-semibold text-forest underline">Create a listing</Link></div> : <ul className="mt-4 divide-y divide-forest/10">{[...listings].sort((a,b) => b.updated_at.localeCompare(a.updated_at)).slice(0,5).map((item) => <li key={item.id} className="flex items-center justify-between gap-4 py-3"><div className="min-w-0"><p className="truncate font-medium text-forest-deeper">{item.product_name}</p><p className="text-xs text-stone">{item.available_quantity} {item.unit_code} · Updated {new Date(item.updated_at).toLocaleDateString()}</p></div><SupplierListingStatusBadge status={item.availability_status} /></li>)}</ul>}
+    </section>
+    <section className="rounded-2xl border border-forest/10 bg-white p-5"><h2 className="font-semibold text-forest-deeper">Shop details</h2><div className="mt-3 grid gap-2 text-sm sm:grid-cols-2"><p><span className="text-stone">Personal name:</span> {name || '—'}</p><p><span className="text-stone">Business name:</span> {shop?.company_name || '—'}</p><p><span className="text-stone">Location:</span> {shop ? `${shop.region}, ${shop.woreda}` : '—'}</p><p><span className="text-stone">Configured categories:</span> {shop?.product_categories.length ?? '—'}</p></div><Link to="/supplier/shop-setup" className="mt-4 inline-flex text-sm font-semibold text-forest underline">Manage Shop Setup</Link></section>
+  </div>
 }

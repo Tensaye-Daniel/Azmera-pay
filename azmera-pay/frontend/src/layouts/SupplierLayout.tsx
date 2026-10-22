@@ -6,6 +6,9 @@ import {
   type SVGProps,
 } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { useAuthStore } from '../store/auth'
+import { fetchMe, invalidateRefreshToken } from '../api/auth'
+import { fetchSupplierProfile } from '../api/supplier'
 import {
   CloseIcon,
   MenuIcon,
@@ -13,13 +16,6 @@ import {
   UsersIcon,
   NetworkIcon,
 } from '../components/ui/icons'
-
-// TODO: Replace these temporary values with the authenticated supplier's
-// name and shop name returned by the backend API.
-const supplierProfile = {
-  name: 'Abebe Kebede',
-  shopName: 'Abebe Agricultural Shop',
-}
 
 /* Two small local icons so every nav item has its own icon.
    They match the stroke style of the shared icon set. */
@@ -126,7 +122,7 @@ function NavItems() {
   )
 }
 
-function BusinessCard() {
+function BusinessCard({ shopName }: { shopName: string }) {
   const onNavigate = useContext(CloseMenuContext)
 
   return (
@@ -141,9 +137,9 @@ function BusinessCard() {
           </p>
           <p
             className="truncate text-xs text-stone"
-            title={supplierProfile.shopName}
+            title={shopName}
           >
-            {supplierProfile.shopName}
+            {shopName || 'Shop profile'}
           </p>
         </div>
       </div>
@@ -165,9 +161,27 @@ function BusinessCard() {
 }
 
 export default function SupplierLayout() {
+  const cachedUser = useAuthStore((state) => state.user)
+  const setUser = useAuthStore((state) => state.setUser)
+  const logout = useAuthStore((state) => state.logout)
+  const refreshToken = useAuthStore((state) => state.refreshToken)
+  const [identity, setIdentity] = useState({ name: cachedUser?.full_name ?? '', shopName: '', phone: '', email: '' })
+  const initialUserName = cachedUser?.full_name
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [lastPathname, setLastPathname] = useState<string | null>(null)
   const { pathname } = useLocation()
+
+  useEffect(() => {
+    let active = true
+    void Promise.all([fetchMe(), fetchSupplierProfile()]).then(([user, shop]) => {
+      if (!active) return
+      setUser(user)
+      setIdentity({ name: user.full_name, shopName: shop.company_name, phone: user.phone, email: user.email ?? '' })
+    }).catch(() => {
+      if (active && initialUserName) setIdentity((current) => ({ ...current, name: initialUserName }))
+    })
+    return () => { active = false }
+  }, [initialUserName, setUser])
 
   // Close the drawer when the route changes. Adjusting state while rendering
   // (instead of in an effect) avoids an extra render pass.
@@ -177,6 +191,11 @@ export default function SupplierLayout() {
   }
 
   const closeMobileMenu = () => setMobileMenuOpen(false)
+  const handleLogout = async () => {
+    try { if (refreshToken) await invalidateRefreshToken(refreshToken) }
+    catch { /* Local logout still closes this session if the network is unavailable. */ }
+    finally { logout() }
+  }
 
   const currentPage =
     navigation.find(({ to, end }) =>
@@ -253,25 +272,26 @@ export default function SupplierLayout() {
             <div className="hidden min-w-0 text-right sm:block">
               <p
                 className="max-w-[180px] truncate text-sm font-semibold leading-5 text-forest-deeper"
-                title={supplierProfile.name}
+                title={identity.name || 'Supplier account'}
               >
-                {supplierProfile.name}
+                {identity.name || 'Supplier account'}
               </p>
               <p
                 className="max-w-[220px] truncate text-xs leading-4 text-stone"
-                title={supplierProfile.shopName}
+                title={identity.shopName || 'Shop profile'}
               >
-                {supplierProfile.shopName}
+                {identity.shopName || 'Shop profile'}
               </p>
             </div>
 
             <div
               role="img"
-              aria-label={`${supplierProfile.name}, ${supplierProfile.shopName}`}
+              aria-label={`${identity.name || 'Supplier account'}, ${identity.shopName || 'Shop profile'}`}
               className="grid size-9 shrink-0 place-items-center rounded-full bg-mint/60 text-sm font-semibold text-forest-deeper ring-2 ring-white"
             >
-              {getInitials(supplierProfile.name)}
+              {getInitials(identity.name) || 'S'}
             </div>
+            <button type="button" onClick={() => void handleLogout()} className={`ml-1 rounded-lg px-3 py-2 text-xs font-semibold text-forest hover:bg-mint/50 ${focusRing}`} aria-label="Log out">Log out</button>
           </div>
         </div>
       </header>
@@ -288,7 +308,8 @@ export default function SupplierLayout() {
           </nav>
 
           <div className="mt-auto">
-            <BusinessCard />
+            <BusinessCard shopName={identity.shopName} />
+            <button type="button" onClick={() => void handleLogout()} className={`mt-3 w-full rounded-xl border border-forest/15 px-3 py-2.5 text-sm font-semibold text-forest ${focusRing}`}>Log out</button>
           </div>
         </aside>
 
@@ -320,7 +341,8 @@ export default function SupplierLayout() {
             </nav>
 
             <div className="mt-auto">
-              <BusinessCard />
+              <BusinessCard shopName={identity.shopName} />
+              <button type="button" onClick={() => void handleLogout()} className={`mt-3 w-full rounded-xl border border-forest/15 px-3 py-2.5 text-sm font-semibold text-forest ${focusRing}`}>Log out</button>
             </div>
           </CloseMenuContext.Provider>
         </aside>

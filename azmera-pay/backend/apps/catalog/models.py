@@ -51,6 +51,8 @@ class Unit(UUIDModel, TimeStampedModel):
 class AvailabilityStatus(models.TextChoices):
     ACTIVE = "active","Active"
     PAUSED = "paused","Paused"
+    INACTIVE = "inactive","Inactive"
+    # Keep the stored value available for legacy listings and API clients.
     EXPIRED = "expired","Expired"
 
 class SupplierListing(UUIDModel, TimeStampedModel):

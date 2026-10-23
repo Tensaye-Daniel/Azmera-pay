@@ -92,7 +92,7 @@ Agent farmer management and supplier listing/Shop Setup pages are connected to e
 
 ### Module 2: Supplier Listings and Matching Dashboard (#2)
 
-**Owner:** nigussiemebatsion-sys
+**Owner:** nigussiemebatsion-sys(Mebatsion Nigussie)
 
 - Manage Supplier listings and implement deterministic matching of eligible listings to Farmer requests.
 - Build Supplier match responses, including accept/decline/counteroffers, while protecting Farmer contact details until acceptance.

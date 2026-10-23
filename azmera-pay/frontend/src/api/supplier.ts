@@ -31,6 +31,13 @@ export interface SupplierListing {
   updated_at: string
 }
 
+export interface SupplierInventorySummary {
+  total: number
+  active: number
+  paused: number
+  inactive: number
+}
+
 export type ListingInput = Pick<
   SupplierListing,
   'available_quantity' | 'unit' | 'unit_price' | 'region' | 'woreda' | 'availability_status' | 'notes'
@@ -41,6 +48,13 @@ type Paginated<T> = { results: T[]; count: number; next: string | null; previous
 export async function fetchSupplierListings(): Promise<SupplierListing[]> {
   const { data } = await client.get<SupplierListing[] | Paginated<SupplierListing>>('/catalog/supplier/listings')
   return Array.isArray(data) ? data : data.results
+}
+
+export async function fetchSupplierInventorySummary(): Promise<SupplierInventorySummary> {
+  const { data } = await client.get<SupplierInventorySummary>(
+    '/catalog/supplier/inventory-summary',
+  )
+  return data
 }
 
 export async function fetchSupplierProducts(): Promise<SupplierProduct[]> {

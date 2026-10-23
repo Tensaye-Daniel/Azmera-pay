@@ -1,13 +1,38 @@
 ﻿from rest_framework import generics
+from django.db.models import Count, Q
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .models import Product, SupplierListing, Unit
+from .models import AvailabilityStatus, Product, SupplierListing, Unit
 from .permissions import IsSupplier
 from .serializers import (
     ProductSerializer,
+    SupplierInventorySummarySerializer,
     SupplierListingSerializer,
     UnitSerializer,
 )
+
+
+class SupplierInventorySummaryView(APIView):
+    """Return inventory counts for the authenticated supplier only."""
+
+    permission_classes = [IsSupplier]
+
+    def get(self, request):
+        summary = SupplierListing.objects.filter(supplier=request.user).aggregate(
+            total=Count("id"),
+            active=Count(
+                "id", filter=Q(availability_status=AvailabilityStatus.ACTIVE)
+            ),
+            paused=Count(
+                "id", filter=Q(availability_status=AvailabilityStatus.PAUSED)
+            ),
+            inactive=Count(
+                "id", filter=Q(availability_status=AvailabilityStatus.INACTIVE)
+            ),
+        )
+        return Response(SupplierInventorySummarySerializer(summary).data)
 
 
 class ProductListView(generics.ListAPIView):

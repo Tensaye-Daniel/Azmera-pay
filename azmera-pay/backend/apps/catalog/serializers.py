@@ -6,6 +6,13 @@ from core.matching.constants import canonical_region
 from .models import AvailabilityStatus, Product, ProductCategory, SupplierListing, Unit
 
 
+class SupplierInventorySummarySerializer(serializers.Serializer):
+    total = serializers.IntegerField()
+    active = serializers.IntegerField()
+    paused = serializers.IntegerField()
+    inactive = serializers.IntegerField()
+
+
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product

@@ -33,6 +33,13 @@ export interface SupplierListing {
   updated_at: string
 }
 
+export interface SupplierInventorySummary {
+  total: number
+  active: number
+  paused: number
+  inactive: number
+}
+
 export type ListingInput = Pick<
   SupplierListing,
   'available_quantity' | 'unit' | 'unit_price' | 'region' | 'woreda' | 'availability_status' | 'notes'
@@ -74,6 +81,13 @@ export async function fetchSupplierListings(): Promise<SupplierListing[]> {
   }
 
   return listings
+}
+
+export async function fetchSupplierInventorySummary(): Promise<SupplierInventorySummary> {
+  const { data } = await client.get<SupplierInventorySummary>(
+    '/catalog/supplier/inventory-summary',
+  )
+  return data
 }
 
 export async function fetchSupplierProducts(): Promise<SupplierProduct[]> {

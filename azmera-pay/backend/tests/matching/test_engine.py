@@ -53,6 +53,7 @@ def make_request(**changes):
         "max_unit_price": D("100"),
         "region": "Oromia",
         "woreda": "Adama",
+        "product_is_active": True,
     }
     values.update(changes)
     return RequestData(**values)
@@ -69,6 +70,7 @@ def make_listing(listing_id=None, **changes):
         "region": "Oromia",
         "woreda": "Adama",
         "availability_status": "active",
+        "product_is_active": True,
     }
     values.update(changes)
     return ListingData(**values)
@@ -124,9 +126,12 @@ def test_result_exposes_only_service_fields():
         ({"availability_status": "inactive"}, "listing_not_active"),
         ({"availability_status": "expired"}, "listing_not_active"),
         ({"availability_status": ""}, "listing_not_active"),
+        ({"product_is_active": False}, "product_not_active"),
         ({"product_id": uid(901)}, "product_mismatch"),
         ({"unit_id": uid(902)}, "unit_mismatch"),
         ({"available_quantity": D("9.99")}, "not_enough_quantity"),
+        ({"unit_price": D("0")}, "invalid_listing_price"),
+        ({"unit_price": D("-0.01")}, "invalid_listing_price"),
         ({"unit_price": D("100.01")}, "over_budget"),
         ({"region": "Invalid Region"}, "region_not_allowed"),
         ({"region": ""}, "region_not_allowed"),
@@ -157,6 +162,20 @@ def test_all_failures_are_reported_together():
         "over_budget",
         "region_not_allowed",
     }
+
+
+def test_inactive_request_product_is_not_matched():
+    req = make_request(product_is_active=False)
+
+    assert eligibility_failures(req, make_listing()) == ["product_not_active"]
+    assert build_match(req, make_listing()) is None
+
+
+def test_request_and_listing_product_references_must_match():
+    listing = make_listing(product_id=uid(901))
+
+    assert eligibility_failures(REQ, listing) == ["product_mismatch"]
+    assert build_match(REQ, listing) is None
 
 
 def test_price_equal_to_max_is_allowed():
@@ -460,6 +479,25 @@ def test_non_finite_decimals_are_rejected(bad):
         make_request(max_unit_price=bad)
     with pytest.raises(TypeError):
         make_listing(unit_price=bad)
+
+
+def test_engine_inputs_reject_non_uuid_identifiers():
+    with pytest.raises(TypeError, match="product_id must be a UUID"):
+        make_request(product_id="not-a-uuid")
+
+    with pytest.raises(TypeError, match="id must be a UUID"):
+        make_listing(listing_id="not-a-uuid")
+
+
+def test_required_request_fields_cannot_be_omitted():
+    with pytest.raises(TypeError, match="max_unit_price"):
+        RequestData(
+            product_id=PRODUCT_ID,
+            unit_id=UNIT_ID,
+            quantity=D("1"),
+            region="Oromia",
+            woreda="Adama",
+        )
 
 # Region helper
 

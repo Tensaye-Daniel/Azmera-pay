@@ -4,9 +4,11 @@ from decimal import ROUND_HALF_UP, Decimal
 from uuid import UUID
 
 from .constants import (
+    FAIL_INVALID_PRICE,
     FAIL_NOT_ACTIVE,
     FAIL_PRICE,
     FAIL_PRODUCT,
+    FAIL_PRODUCT_INACTIVE,
     FAIL_QUANTITY,
     FAIL_REGION,
     FAIL_UNIT,
@@ -38,6 +40,12 @@ def _require_decimal(name, value):
         raise TypeError(f"{name} must be a finite Decimal, got {value!r}")
 
 
+def _require_uuid(name, value):
+    """Ensure identifiers use the UUID contract instead of unchecked strings."""
+    if not isinstance(value, UUID):
+        raise TypeError(f"{name} must be a UUID, got {value!r}")
+
+
 @dataclass(frozen=True)
 class RequestData:
     """Data needed from a farmer's request."""
@@ -47,8 +55,11 @@ class RequestData:
     max_unit_price: Decimal
     region: str
     woreda: str
+    product_is_active: bool
 
     def __post_init__(self):
+        _require_uuid("product_id", self.product_id)
+        _require_uuid("unit_id", self.unit_id)
         _require_decimal("quantity", self.quantity)
         _require_decimal("max_unit_price", self.max_unit_price)
 
@@ -64,8 +75,12 @@ class ListingData:
     region: str
     woreda: str
     availability_status: str
+    product_is_active: bool
 
     def __post_init__(self):
+        _require_uuid("id", self.id)
+        _require_uuid("product_id", self.product_id)
+        _require_uuid("unit_id", self.unit_id)
         _require_decimal("available_quantity", self.available_quantity)
         _require_decimal("unit_price", self.unit_price)
 
@@ -86,6 +101,9 @@ def eligibility_failures(req, lst):
     if lst.availability_status != LISTING_ACTIVE:
         failures.append(FAIL_NOT_ACTIVE)
 
+    if not req.product_is_active or not lst.product_is_active:
+        failures.append(FAIL_PRODUCT_INACTIVE)
+
     if lst.product_id != req.product_id:
         failures.append(FAIL_PRODUCT)
 
@@ -94,6 +112,9 @@ def eligibility_failures(req, lst):
 
     if lst.available_quantity < req.quantity:
         failures.append(FAIL_QUANTITY)
+
+    if lst.unit_price <= ZERO:
+        failures.append(FAIL_INVALID_PRICE)
 
     if lst.unit_price > req.max_unit_price:
         failures.append(FAIL_PRICE)
@@ -130,6 +151,13 @@ def _round(value):
 
 def score_breakdown(req, lst, location):
     """Calculate the location, price, and quantity points."""
+    if req.quantity <= ZERO or req.max_unit_price <= ZERO:
+        raise ValueError("Request quantity and maximum unit price must be positive.")
+    if lst.available_quantity <= ZERO or lst.unit_price <= ZERO:
+        raise ValueError("Listing quantity and unit price must be positive.")
+    if location not in LOCATION_POINTS:
+        raise ValueError(f"Unknown location match: {location!r}")
+
     saving = (req.max_unit_price - lst.unit_price) / req.max_unit_price
     saving = min(max(saving, ZERO), ONE)
 

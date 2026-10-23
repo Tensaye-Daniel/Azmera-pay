@@ -1,68 +1,60 @@
-# Azmera Architecture
+# Azmera architecture
 
-Single-repository monolith. Backend and frontend are clearly separated but live together so a small team can ship end to end.
+Azmera Pay is a single repository with a React/TypeScript frontend and a Django
+REST Framework backend. The API is mounted under `/api/v1/`, except for the
+USSD callback at `/ussd/` and Django admin at `/admin/`. Database configuration
+comes from `DB_URL`; the project uses JWT authentication for web API requests.
 
-```
-frontend/   React + TypeScript + Vite + Tailwind (pnpm)
-backend/    Django + Django REST Framework + JWT + PostgreSQL (structure scaffolded)
-```
+## Implemented vertical slices
 
-## Core workflow
+- **Authentication and supplier onboarding:** public agent and supplier
+  registration, phone/password login, token refresh, current-user lookup, and
+  logout. Supplier registrations start pending and are reviewed by staff in
+  Django admin.
+- **Supplier workspace:** approved suppliers can complete shop setup, browse
+  catalog products and units, and create, list, update, or delete their own
+  inventory listings. The React supplier dashboard and listing management page
+  use the shared API client.
+- **Agent workspace:** agents register farmers, list and update farmers they
+  registered, and view a status summary. Admin users can access the farmer
+  endpoints across agents.
+- **USSD:** the gateway callback parses requests, displays the account/help
+  menu, and records session exchanges. The current “matches” menu response is a
+  placeholder and does not retrieve persisted matches.
 
-REGISTER → REQUEST → MATCH → CONNECT → AGREE → TRADE
-
-Each actor gets their **own dashboard** where they create their account and input their info:
-
-| Actor | Dashboard | What happens |
-| --- | --- | --- |
-| Agent | `pages/agent` → backend `roles/agent` | Registers farmers, submits requests on their behalf, earns per match |
-| Farmer | `pages/farmer` → `roles/farmer` | Asks for inputs (seeds, fertilizer, pesticides) |
-| Supplier | `pages/supplier` → `roles/supplier` | Inputs stock/price info; matched to farmer input or buyer produce requests |
-| Buyer | `pages/buyer` → `roles/buyer` | Creates a produce request with **quantity + amount**; gets matched; pays deposit |
-
-## Flow detail
-
-1. **Register / Input info** — everyone creates their account and fills their profile/role info from their dashboard.
-2. **Farmer asks input** — a farmer `Request` (kind `input`) goes out; the backend `matching` engine finds suppliers.
-3. **Matched & agree** — farmer picks from ranked candidates; when they agree, the **supplier connects the farmer** → a `Connection` is created.
-4. **Buyer side** — the buyer creates a produce `Request` (kind `produce`) with the **quantity and amount** they want; the backend matches suppliers/sellers against it.
-5. **Payments** — on signing the agreement the buyer sends a **% deposit**; when the full transaction completes the **balance is paid** (`Payment.kind`: `deposit` → `balance`).
+The backend separates these areas into Django apps under `backend/apps/` and
+keeps shared API concerns in `apps/common/`. The pure ranking code is in
+`backend/core/matching/`; that code is not a mounted matching REST API.
 
 ## Frontend structure
 
-The public site is live; dashboards are scaffolded and not yet built.
+The Vite React application lives under `frontend/src/`:
 
-```
-frontend/src/
-├── App.tsx                 # mounts the router (react-router-dom v7)
-├── routes/router.tsx       # / -> LandingPage, * -> NotFound (guards: future)
-├── pages/
-│   ├── public/             # LandingPage, NotFound
-│   ├── auth/               # login / register (future)
-│   └── {farmer,agent,buyer,supplier,admin}/   # role dashboards (future)
-├── components/
-│   ├── landing/            # marketing sections (Hero, About, HowItWorks, Buyer/Supplier/Agent, Trust, CTA)
-│   ├── layout/             # Navbar, Footer, LandingLayout
-│   ├── ui/                 # shared primitives (Reveal, icon set)
-│   └── features/           # domain widgets per role (future)
-└── api/ hooks/ store/ types/ utils/ contexts/ data/   # cross-cutting (scaffolded)
-```
+- `routes/router.tsx` defines public pages, login/registration, the supplier
+  dashboard and shop/listing pages, and the agent dashboard and farmer pages.
+- `layouts/` and shared feature/UI components provide the role layouts and
+  reusable presentation.
+- `api/client.ts` provides the Axios client, JWT header, and access-token
+  refresh behavior. Endpoint wrappers live in `api/auth.ts`, `api/supplier.ts`,
+  and `api/farmers.ts`; `api/agentRegistration.ts` adapts the agent signup
+  wizard to the smaller set of fields currently accepted by the API.
+- Zustand stores client authentication state. API data is fetched by the page
+  components through the typed API wrappers.
 
-- `LandingLayout` renders Navbar + `<Outlet/>` + Footer and contains the skip-link.
-- The landing page composes `components/landing/*` sections; in-page anchor links (`#buyers`, `#suppliers`, `#agents`) are preserved because the landing stays on a single route.
-- Add a page by creating a file under `pages/` and registering it in `routes/router.tsx`.
+The supplier Requests and Matches pages are present as explicit placeholders;
+they do not currently consume request or match APIs.
 
-## Key decisions
+## Planned functionality
 
-- **Monolith, domain-oriented apps** in `backend/apps/` — small, replaceable modules.
-- **Matching engine is a pure function** (`core/matching/engine.py`) with no Django imports → unit-testable. One engine serves both farmer-input and buyer-produce matching.
-- **Sync matching now**, Celery + Redis later without refactoring the app layer.
-- **Payments are mocked** (`core/payments/gateway.py` + `MockGateway`) — models exist, no provider dependency; deposit + balance kinds implemented.
-- **JWT auth** via djangorestframework-simplejwt; axios interceptor refreshes tokens on the frontend.
-- **State management** (frontend): Zustand slices per domain; server data via the typed `api/` layer.
+The root URL configuration does not mount HTTP API routes for farmer/buyer
+requests, persisted matching candidates, deals, notifications, or payments.
+The request and matching integration is not complete, and the supplier request
+and match pages are not connected to backend data. These areas should be treated
+as planned until their API routes, contracts, and tests are implemented.
 
-## Deploying later
+## Development and verification
 
-- Django behind gunicorn, static via whitenoise.
-- Postgres database; redis optional (async matching, rate limiting).
-- Build `frontend/` with Vite → serve statics via Django or CDN; CORS for `/api`.
+Run the backend with Django settings and dependencies described in
+`backend/`; the pytest configuration is `backend/pytest.ini`. The frontend uses
+pnpm scripts defined in `frontend/package.json` (`dev`, `lint`, `build`, and
+`preview`). The Vite development server proxies `/api` to `http://localhost:8000`.

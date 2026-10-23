@@ -34,6 +34,7 @@ woreda, and at least one category. A missing profile returns 404.
 
 ### Catalog lookup
 
+<<<<<<< HEAD
 Both lookup endpoints require authentication, but do not restrict access to the
 supplier role. They return plain JSON arrays and disable pagination.
 
@@ -93,3 +94,20 @@ buyer requests, persisted match candidates, deals/connections/agreements/trades,
 notifications, or payments. The matching engine is not an HTTP matching API,
 and the supplier Requests and Matches pages are placeholders. Do not use planned
 paths or payloads from older drafts as live API contracts.
+=======
+## USSD channel (Africa's Talking)
+- `POST /ussd/` — Africa's Talking callback. Form fields: `sessionId`, `phoneNumber`, `text`, `serviceCode`. Responds with `CON <prompt>` or `END <message>`.
+- `GET /ussd/` — health check for the configured callback URL.
+- Optional shared secret: append `?token=...` or send `X-USSD-Secret` matching `USSD_CALLBACK_SECRET`.
+- Menu language: `USSD_DEFAULT_LANGUAGE` (`en` or `am`). Messages are clamped to `USSD_MAX_MESSAGE_LENGTH`.
+- Farmer flow: My account → Request input (category, product, unit, quantity, max price, confirm) → matching runs synchronously → My matches shows the top ranked candidates.
+
+## dashboard (per role — one workspace per role)
+- `GET /api/v1/dashboard/kpis` — users, requests, trade volume
+- `GET /api/v1/dashboard/users` — user list with role filters
+- `GET /api/v1/dashboard/buyer/...` — buyer workspace (my produce requests, matches, deals, payments)
+- `GET /api/v1/dashboard/agent/...` — agent workspace (farmers, ward, verification)
+- `GET /api/v1/dashboard/supplier/...` — supplier workspace (my stock, incoming requests, connections)
+- `GET /api/v1/dashboard/farmer/...` — farmer workspace (input requests, matches, deals)
+- `GET /api/v1/dashboard/admin/...` — admin workspace (KPIs, moderation)
+>>>>>>> 95d5713 (feat: add separate admin frontend app)

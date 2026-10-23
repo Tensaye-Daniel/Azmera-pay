@@ -50,7 +50,7 @@ backend/
 └── pyproject.toml
 ```
 
-The configured API currently wires accounts, agent dashboard, catalog, and USSD routes. Agent farmer registration/management, supplier listing management, and a basic USSD callback are implemented. The callback currently supports account/help/placeholder menu actions; farmer input-request collection is not implemented. `apps/requests/` and the matching API are placeholders. `core/matching/engine.py` contains a separately tested matching engine, but it is not connected to request persistence or API endpoints. Other app folders such as deals, payments, and notifications also contain planned or partial work and should not be treated as complete workflows.
+The configured API currently wires accounts, agent dashboard, catalog, and USSD routes. Agent farmer registration/management and supplier listing management are implemented. The USSD callback (Africa's Talking form payloads) supports account/help menus, farmer input-request creation, synchronous matching against supplier listings, and a ranked match view, with English and Amharic menu bundles selected by `USSD_DEFAULT_LANGUAGE`. `apps/requests/` now stores requests and lines, and `apps/matching/` persists ranked candidate snapshots. The REST endpoints for requests/matching, along with deals, payments, and notifications, remain planned or partial and should not be treated as complete workflows.
 
 ## Frontend
 
@@ -150,4 +150,4 @@ The root `.env.example` is a shared sample; Django reads its environment from `b
 
 ## Development status
 
-Both backend and frontend require ongoing implementation and verification. Some account, Agent, Supplier listing, and USSD callback functionality exists, but several documented workflows—including Farmer USSD request creation and end-to-end matching—are incomplete or planned. See the code and linked documentation before treating a listed capability as complete.
+Both backend and frontend require ongoing implementation and verification. Account, Agent, Supplier listing, and the farmer USSD request→match flow exist, but the web request/matching APIs and the connect → agree → trade workflow are incomplete or planned. See the code and linked documentation before treating a listed capability as complete.

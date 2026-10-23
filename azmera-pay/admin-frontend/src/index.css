@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+@theme {
+  --color-forest: #238b45;
+  --color-forest-dark: #006d2c;
+  --color-forest-deeper: #165f30;
+  --color-gold: #bdb76b;
+  --color-gold-dark: #a29a52;
+  --color-mint: #c7e9c0;
+  --color-mint-dark: #b4dca8;
+  --color-snow: #ffffff;
+  --color-stone: #6e675f;
+  --color-stone-dark: #4c443c;
+
+  --font-serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  --animate-float: float 7s ease-in-out infinite;
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-9px);
+    }
+  }
+}
+
+:root {
+  font-family: var(--font-sans);
+  color: #2c241d;
+  background: var(--color-snow);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  overflow-x: hidden;
+  background-color: var(--color-snow);
+}
+
+::selection {
+  background-color: #c7e9c0;
+  color: #006d2c;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a,
+button {
+  outline: none;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid rgba(189, 183, 107, 0.75);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.bg-ethiopian-pattern {
+  background-image: url("/images/pattern.svg");
+  background-size: 96px 96px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -28,11 +28,11 @@ interface LoginErrors {
 
 const PHONE_DIGITS = /^\d{9,12}$/
 
-type LoginVariant = 'agent' | 'supplier'
+type LoginVariant = 'agent' | 'supplier' | 'admin'
 
 const COPY: Record<
   LoginVariant,
-  { heroDescription: string; cardDescription: string; registerPath: string }
+  { heroDescription: string; cardDescription: string; registerPath?: string }
 > = {
   agent: {
     heroDescription:
@@ -46,6 +46,17 @@ const COPY: Record<
     cardDescription: 'Sign in to your Azmera supplier account.',
     registerPath: '/register/supplier',
   },
+  admin: {
+    heroDescription:
+      'Keep the Azmera marketplace trustworthy by verifying farmers and approving suppliers.',
+    cardDescription: 'Sign in to the Azmera admin dashboard.',
+  },
+}
+
+const homePathFor = (role: string): string => {
+  if (role === 'supplier') return '/supplier'
+  if (role === 'admin') return '/admin'
+  return '/agent'
 }
 
 function normalizePhone(value: string): string {
@@ -72,7 +83,7 @@ export default function Login({ variant = 'agent' }: { variant?: LoginVariant })
   const location = useLocation()
 
   if (user) {
-    return <Navigate to={user.role === 'supplier' ? '/supplier' : '/agent'} replace />
+    return <Navigate to={homePathFor(user.role)} replace />
   }
 
   const showComingSoon = (message: string) => {
@@ -109,7 +120,10 @@ export default function Login({ variant = 'agent' }: { variant?: LoginVariant })
       const me = await fetchMe()
       setUser(me)
       const from = (location.state as LocationState | null)?.from?.pathname
-      navigate(from && !from.startsWith('/login') ? from : me.role === 'supplier' ? '/supplier' : '/agent', { replace: true })
+      navigate(
+        from && !from.startsWith('/login') ? from : homePathFor(me.role),
+        { replace: true },
+      )
     } catch (cause) {
       const data = cause instanceof AxiosError ? cause.response?.data as Record<string, unknown> | undefined : undefined
       const detail = data?.detail ?? data?.non_field_errors
@@ -247,15 +261,17 @@ export default function Login({ variant = 'agent' }: { variant?: LoginVariant })
                 Continue with Fayda
               </Button>
 
-              <p className="mt-6 text-center text-sm text-stone">
-                Don&apos;t have an account?{' '}
-                <Link
-                  to={copy.registerPath}
-                  className="font-semibold text-forest underline-offset-2 hover:underline"
-                >
-                  Create an account
-                </Link>
-              </p>
+              {copy.registerPath && (
+                <p className="mt-6 text-center text-sm text-stone">
+                  Don&apos;t have an account?{' '}
+                  <Link
+                    to={copy.registerPath}
+                    className="font-semibold text-forest underline-offset-2 hover:underline"
+                  >
+                    Create an account
+                  </Link>
+                </p>
+              )}
             </div>
           </div>
         </main>

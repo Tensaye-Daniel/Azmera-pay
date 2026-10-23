@@ -1,4 +1,4 @@
-﻿# Shared Django settings, env-driven via django-environ
+# Shared Django settings, env-driven via django-environ
 from datetime import timedelta
 from pathlib import Path
 
@@ -29,12 +29,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
-
     "apps.accounts",
     "apps.common",
     "apps.profiles",
@@ -42,6 +40,7 @@ INSTALLED_APPS = [
     "apps.channels",
     "apps.dashboard",
     "apps.catalog",
+    "apps.matching",
 ]
 
 
@@ -117,7 +116,9 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(seconds=env.int("JWT_ACCESS_TTL", default=300)),
-    "REFRESH_TOKEN_LIFETIME": timedelta(seconds=env.int("JWT_REFRESH_TTL", default=2592000)),
+    "REFRESH_TOKEN_LIFETIME": timedelta(
+        seconds=env.int("JWT_REFRESH_TTL", default=2592000)
+    ),
 }
 
 
@@ -129,6 +130,8 @@ AFRICASTALKING_SHORTCODE = env("AFRICASTALKING_SHORTCODE", default="")
 # When set, callbacks must present this token as ?token=... or the X-USSD-Secret header.
 USSD_CALLBACK_SECRET = env("USSD_CALLBACK_SECRET", default="")
 USSD_MAX_MESSAGE_LENGTH = env.int("USSD_MAX_MESSAGE_LENGTH", default=182)
+# Menu language for the shortcode: "en" or "am".
+USSD_DEFAULT_LANGUAGE = env("USSD_DEFAULT_LANGUAGE", default="en")
 
 
 LANGUAGE_CODE = "en-us"

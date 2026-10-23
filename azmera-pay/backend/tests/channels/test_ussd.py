@@ -1,11 +1,19 @@
+from decimal import Decimal
 from urllib.parse import urlencode
 
 import pytest
 
 from apps.accounts.models import Role
+from apps.catalog.models import ProductCategory
 from apps.channels.gateways import AfricaTalkingGateway, get_gateway
 from apps.channels.models import USSDInteraction, USSDSession, USSDSessionStatus
+from apps.requests.models import Request, RequestKind, RequestLine, RequestStatus
 from tests.factories.accounts import UserFactory
+from tests.factories.catalog import (
+    ProductFactory,
+    SupplierListingFactory,
+    UnitFactory,
+)
 from tests.factories.profiles import FarmerProfileFactory
 
 pytestmark = pytest.mark.django_db
@@ -28,12 +36,33 @@ def body_of(response):
     return response.content.decode()
 
 
+def post_text(api_client, text, *, session_id="session-1"):
+    return body_of(api_client.post(USSD_URL, payload(session_id=session_id, text=text)))
+
+
 @pytest.fixture
 def farmer():
     user = UserFactory(phone=FARMER_PHONE, role=Role.FARMER, full_name="Abebe Kebede")
     return FarmerProfileFactory(
         user=user, region="Oromia", woreda="Adama", primary_crop="Tef"
     )
+
+
+@pytest.fixture
+def catalog_item():
+    product = ProductFactory(name="Tef Seed", category=ProductCategory.SEED)
+    unit = UnitFactory(name="Kilogram", code="kg")
+    supplier = UserFactory(role=Role.SUPPLIER, full_name="Adama Agri")
+    listing = SupplierListingFactory(
+        supplier=supplier,
+        product=product,
+        unit=unit,
+        unit_price=Decimal("40.00"),
+        available_quantity=Decimal("100.00"),
+        region="Oromia",
+        woreda="Adama",
+    )
+    return product, unit, listing
 
 
 def test_get_health_check(api_client):
@@ -50,11 +79,12 @@ def test_first_dial_renders_main_menu(api_client, farmer):
     assert response.status_code == 200
     assert body.startswith("CON ")
     assert "1. My account" in body
+    assert "2. Request input" in body
     assert "0. Exit" in body
 
 
 def test_account_menu_shows_farmer_details(api_client, farmer):
-    body = body_of(api_client.post(USSD_URL, payload(text="1")))
+    body = post_text(api_client, "1")
 
     assert body.startswith("CON ")
     assert farmer.azmera_account_number in body
@@ -63,27 +93,34 @@ def test_account_menu_shows_farmer_details(api_client, farmer):
 
 
 def test_back_action_returns_to_main_menu(api_client, farmer):
-    body = body_of(api_client.post(USSD_URL, payload(text="1*0")))
+    body = post_text(api_client, "1*0")
 
     assert body.startswith("CON ")
-    assert "2. My matches" in body
+    assert "2. Request input" in body
 
 
-def test_my_matches_ends_with_placeholder(api_client, farmer):
-    body = body_of(api_client.post(USSD_URL, payload(text="2")))
+def test_my_matches_without_a_request(api_client, farmer):
+    body = post_text(api_client, "3")
 
     assert body.startswith("END ")
-    assert "match" in body.lower()
+    assert "No request yet" in body
 
 
 def test_exit_option_ends_session(api_client, farmer):
-    body = body_of(api_client.post(USSD_URL, payload(text="0")))
+    body = post_text(api_client, "0")
 
     assert body.startswith("END ")
 
 
+def test_help_option_ends_session(api_client, farmer):
+    body = post_text(api_client, "4")
+
+    assert body.startswith("END ")
+    assert "8080" in body
+
+
 def test_invalid_option_reprompts_main_menu(api_client, farmer):
-    body = body_of(api_client.post(USSD_URL, payload(text="9")))
+    body = post_text(api_client, "9")
 
     assert body.startswith("CON ")
     assert "Invalid option." in body
@@ -154,6 +191,164 @@ def test_callback_secret_blocks_missing_token(api_client, farmer, settings):
 
     assert blocked.status_code == 403
     assert allowed.status_code == 200
+
+
+def test_request_flow_prompts_before_saving(api_client, farmer, catalog_item):
+    product, unit, _ = catalog_item
+
+    body = post_text(api_client, "2")
+    assert body.startswith("CON ")
+    assert "Choose input type" in body
+
+    body = post_text(api_client, "2*1")
+    assert body.startswith("CON ")
+    assert "Choose product" in body
+    assert product.name in body
+
+    body = post_text(api_client, "2*1*1")
+    assert body.startswith("CON ")
+    assert "Choose unit" in body
+    assert unit.code in body
+
+    body = post_text(api_client, "2*1*1*1")
+    assert body.startswith("CON ")
+    assert "Enter quantity" in body
+
+    body = post_text(api_client, "2*1*1*1*10")
+    assert body.startswith("CON ")
+    assert "max price" in body
+
+    body = post_text(api_client, "2*1*1*1*10*50")
+    assert body.startswith("CON ")
+    assert "1. Confirm" in body
+
+
+def test_confirm_creates_request_and_runs_matching(api_client, farmer, catalog_item):
+    product, unit, listing = catalog_item
+
+    body = post_text(api_client, "2*1*1*1*10*50*1", session_id="req-1")
+
+    assert body.startswith("END ")
+    assert "1 supplier match" in body
+
+    request = Request.objects.get(source_reference="req-1")
+    assert request.owner_id == farmer.user_id
+    assert request.kind == RequestKind.INPUT
+    assert request.status == RequestStatus.MATCHED
+    assert request.region == "Oromia"
+    assert request.woreda == "Adama"
+
+    line = request.lines.get()
+    assert line.product_id == product.id
+    assert line.unit_id == unit.id
+    assert line.quantity == Decimal("10.00")
+    assert line.max_unit_price == Decimal("50.00")
+
+    candidate = request.candidates.get()
+    assert candidate.listing_id == listing.id
+    assert candidate.rank == 1
+    assert candidate.score == Decimal("80.00")
+
+
+def test_request_without_listings_is_saved_open(api_client, farmer):
+    product = ProductFactory(name="Fertilizer A", category=ProductCategory.FERTILIZER)
+    UnitFactory(name="Kilogram", code="kg")
+
+    body = post_text(api_client, "2*2*1*1*10*50*1", session_id="req-2")
+
+    assert body.startswith("END ")
+    assert "No matches yet" in body
+
+    request = Request.objects.get(source_reference="req-2")
+    assert request.status == RequestStatus.OPEN
+    assert request.candidates.count() == 0
+    assert request.lines.get().product_id == product.id
+
+
+def test_retried_confirmation_does_not_duplicate_request(
+    api_client, farmer, catalog_item
+):
+    text = "2*1*1*1*10*50*1"
+
+    post_text(api_client, text, session_id="req-retry")
+    body = post_text(api_client, text, session_id="req-retry")
+
+    assert body.startswith("END ")
+    assert Request.objects.filter(source_reference="req-retry").count() == 1
+    assert RequestLine.objects.count() == 1
+
+
+def test_back_steps_navigate_request_flow(api_client, farmer, catalog_item):
+    assert "1. My account" in post_text(api_client, "2*0")
+    assert "Choose input type" in post_text(api_client, "2*1*0")
+    assert "Choose product" in post_text(api_client, "2*1*1*0")
+    assert "Choose unit" in post_text(api_client, "2*1*1*1*0")
+    assert "Enter quantity" in post_text(api_client, "2*1*1*1*10*0")
+    assert "max price" in post_text(api_client, "2*1*1*1*10*50*0")
+
+
+def test_invalid_numbers_repeat_the_same_prompt(api_client, farmer, catalog_item):
+    body = post_text(api_client, "2*1*1*1*abc")
+    assert "Enter a valid positive number." in body
+    assert "Enter quantity" in body
+
+    body = post_text(api_client, "2*1*1*1*10*abc")
+    assert "Enter a valid positive number." in body
+    assert "max price" in body
+
+
+def test_cancel_option_discards_request(api_client, farmer, catalog_item):
+    body = post_text(api_client, "2*1*1*1*10*50*2", session_id="req-cancel")
+
+    assert body.startswith("END ")
+    assert "cancelled" in body.lower()
+    assert Request.objects.filter(source_reference="req-cancel").exists() is False
+
+
+def test_matches_screen_lists_ranked_candidates(api_client, farmer, catalog_item):
+    post_text(api_client, "2*1*1*1*10*50*1", session_id="req-match")
+
+    body = post_text(api_client, "3")
+
+    assert body.startswith("END ")
+    assert "Your matches" in body
+    assert "Adama Agri" in body
+    assert "40.00 ETB/kg" in body
+
+
+def test_matches_screen_refreshes_after_a_supplier_lists(api_client, farmer):
+    product = ProductFactory(name="Urea", category=ProductCategory.FERTILIZER)
+    unit = UnitFactory(name="Kilogram", code="kg")
+    post_text(api_client, "2*2*1*1*10*50*1", session_id="req-refresh")
+
+    request = Request.objects.get(source_reference="req-refresh")
+    assert request.status == RequestStatus.OPEN
+
+    SupplierListingFactory(
+        product=product,
+        unit=unit,
+        unit_price=Decimal("40.00"),
+        available_quantity=Decimal("100.00"),
+        region="Oromia",
+        woreda="Adama",
+    )
+
+    body = post_text(api_client, "3", session_id="req-refresh-2")
+
+    assert "Your matches" in body
+    request.refresh_from_db()
+    assert request.status == RequestStatus.MATCHED
+    assert request.candidates.count() == 1
+
+
+def test_amharic_menu_is_served_when_configured(api_client, farmer, settings):
+    settings.USSD_DEFAULT_LANGUAGE = "am"
+
+    body = post_text(api_client, "")
+
+    assert body.startswith("CON ")
+    assert "አዝመራ" in body
+    assert "ግብዓት ጠይቅ" in body
 
 
 def test_gateway_normalizes_phone_and_reads_fields():

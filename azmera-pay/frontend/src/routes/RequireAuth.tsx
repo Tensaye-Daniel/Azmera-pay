@@ -19,11 +19,18 @@ export default function RequireAuth({ children, allowedRoles, requireApprovedSup
     const loginPath =
       allowedRoles && allowedRoles.length === 1 && allowedRoles[0] === 'supplier'
         ? '/login/supplier'
-        : '/login'
+        : allowedRoles && allowedRoles.length === 1 && allowedRoles[0] === 'admin'
+          ? '/login/admin'
+          : '/login'
     return <Navigate to={loginPath} state={{ from: location }} replace />
   }
    if (allowedRoles && !allowedRoles.includes(user.role)) {
-    const homePath = user.role === 'supplier' ? '/supplier' : '/agent'
+    const homePath =
+      user.role === 'supplier'
+        ? '/supplier'
+        : user.role === 'admin'
+          ? '/admin'
+          : '/agent'
     return <Navigate to={homePath} replace />
   }
     if (

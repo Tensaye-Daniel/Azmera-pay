@@ -1,65 +1,153 @@
 # Azmera
 
-Agricultural matching platform built around one simple flow:
+Azmera is an agricultural marketplace for Ethiopia that connects farmers, agents, suppliers, and buyers. Its intended workflow is **REGISTER → REQUEST → MATCH → CONNECT → AGREE → TRADE**. USSD is an important access channel for farmers using basic phones.
 
-**REGISTER → REQUEST → MATCH → CONNECT → AGREE → TRADE**
+## Technology
 
-Azmera connects farmers, agents, suppliers and buyers across Ethiopia, with USSD as the primary channel so any phone can take part.
+- **Backend:** Django, Django REST Framework, PostgreSQL, JWT authentication (SimpleJWT)
+- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS 4
+- **Infrastructure:** Docker Compose provides PostgreSQL 16 and Redis 7. Redis is optional in the current local setup.
+- **Package manager:** pnpm for the frontend and root development scripts; Python requirements files for the backend.
 
-## Monorepo layout
+## Repository structure
 
+The application monorepo is in `azmera-pay/`:
+
+```text
+.
+├── README.md
+└── azmera-pay/
+    ├── backend/
+    ├── frontend/
+    ├── docs/
+    ├── scripts/
+    ├── docker-compose.yml
+    ├── Makefile
+    ├── package.json
+    ├── pnpm-lock.yaml
+    └── .env.example
 ```
-azmera-pay/
-├── backend/     # Django REST Framework API (JWT auth, PostgreSQL) - structure scaffolded
-├── frontend/    # React + TypeScript + Vite + Tailwind CSS (public site + dashboards)
-├── docs/        # architecture, API reference, domain rules
-├── scripts/     # seeding / dev helpers
-└── (root)       # Makefile, docker-compose.yml, .env.example
+
+## Backend
+
+```text
+backend/
+├── config/                 # Django settings, root URL configuration, ASGI/WSGI
+├── apps/
+│   ├── accounts/           # Custom phone-based users, roles, JWT/account APIs, supplier profiles
+│   ├── common/             # Shared permissions, pagination, models, phone utilities
+│   ├── profiles/           # Farmer profiles and registration business logic
+│   ├── channels/           # USSD callback, gateway parsing, session and interaction logging
+│   ├── requests/           # Request domain placeholder; model/API flow not implemented
+│   ├── catalog/            # Products, units, supplier listings and listing APIs
+│   ├── matching/           # App-level matching API placeholder
+│   └── dashboard/          # Role dashboard APIs; agent farmer endpoints are implemented
+├── core/
+│   └── matching/           # Pure matching engine, constants and orchestration placeholder
+├── tests/                  # Account, agent/farmer, supplier, USSD and matching tests
+├── requirements/           # Base, development and production Python dependencies
+├── manage.py
+└── pyproject.toml
 ```
+
+The configured API currently wires accounts, agent dashboard, catalog, and USSD routes. Agent farmer registration/management, supplier listing management, and a basic USSD callback are implemented. The callback currently supports account/help/placeholder menu actions; farmer input-request collection is not implemented. `apps/requests/` and the matching API are placeholders. `core/matching/engine.py` contains a separately tested matching engine, but it is not connected to request persistence or API endpoints. Other app folders such as deals, payments, and notifications also contain planned or partial work and should not be treated as complete workflows.
+
+## Frontend
+
+```text
+frontend/src/
+├── routes/                 # React Router routes and protected-route guards
+├── pages/
+│   ├── public/             # Landing page and not-found page
+│   ├── auth/               # Agent/supplier signup and login
+│   ├── agent/              # Agent overview, farmer list/detail/create/edit, settings
+│   ├── supplier/           # Supplier overview, listings, Shop Setup, requests and matches views
+│   ├── farmer/             # Reserved; no farmer dashboard flow yet
+│   ├── buyer/              # Reserved; no buyer dashboard flow yet
+│   └── admin/              # Reserved; no admin dashboard flow yet
+├── layouts/                # Agent and supplier dashboard layouts
+├── components/
+│   ├── landing/            # Public marketing sections
+│   ├── layout/             # Shared and landing layouts/navigation
+│   ├── ui/                 # Shared form, button, icon and notice components
+│   └── features/           # Agent and supplier feature components
+├── api/                    # Axios client and typed account/agent/supplier API calls
+├── types/                  # Frontend API/domain types
+├── store/                  # Zustand authentication state
+├── data/                   # Frontend reference data
+├── hooks/, utils/, contexts/ # Shared frontend utilities and extension points
+└── App.tsx
+```
+
+Agent farmer management and supplier listing/Shop Setup pages are connected to existing backend endpoints. Supplier Requests and Matches currently show placeholder information. Farmer and buyer dashboards and their request flows remain to be implemented.
+
+## Development Modules
+
+### Module 1: Agent Registration and Farmer USSD Requests (#1)
+
+**Owner:** Tensaye-Daniel
+
+- Agent JWT access and farmer registration through the Agent dashboard, including unique account numbers and duplicate validation.
+- Implement USSD sessions that create Farmer input requests, and agree on the callback/session contract and Module 2 handoff.
+
+### Module 2: Supplier Listings and Matching Dashboard (#2)
+
+**Owner:** nigussiemebatsion-sys
+
+- Manage Supplier listings and implement deterministic matching of eligible listings to Farmer requests.
+- Build Supplier match responses, including accept/decline/counteroffers, while protecting Farmer contact details until acceptance.
+
+These assignments describe work in progress; they do not imply that the complete workflows are already available.
 
 ## Documentation
 
-- [`docs/SRS.md`](azmera-pay/docs/SRS.md) - software requirements specification (internal)
-- [`docs/architecture.md`](azmera-pay/docs/architecture.md) - architecture and key decisions
-- [`docs/domain.md`](azmera-pay/docs/domain.md) - domain rules and state machines
-- [`docs/api.md`](azmera-pay/docs/api.md) - REST API reference
+- [Software requirements specification](azmera-pay/docs/SRS.md)
+- [Architecture](azmera-pay/docs/architecture.md)
+- [Domain rules](azmera-pay/docs/domain.md)
+- [API reference (planned)](azmera-pay/docs/api.md)
 
-## Frontend structure
+## Local development
 
-```
-frontend/src/
-├── App.tsx              # mounts the router
-├── routes/              # router.tsx (route definitions), guards (future)
-├── pages/
-│   ├── public/          # LandingPage, NotFound
-│   ├── auth/            # login / register (future)
-│   └── {farmer,agent,buyer,supplier,admin}/   # role dashboards (future)
-├── components/
-│   ├── landing/         # marketing sections (Hero, About, How It Works, Buyers, Suppliers, Agents, Trust, CTA)
-│   ├── layout/          # Navbar, Footer, LandingLayout
-│   ├── ui/              # shared primitives (Reveal, icons)
-│   └── features/        # domain widgets per role (future)
-└── api/ hooks/ store/ types/ utils/ contexts/ data/   # cross-cutting (scaffolded)
-```
+Run commands from the repository root unless noted. Node.js, pnpm, Python, and Docker Compose must be available.
 
-Routing uses `react-router-dom` v7. The public landing page (`/`) is composed from `components/landing/*` and includes dedicated sections for buyers, suppliers and agents. To add a page, create a file under `pages/` and register it in `routes/router.tsx`.
-
-## Quickstart (frontend)
+### 1. Start local infrastructure
 
 ```sh
-pnpm install:frontend   # install frontend deps once
-pnpm dev                # Vite dev server at :5173 (proxy /api -> localhost:8000 when backend is up)
-pnpm build              # type-check + production build
-pnpm lint               # eslint
-pnpm preview            # serve the production build on :4173
+cd azmera-pay
+docker compose up -d
 ```
 
-## Quickstart (backend - to be implemented)
+This starts PostgreSQL on port `5432` and Redis on port `6379`.
 
-`backend/` is scaffolded: Django REST Framework, JWT auth and PostgreSQL models exist, but the service is not running yet. See `docs/architecture.md` and `docs/api.md`.
+### 2. Configure and run the backend
 
-## Environment
+Create `backend/.env` and set at least `DJANGO_SECRET_KEY`, `DEBUG`, and `DB_URL`. For the Compose database, `DB_URL` can be `postgres://azmera:azmera@localhost:5432/azmera_pay`. USSD settings, including `USSD_GATEWAY`, are configurable in this file; the gateway defaults to `mock`.
 
-- Backend: copy `.env.example` values as needed once Django is wired up.
-- Frontend: the Vite dev server proxies `/api` to `http://localhost:8000`.
-- `docker-compose.yml` provides Postgres (and optional Redis) locally.
+```sh
+cd azmera-pay/backend
+python -m venv .venv
+# Activate .venv, then:
+python -m pip install -r requirements/dev.txt
+python manage.py migrate
+python manage.py runserver
+```
+
+The API runs at `http://localhost:8000/`; the USSD callback is at `/ussd/`.
+
+### 3. Install and run the frontend
+
+In another terminal, from the repository root:
+
+```sh
+cd azmera-pay
+pnpm install:frontend
+pnpm dev
+```
+
+The Vite development server runs at `http://localhost:5173/` and proxies `/api` requests to the backend. To check or preview a production build, run `pnpm lint`, `pnpm build`, or `pnpm preview` from `azmera-pay/`.
+
+The root `.env.example` is a shared sample; Django reads its environment from `backend/.env`. Do not put private credentials in frontend environment variables.
+
+## Development status
+
+Both backend and frontend require ongoing implementation and verification. Some account, Agent, Supplier listing, and USSD callback functionality exists, but several documented workflows—including Farmer USSD request creation and end-to-end matching—are incomplete or planned. See the code and linked documentation before treating a listed capability as complete.

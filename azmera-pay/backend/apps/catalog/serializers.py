@@ -96,6 +96,20 @@ class SupplierListingSerializer(serializers.ModelSerializer):
         name = attrs.get("name")
         category = attrs.get("category")
         product = attrs.get("product")
+
+        # Product is optional on the model serializer to support partial updates,
+        # but a new listing must identify its product either by catalog ID or by
+        # the supported name + category input.
+        if self.instance is None and name is None and product is None:
+            raise serializers.ValidationError(
+                {
+                    "product": (
+                        "Choose an existing product or provide a product name "
+                        "and category."
+                    )
+                }
+            )
+
         if name is not None:
             name = name.strip()
             if not name:

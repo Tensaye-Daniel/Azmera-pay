@@ -85,6 +85,87 @@ def test_supplier_can_create_listing_with_each_valid_availability(
     assert response.data["product_name"] == product.name
 
 
+def test_listing_create_requires_product_reference_or_name_and_category(
+    supplier_client, unit
+):
+    response = supplier_client.post(
+        LIST_URL,
+        {
+            "available_quantity": "20.00",
+            "unit": str(unit.id),
+            "unit_price": "75.50",
+            "region": "Oromia",
+            "woreda": "Adama",
+        },
+        format="json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "product" in response.data
+    assert SupplierListing.objects.count() == 0
+
+
+@pytest.mark.parametrize(
+    "overrides, error_field",
+    [
+        ({"available_quantity": "0"}, "available_quantity"),
+        ({"available_quantity": "-1"}, "available_quantity"),
+        ({"unit_price": "0"}, "unit_price"),
+        ({"unit_price": "-0.01"}, "unit_price"),
+        ({"unit": "00000000-0000-0000-0000-000000000000"}, "unit"),
+        ({"product": "00000000-0000-0000-0000-000000000000"}, "product"),
+    ],
+)
+def test_listing_rejects_invalid_required_values(
+    supplier_client, product, unit, overrides, error_field
+):
+    payload = listing_payload(product, unit)
+    payload.update(overrides)
+    response = supplier_client.post(
+        LIST_URL,
+        payload,
+        format="json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert error_field in response.data
+    assert SupplierListing.objects.count() == 0
+
+
+def test_supplier_can_retrieve_update_and_delete_own_listing(
+    supplier_client, supplier, product, unit
+):
+    created = supplier_client.post(
+        LIST_URL,
+        listing_payload(product, unit),
+        format="json",
+    )
+    assert created.status_code == status.HTTP_201_CREATED
+    listing_url = f"{LIST_URL}/{created.data['id']}"
+
+    retrieved = supplier_client.get(listing_url)
+    assert retrieved.status_code == status.HTTP_200_OK
+    assert retrieved.data["id"] == created.data["id"]
+    assert retrieved.data["product_name"] == product.name
+
+    updated = supplier_client.patch(
+        listing_url,
+        {"unit_price": "60.25", "notes": "Updated stock"},
+        format="json",
+    )
+    assert updated.status_code == status.HTTP_200_OK
+    assert updated.data["unit_price"] == "60.25"
+    assert updated.data["notes"] == "Updated stock"
+
+    listing = SupplierListing.objects.get(pk=created.data["id"])
+    assert listing.supplier == supplier
+    assert str(listing.unit_price) == "60.25"
+
+    deleted = supplier_client.delete(listing_url)
+    assert deleted.status_code == status.HTTP_204_NO_CONTENT
+    assert not SupplierListing.objects.filter(pk=created.data["id"]).exists()
+
+
 def test_supplier_can_create_product_by_name_in_configured_category(
     supplier_client, unit
 ):
@@ -354,8 +435,14 @@ def test_non_supplier_cannot_manage_supplier_listings(
     agent_client, product, unit
 ):
     response = agent_client.get(LIST_URL)
+    create_response = agent_client.post(
+        LIST_URL,
+        listing_payload(product, unit),
+        format="json",
+    )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert create_response.status_code == status.HTTP_403_FORBIDDEN
 
 
 def test_non_supplier_cannot_change_listing_status(agent_client, product, unit):

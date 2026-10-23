@@ -1,3 +1,5 @@
+import type { AxiosResponse } from 'axios'
+
 import { client } from './client'
 
 export type ListingStatus = 'active' | 'paused' | 'inactive' | 'expired'
@@ -44,10 +46,41 @@ export type ListingInput = Pick<
 > & { name: string; category: SupplierProductCategory }
 
 type Paginated<T> = { results: T[]; count: number; next: string | null; previous: string | null }
+type SupplierListingPage = SupplierListing[] | Paginated<SupplierListing>
 
 export async function fetchSupplierListings(): Promise<SupplierListing[]> {
-  const { data } = await client.get<SupplierListing[] | Paginated<SupplierListing>>('/catalog/supplier/listings')
-  return Array.isArray(data) ? data : data.results
+  const listings: SupplierListing[] = []
+  const visitedPages = new Set<string>()
+  let nextPage: string | null = '/catalog/supplier/listings'
+  const apiBasePath = '/api/v1'
+  const listingEndpoint = `${window.location.origin}${apiBasePath}/catalog/supplier/listings`
+
+  while (nextPage) {
+    const pageUrl = new URL(nextPage, listingEndpoint)
+    if (!pageUrl.pathname.startsWith(`${apiBasePath}/`)) {
+      throw new Error('Supplier listing pagination returned a URL outside the API.')
+    }
+    const apiPath = `${pageUrl.pathname.slice(apiBasePath.length)}${pageUrl.search}`
+    if (visitedPages.has(apiPath)) {
+      throw new Error('Supplier listing pagination returned a repeated page URL.')
+    }
+    visitedPages.add(apiPath)
+
+    const pageResponse: AxiosResponse<SupplierListingPage> = await client.get<SupplierListingPage>(
+      apiPath,
+    )
+    const pageData: SupplierListingPage = pageResponse.data
+
+    if (Array.isArray(pageData)) {
+      listings.push(...pageData)
+      break
+    }
+
+    listings.push(...pageData.results)
+    nextPage = pageData.next
+  }
+
+  return listings
 }
 
 export async function fetchSupplierInventorySummary(): Promise<SupplierInventorySummary> {

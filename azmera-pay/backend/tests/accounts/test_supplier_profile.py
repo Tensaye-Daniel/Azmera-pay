@@ -157,3 +157,70 @@ def test_unauthenticated_user_cannot_access_shop_profile(api_client):
     response = api_client.get(PROFILE_URL)
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+def test_unauthenticated_user_cannot_update_shop_profile(
+    api_client, approved_supplier
+):
+    api_client.force_authenticate(user=None)
+
+    response = api_client.patch(
+        PROFILE_URL,
+        {"region": "Amhara", "woreda": "Bahir Dar", "product_categories": ["seed"]},
+        format="json",
+    )
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    approved_supplier.supplier_profile.refresh_from_db()
+    assert approved_supplier.supplier_profile.region == ""
+    assert approved_supplier.supplier_profile.woreda == ""
+    assert approved_supplier.supplier_profile.product_categories == []
+
+
+def test_non_supplier_cannot_update_shop_profile(agent_client, approved_supplier):
+    response = agent_client.patch(
+        PROFILE_URL,
+        {"region": "Amhara", "woreda": "Bahir Dar", "product_categories": ["seed"]},
+        format="json",
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    approved_supplier.supplier_profile.refresh_from_db()
+    assert approved_supplier.supplier_profile.region == ""
+    assert approved_supplier.supplier_profile.woreda == ""
+    assert approved_supplier.supplier_profile.product_categories == []
+
+
+@pytest.mark.parametrize(
+    "approval_status",
+    [SupplierApprovalStatus.PENDING, SupplierApprovalStatus.REJECTED],
+)
+def test_unapproved_supplier_cannot_update_shop_profile(
+    api_client, approval_status
+):
+    user = create_web_user(
+        phone="+251911300010",
+        role=Role.SUPPLIER,
+        full_name="Unapproved Profile Editor",
+    )
+    user.supplier_approval_status = approval_status
+    user.save(update_fields=["supplier_approval_status"])
+    profile = SupplierProfile.objects.create(
+        user=user,
+        fayda_fin_number="212345678901",
+        tin_number="2123456789",
+        company_name="Unapproved Shop",
+    )
+    api_client.force_authenticate(user=user)
+
+    response = api_client.patch(
+        PROFILE_URL,
+        {"region": "Amhara", "woreda": "Bahir Dar", "product_categories": ["seed"]},
+        format="json",
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    profile.refresh_from_db()
+    assert profile.region == ""
+    assert profile.woreda == ""
+    assert profile.product_categories == []

@@ -10,6 +10,7 @@ pytestmark = pytest.mark.django_db
 
 LIST_URL = "/api/v1/catalog/supplier/listings"
 SUMMARY_URL = "/api/v1/catalog/supplier/inventory-summary"
+UNITS_URL = "/api/v1/catalog/units"
 
 
 @pytest.fixture
@@ -86,6 +87,14 @@ def test_supplier_can_create_listing_with_each_valid_availability(
     assert response.data["product_name"] == product.name
 
 
+def test_unit_lookup_returns_a_plain_array(supplier_client, unit):
+    response = supplier_client.get(UNITS_URL)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert isinstance(response.data, list)
+    assert str(unit.id) in {str(item["id"]) for item in response.data}
+
+
 def test_listing_create_requires_product_reference_or_name_and_category(
     supplier_client, unit
 ):
@@ -131,6 +140,35 @@ def test_listing_rejects_invalid_required_values(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert error_field in response.data
     assert SupplierListing.objects.count() == 0
+
+
+@pytest.mark.parametrize(
+    "field,value,expected_value",
+    [
+        ("unit_price", "0", "50.00"),
+        ("available_quantity", "-1", "100.00"),
+    ],
+)
+def test_listing_update_rejects_invalid_price_or_quantity_without_saving(
+    supplier_client, product, unit, field, value, expected_value
+):
+    created = supplier_client.post(
+        LIST_URL,
+        listing_payload(product, unit),
+        format="json",
+    )
+    assert created.status_code == status.HTTP_201_CREATED
+
+    response = supplier_client.patch(
+        f"{LIST_URL}/{created.data['id']}",
+        {field: value},
+        format="json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert field in response.data
+    listing = SupplierListing.objects.get(pk=created.data["id"])
+    assert str(getattr(listing, field)) == expected_value
 
 
 def test_supplier_can_retrieve_update_and_delete_own_listing(
@@ -310,7 +348,8 @@ def test_supplier_can_update_listing_availability(
     )
     assert create_response.status_code == status.HTTP_201_CREATED
 
-    listing_url = f"{LIST_URL}/{create_response.data['id']}"
+    listing_id = create_response.data["id"]
+    listing_url = f"{LIST_URL}/{listing_id}"
     for next_status in (
         AvailabilityStatus.PAUSED,
         AvailabilityStatus.INACTIVE,
@@ -323,6 +362,37 @@ def test_supplier_can_update_listing_availability(
         )
         assert response.status_code == status.HTTP_200_OK
         assert response.data["availability_status"] == next_status
+        listing = SupplierListing.objects.get(pk=listing_id)
+        assert listing.availability_status == next_status
+
+
+def test_supplier_listing_api_paginates_all_listings_after_twenty_five(
+    supplier_client, supplier, product, unit
+):
+    for _ in range(26):
+        SupplierListing.objects.create(
+            supplier=supplier,
+            product=product,
+            available_quantity="10",
+            unit=unit,
+            unit_price="5",
+            region="Oromia",
+            woreda="Adama",
+        )
+
+    first_page = supplier_client.get(LIST_URL)
+
+    assert first_page.status_code == status.HTTP_200_OK
+    assert first_page.data["count"] == 26
+    assert len(first_page.data["results"]) == 25
+    assert first_page.data["next"] is not None
+
+    second_page = supplier_client.get(first_page.data["next"])
+
+    assert second_page.status_code == status.HTTP_200_OK
+    assert len(second_page.data["results"]) == 1
+    all_results = first_page.data["results"] + second_page.data["results"]
+    assert len({item["id"] for item in all_results}) == 26
 
 
 def test_legacy_expired_listing_can_be_changed_to_inactive(
@@ -538,6 +608,97 @@ def test_approved_supplier_with_complete_shop_setup_can_manage_listings(
     response = supplier_client.get(LIST_URL)
 
     assert response.status_code == status.HTTP_200_OK
+
+
+def test_unauthenticated_user_cannot_list_supplier_listings(api_client):
+    response = api_client.get(LIST_URL)
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.parametrize(
+    "method",
+    ["get", "patch", "delete"],
+)
+def test_unauthenticated_user_cannot_access_supplier_listing_detail(
+    api_client, supplier, product, unit, method
+):
+    listing = SupplierListing.objects.create(
+        supplier=supplier,
+        product=product,
+        available_quantity="10",
+        unit=unit,
+        unit_price="5",
+        region="Oromia",
+        woreda="Adama",
+        availability_status=AvailabilityStatus.ACTIVE,
+    )
+    detail_url = f"{LIST_URL}/{listing.id}"
+
+    if method == "patch":
+        response = api_client.patch(
+            detail_url,
+            {"availability_status": AvailabilityStatus.PAUSED},
+            format="json",
+        )
+    else:
+        response = getattr(api_client, method)(detail_url)
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    listing.refresh_from_db()
+    assert listing.availability_status == AvailabilityStatus.ACTIVE
+    assert SupplierListing.objects.filter(pk=listing.pk).exists()
+
+
+def test_listing_create_and_update_ignore_client_owned_protected_fields(
+    supplier_client, supplier, product, unit
+):
+    other_supplier = create_web_user(
+        phone="+251911200040",
+        role=Role.SUPPLIER,
+        full_name="Spoofed Listing Owner",
+    )
+    spoofed_id = "00000000-0000-0000-0000-000000000123"
+    spoofed_timestamp = "2000-01-01T00:00:00Z"
+    create_payload = listing_payload(
+        product,
+        unit,
+        supplier=str(other_supplier.id),
+        id=spoofed_id,
+        created_at=spoofed_timestamp,
+        updated_at=spoofed_timestamp,
+    )
+
+    created = supplier_client.post(LIST_URL, create_payload, format="json")
+
+    assert created.status_code == status.HTTP_201_CREATED
+    listing = SupplierListing.objects.get(pk=created.data["id"])
+    assert listing.supplier == supplier
+    assert str(listing.id) != spoofed_id
+    assert listing.created_at.year != 2000
+    assert listing.updated_at.year != 2000
+
+    original_id = listing.id
+    original_created_at = listing.created_at
+    update_payload = {
+        "supplier": str(other_supplier.id),
+        "id": spoofed_id,
+        "created_at": spoofed_timestamp,
+        "updated_at": spoofed_timestamp,
+        "notes": "Updated through the listing API",
+    }
+
+    updated = supplier_client.patch(
+        f"{LIST_URL}/{listing.id}", update_payload, format="json"
+    )
+
+    assert updated.status_code == status.HTTP_200_OK
+    listing.refresh_from_db()
+    assert listing.supplier == supplier
+    assert listing.id == original_id
+    assert listing.created_at == original_created_at
+    assert listing.updated_at.year != 2000
+    assert listing.notes == "Updated through the listing API"
 
 
 def test_supplier_inventory_summary_counts_own_listing_statuses(

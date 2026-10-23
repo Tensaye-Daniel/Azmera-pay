@@ -9,6 +9,7 @@ from tests.factories.catalog import ProductFactory, UnitFactory
 pytestmark = pytest.mark.django_db
 
 LIST_URL = "/api/v1/catalog/supplier/listings"
+SUMMARY_URL = "/api/v1/catalog/supplier/inventory-summary"
 
 
 @pytest.fixture
@@ -537,3 +538,99 @@ def test_approved_supplier_with_complete_shop_setup_can_manage_listings(
     response = supplier_client.get(LIST_URL)
 
     assert response.status_code == status.HTTP_200_OK
+
+
+def test_supplier_inventory_summary_counts_own_listing_statuses(
+    supplier_client, supplier, product, unit
+):
+    for listing_status in (
+        AvailabilityStatus.ACTIVE,
+        AvailabilityStatus.ACTIVE,
+        AvailabilityStatus.PAUSED,
+        AvailabilityStatus.INACTIVE,
+    ):
+        SupplierListing.objects.create(
+            supplier=supplier,
+            product=product,
+            available_quantity="10",
+            unit=unit,
+            unit_price="5",
+            region="Oromia",
+            woreda="Adama",
+            availability_status=listing_status,
+        )
+
+    response = supplier_client.get(SUMMARY_URL)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data == {"total": 4, "active": 2, "paused": 1, "inactive": 1}
+
+
+def test_supplier_inventory_summary_returns_zero_counts_for_empty_inventory(
+    supplier_client,
+):
+    response = supplier_client.get(SUMMARY_URL)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data == {"total": 0, "active": 0, "paused": 0, "inactive": 0}
+
+
+def test_supplier_inventory_summary_does_not_expose_other_supplier_counts(
+    supplier_client, product, unit
+):
+    other_supplier = create_web_user(
+        phone="+251911200030", role=Role.SUPPLIER, full_name="Other Supplier"
+    )
+    for listing_status in (
+        AvailabilityStatus.ACTIVE,
+        AvailabilityStatus.ACTIVE,
+        AvailabilityStatus.PAUSED,
+        AvailabilityStatus.INACTIVE,
+    ):
+        SupplierListing.objects.create(
+            supplier=other_supplier,
+            product=product,
+            available_quantity="10",
+            unit=unit,
+            unit_price="5",
+            region="Oromia",
+            woreda="Adama",
+            availability_status=listing_status,
+        )
+
+    response = supplier_client.get(SUMMARY_URL)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data == {"total": 0, "active": 0, "paused": 0, "inactive": 0}
+
+
+def test_unauthenticated_user_cannot_view_supplier_inventory_summary(api_client):
+    response = api_client.get(SUMMARY_URL)
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+def test_non_supplier_cannot_view_supplier_inventory_summary(agent_client):
+    response = agent_client.get(SUMMARY_URL)
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_legacy_expired_listings_are_in_total_but_not_current_status_counts(
+    supplier_client, supplier, product, unit
+):
+    SupplierListing.objects.create(
+        supplier=supplier,
+        product=product,
+        available_quantity="10",
+        unit=unit,
+        unit_price="5",
+        region="Oromia",
+        woreda="Adama",
+        availability_status=AvailabilityStatus.EXPIRED,
+    )
+
+    response = supplier_client.get(SUMMARY_URL)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data == {"total": 1, "active": 0, "paused": 0, "inactive": 0}

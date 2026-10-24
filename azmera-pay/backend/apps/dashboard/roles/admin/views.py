@@ -1,12 +1,14 @@
 # Admin dashboard: verify farmers and suppliers.
-from django.db.models import Q
+from django.db.models import Count, Q
+from django.http import HttpResponse
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.accounts.models import Role, SupplierApprovalStatus, SupplierProfile, User
 from apps.common.permissions import IsAdmin
-from apps.profiles.models import FarmerProfile, FarmerStatus
+from apps.profiles.documents import decrypt_document
+from apps.profiles.models import FarmerDocument, FarmerProfile, FarmerStatus
 
 from .serializers import (
     AdminFarmerSerializer,
@@ -40,6 +42,51 @@ class UserAdminViewSet(viewsets.ReadOnlyModelViewSet):
                 | Q(email__icontains=search)
             )
         return queryset
+
+    @action(detail=False, methods=["get"])
+    def summary(self, request):
+        """Dashboard counters for review queues and account mix."""
+        users_by_role = {
+            row["role"]: row["count"]
+            for row in User.objects.values("role").annotate(count=Count("id"))
+        }
+        farmers_by_status = {
+            row["status"]: row["count"]
+            for row in FarmerProfile.objects.values("status").annotate(
+                count=Count("id")
+            )
+        }
+        suppliers_by_approval = {
+            row["supplier_approval_status"]: row["count"]
+            for row in User.objects.filter(role=Role.SUPPLIER)
+            .values("supplier_approval_status")
+            .annotate(count=Count("id"))
+        }
+
+        return Response(
+            {
+                "users": {
+                    "total": User.objects.count(),
+                    "by_role": {
+                        role: users_by_role.get(role, 0) for role in Role.values
+                    },
+                },
+                "farmers": {
+                    "total": FarmerProfile.objects.count(),
+                    "by_status": {
+                        status_value: farmers_by_status.get(status_value, 0)
+                        for status_value in FarmerStatus.values
+                    },
+                },
+                "suppliers": {
+                    "total": User.objects.filter(role=Role.SUPPLIER).count(),
+                    "by_approval": {
+                        approval: suppliers_by_approval.get(approval, 0)
+                        for approval in SupplierApprovalStatus.values
+                    },
+                },
+            }
+        )
 
     @action(detail=True, methods=["patch"])
     def status(self, request, pk=None):
@@ -120,6 +167,7 @@ class FarmerAdminViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAdmin]
     queryset = (
         FarmerProfile.objects.select_related("user", "registered_by")
+        .prefetch_related("documents")
         .all()
         .order_by("-created_at")
     )
@@ -143,6 +191,34 @@ class FarmerAdminViewSet(viewsets.ReadOnlyModelViewSet):
                 | Q(fayda_fin__icontains=search)
             )
         return queryset
+
+    def document(self, request, pk=None, document_id=None):
+        """Stream a decrypted document for admin review.
+
+        Only admins can reach this view; the ciphertext never leaves the
+        database unencrypted except through this audited endpoint.
+        """
+        profile = self.get_object()
+        try:
+            document = FarmerDocument.objects.get(pk=document_id, farmer=profile)
+        except (FarmerDocument.DoesNotExist, ValueError):
+            return Response({"detail": "Document not found."}, status=404)
+
+        try:
+            content = decrypt_document(document.encrypted_data)
+        except ValueError:
+            return Response(
+                {"detail": "Document could not be decrypted."},
+                status=500,
+            )
+
+        response = HttpResponse(
+            content, content_type=document.content_type or "application/octet-stream"
+        )
+        filename = document.original_filename.replace('"', "")
+        response["Content-Disposition"] = f'inline; filename="{filename}"'
+        response["X-Content-Type-Options"] = "nosniff"
+        return response
 
     @action(detail=True, methods=["patch"])
     def verify(self, request, pk=None):

@@ -18,6 +18,10 @@ comes from `DB_URL`; the project uses JWT authentication for web API requests.
 - **Agent workspace:** agents register farmers, list and update farmers they
   registered, and view a status summary. Admin users can access the farmer
   endpoints across agents.
+- **Farmer documents:** supporting files are validated, encrypted with Fernet
+  (AES-128-CBC + HMAC), and stored as ciphertext in `FarmerDocument`. Admins
+  review the metadata in the dedicated admin frontend and fetch decrypted bytes
+  only through the admin-only download endpoint.
 - **USSD:** the gateway callback parses requests, displays the account/help
   menu, and records session exchanges. The current “matches” menu response is a
   placeholder and does not retrieve persisted matches.

@@ -1,6 +1,7 @@
-import type { AxiosResponse } from 'axios'
+import { isAxiosError, type AxiosResponse } from 'axios'
 
 import { client } from './client'
+import { supplierListingApiPath } from './supplier-pagination'
 
 export type ListingStatus = 'active' | 'paused' | 'inactive' | 'expired'
 
@@ -40,6 +41,30 @@ export interface SupplierInventorySummary {
   inactive: number
 }
 
+export interface SupplierMatch {
+  id: string
+  request_id: string
+  request_status: 'open' | 'matched'
+  listing_id: string
+  listing_product: string
+  listing_region: string
+  listing_woreda: string
+  requested_product: string
+  requested_category: SupplierProductCategory
+  requested_quantity: string
+  requested_unit: string
+  request_region: string
+  request_woreda: string
+  rank: number
+  status: 'pending'
+  created_at: string
+}
+
+export async function fetchSupplierMatches(): Promise<SupplierMatch[]> {
+  const { data } = await client.get<SupplierMatch[]>('/matching/supplier/matches/')
+  return data
+}
+
 export type ListingInput = Pick<
   SupplierListing,
   'available_quantity' | 'unit' | 'unit_price' | 'region' | 'woreda' | 'availability_status' | 'notes'
@@ -51,16 +76,16 @@ type SupplierListingPage = SupplierListing[] | Paginated<SupplierListing>
 export async function fetchSupplierListings(): Promise<SupplierListing[]> {
   const listings: SupplierListing[] = []
   const visitedPages = new Set<string>()
-  let nextPage: string | null = '/catalog/supplier/listings'
   const apiBasePath = '/api/v1'
+  let nextPage: string | null = `${apiBasePath}/catalog/supplier/listings`
   const listingEndpoint = `${window.location.origin}${apiBasePath}/catalog/supplier/listings`
 
   while (nextPage) {
-    const pageUrl = new URL(nextPage, listingEndpoint)
-    if (!pageUrl.pathname.startsWith(`${apiBasePath}/`)) {
-      throw new Error('Supplier listing pagination returned a URL outside the API.')
-    }
-    const apiPath = `${pageUrl.pathname.slice(apiBasePath.length)}${pageUrl.search}`
+    const apiPath = supplierListingApiPath(
+      nextPage,
+      listingEndpoint,
+      apiBasePath,
+    )
     if (visitedPages.has(apiPath)) {
       throw new Error('Supplier listing pagination returned a repeated page URL.')
     }
@@ -134,6 +159,25 @@ export interface SupplierProfile {
   region: string
   woreda: string
   product_categories: SupplierProductCategory[]
+}
+
+export function supplierApiErrorMessage(error: unknown, fallback: string): string {
+  if (!isAxiosError(error)) return fallback
+
+  const data: unknown = error.response?.data
+  if (typeof data === 'string' && data.trim()) return data
+  if (data && typeof data === 'object') {
+    const values = Object.values(data as Record<string, unknown>)
+    for (const value of values) {
+      const messages = Array.isArray(value) ? value : [value]
+      const message = messages.find(
+        (item): item is string => typeof item === 'string' && item.trim().length > 0,
+      )
+      if (message) return message
+    }
+  }
+
+  return fallback
 }
 
 export async function fetchSupplierProfile(): Promise<SupplierProfile> {

@@ -7,6 +7,7 @@ from apps.channels.views import UssdCallbackView
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include("apps.accounts.urls")),
+    path("api/v1/matching/", include("apps.matching.urls")),
     path("api/v1/dashboard/agent/", include("apps.dashboard.roles.agent.urls")),
     path("api/v1/dashboard/admin/", include("apps.dashboard.roles.admin.urls")),
     path("ussd/", include("apps.channels.urls")),

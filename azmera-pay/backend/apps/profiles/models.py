@@ -26,6 +26,13 @@ class LandOwnership(models.TextChoices):
     COMMUNAL = "communal", "Communal"
 
 
+class FarmerDocumentType(models.TextChoices):
+    FARMER_ID = "farmer_id", "Farmer ID"
+    FIELD_PHOTO = "field_photo", "Farm field photo"
+    FARMING_PROOF = "farming_proof", "Proof of farming"
+    OTHER = "other", "Other"
+
+
 class FarmerProfile(UUIDModel, TimeStampedModel):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -77,3 +84,44 @@ class FarmerProfile(UUIDModel, TimeStampedModel):
 
     def __str__(self):
         return f"{self.user.full_name} ({self.azmera_account_number})"
+
+
+class FarmerDocument(UUIDModel, TimeStampedModel):
+    """A supporting document attached to a farmer during registration.
+
+    Only metadata is queryable: the file bytes live in ``encrypted_data`` as a
+    Fernet token. Use ``apps.profiles.documents.decrypt_document`` to read it.
+    """
+
+    farmer = models.ForeignKey(
+        FarmerProfile,
+        on_delete=models.CASCADE,
+        related_name="documents",
+    )
+    document_type = models.CharField(
+        max_length=32,
+        choices=FarmerDocumentType.choices,
+        default=FarmerDocumentType.OTHER,
+    )
+    original_filename = models.CharField(max_length=255)
+    content_type = models.CharField(max_length=128, blank=True)
+    size_bytes = models.PositiveIntegerField()
+    checksum = models.CharField(
+        max_length=64,
+        editable=False,
+        help_text="SHA-256 of the plaintext, for duplicate/integrity checks.",
+    )
+    encrypted_data = models.BinaryField(editable=False)
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="uploaded_farmer_documents",
+    )
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.get_document_type_display()} - {self.original_filename}"

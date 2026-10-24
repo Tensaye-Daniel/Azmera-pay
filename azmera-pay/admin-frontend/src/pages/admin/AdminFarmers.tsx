@@ -1,14 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
-  activateFarmer,
-  deactivateFarmer,
   listAdminFarmers,
-  markFarmerPending,
-  unverifyFarmer,
-  verifyFarmer,
   type AdminFarmer,
   type FarmerStatus,
 } from '../../api/admin'
+import FarmerReviewDrawer from '../../components/features/admin/FarmerReviewDrawer'
 
 const statusStyles: Record<FarmerStatus, string> = {
   registered: 'bg-emerald-50 text-emerald-700',
@@ -28,7 +24,7 @@ const AdminFarmers = () => {
     status: 'all' as FarmerStatus | 'all',
     region: '',
   })
-  const [busyId, setBusyId] = useState<string | null>(null)
+  const [selected, setSelected] = useState<AdminFarmer | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -61,21 +57,11 @@ const AdminFarmers = () => {
 
   const filtered = useMemo(() => farmers, [farmers])
 
-  const runAction = async (
-    id: string,
-    action: (id: string) => Promise<AdminFarmer>,
-  ) => {
-    setBusyId(id)
-    try {
-      const updated = await action(id)
-      setFarmers((prev) =>
-        prev.map((farmer) => (farmer.id === id ? updated : farmer)),
-      )
-    } catch {
-      setError('Action failed')
-    } finally {
-      setBusyId(null)
-    }
+  const handleUpdated = (updated: AdminFarmer) => {
+    setFarmers((prev) =>
+      prev.map((farmer) => (farmer.id === updated.id ? updated : farmer)),
+    )
+    setSelected(updated)
   }
 
   return (
@@ -166,7 +152,13 @@ const AdminFarmers = () => {
               {filtered.map((farmer) => (
                 <tr key={farmer.id}>
                   <td className="px-6 py-4">
-                    <p className="font-medium text-slate-900">{farmer.full_name}</p>
+                    <button
+                      type="button"
+                      onClick={() => setSelected(farmer)}
+                      className="text-left font-medium text-slate-900 transition hover:text-emerald-700"
+                    >
+                      {farmer.full_name}
+                    </button>
                     <p className="text-slate-500">{farmer.phone}</p>
                     <p className="text-xs text-slate-400">
                       AZM: {farmer.azmera_account_number}
@@ -195,6 +187,10 @@ const AdminFarmers = () => {
                         By {farmer.registered_by_name} ({farmer.registered_by_phone})
                       </p>
                     )}
+                    <p className="mt-1 text-xs text-slate-400">
+                      {farmer.documents?.length ?? 0} document
+                      {(farmer.documents?.length ?? 0) === 1 ? '' : 's'} attached
+                    </p>
                   </td>
                   <td className="px-6 py-4">
                     <span
@@ -207,57 +203,13 @@ const AdminFarmers = () => {
                     </p>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <div className="flex flex-wrap justify-end gap-2">
-                      {farmer.status !== 'registered' && (
-                        <button
-                          type="button"
-                          disabled={busyId === farmer.id}
-                          onClick={() => void runAction(farmer.id, verifyFarmer)}
-                          className="rounded-lg border border-emerald-200 px-2.5 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-50 disabled:opacity-50"
-                        >
-                          Verify
-                        </button>
-                      )}
-                      {farmer.status !== 'pending' && (
-                        <button
-                          type="button"
-                          disabled={busyId === farmer.id}
-                          onClick={() => void runAction(farmer.id, markFarmerPending)}
-                          className="rounded-lg border border-amber-200 px-2.5 py-1.5 text-xs font-medium text-amber-700 transition hover:bg-amber-50 disabled:opacity-50"
-                        >
-                          Mark pending
-                        </button>
-                      )}
-                      {farmer.status !== 'unverified' && (
-                        <button
-                          type="button"
-                          disabled={busyId === farmer.id}
-                          onClick={() => void runAction(farmer.id, unverifyFarmer)}
-                          className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
-                        >
-                          Unverify
-                        </button>
-                      )}
-                      {farmer.is_active ? (
-                        <button
-                          type="button"
-                          disabled={busyId === farmer.id}
-                          onClick={() => void runAction(farmer.id, deactivateFarmer)}
-                          className="rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-50 disabled:opacity-50"
-                        >
-                          Deactivate
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          disabled={busyId === farmer.id}
-                          onClick={() => void runAction(farmer.id, activateFarmer)}
-                          className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
-                        >
-                          Activate
-                        </button>
-                      )}
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSelected(farmer)}
+                      className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-700"
+                    >
+                      Review
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -265,6 +217,13 @@ const AdminFarmers = () => {
           </table>
         </div>
       </div>
+      {selected && (
+        <FarmerReviewDrawer
+          farmer={selected}
+          onClose={() => setSelected(null)}
+          onUpdated={handleUpdated}
+        />
+      )}
     </div>
   )
 }

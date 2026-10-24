@@ -6,7 +6,7 @@ Azmera is an agricultural marketplace for Ethiopia that connects farmers, agents
 | Name | ID / Handle | Contribution |
 | --- | --- | --- |
 | Tensaye Daniel | CTC-839-26 | Built the agent registration flow, farmer request handling, and the backend/USSD APIs for Module 1. |
-| Mebatsion Nigussie | `nigussiemebatsion-sys` | Worked on supplier listings, marketplace matching, and the supplier response flow for Module 2. |
+| Mebatsion Nigussie | `nigussiemebatsion-sys` | Worked on supplier listings, marketplace matching, and the supplier response flow for Module 2 |
 
 ## Technology
 

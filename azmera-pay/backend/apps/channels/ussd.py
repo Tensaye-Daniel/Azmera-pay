@@ -20,6 +20,7 @@ from apps.requests.models import (
 from .menus import DEFAULT_LANGUAGE, MESSAGES, get_text, main_menu
 
 MAX_OPTIONS = 5
+MIN_DECIMAL = Decimal("0.01")
 MAX_DECIMAL = Decimal("9999999999.99")
 
 INPUT_CATEGORIES = {
@@ -238,9 +239,27 @@ def _create_request(*, farmer, product, unit, quantity, price, language, session
 
 
 def _saved_response(request, language):
-    count = request.candidates.count()
-    key = "request_saved" if count else "request_saved_no_matches"
-    return UssdResponse(get_text(key, language=language, count=count), end=True)
+    candidates = request.candidates.select_related(
+        "listing__supplier__supplier_profile", "listing"
+    ).order_by("rank")
+    count = candidates.count()
+    if not count:
+        return UssdResponse(
+            get_text("request_saved_no_matches", language=language), end=True
+        )
+
+    top_match = candidates.first()
+    return UssdResponse(
+        get_text(
+            "request_saved_match",
+            language=language,
+            rank=top_match.rank,
+            count=count,
+            supplier=_supplier_name(top_match.listing.supplier, language),
+            location=_listing_location(top_match.listing, language),
+        ),
+        end=True,
+    )
 
 
 def _matches_screen(farmer, language):
@@ -273,9 +292,10 @@ def _matches_screen(farmer, language):
                 "match_line",
                 language=language,
                 rank=candidate.rank,
-                supplier=_supplier_name(candidate.listing.supplier),
+                supplier=_supplier_name(candidate.listing.supplier, language),
                 price=f"{candidate.listing.unit_price:.2f}",
                 unit=candidate.listing.unit.code,
+                location=_listing_location(candidate.listing, language),
             )
         )
     lines.append(get_text("matches_footer", language=language))
@@ -349,15 +369,28 @@ def _positive_decimal(value):
     if not number.is_finite() or number <= 0:
         return None
     number = number.quantize(Decimal("0.01"))
-    if number > MAX_DECIMAL:
+    if number < MIN_DECIMAL or number > MAX_DECIMAL:
         return None
     return number
 
 
-def _supplier_name(supplier):
+def _supplier_name(supplier, language=DEFAULT_LANGUAGE):
     profile = getattr(supplier, "supplier_profile", None)
-    name = profile.company_name if profile else supplier.full_name
-    return _short(name, 18)
+    name = profile.company_name.strip() if profile else ""
+    return (
+        _short(name, 18)
+        if name
+        else get_text("supplier_name_unavailable", language=language)
+    )
+
+
+def _listing_location(listing, language=DEFAULT_LANGUAGE):
+    location = [
+        _short(value.strip(), 18)
+        for value in (listing.woreda, listing.region)
+        if value and value.strip()
+    ]
+    return ", ".join(location) if location else get_text("location_unavailable", language=language)
 
 
 def _short(value, limit):

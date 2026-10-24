@@ -2,9 +2,12 @@ import pytest
 from rest_framework import status
 
 from apps.accounts.models import Role, SupplierApprovalStatus, SupplierProfile
-from apps.catalog.models import AvailabilityStatus, SupplierListing
+from apps.catalog.models import AvailabilityStatus, ProductCategory, SupplierListing
+from apps.matching.models import MatchCandidate
+from apps.requests.models import RequestStatus
 from tests.factories.accounts import create_web_user
-from tests.factories.catalog import ProductFactory, UnitFactory
+from tests.factories.catalog import ProductFactory, SupplierListingFactory, UnitFactory
+from tests.factories.requests import RequestFactory, RequestLineFactory
 
 pytestmark = pytest.mark.django_db
 
@@ -74,7 +77,7 @@ def listing_payload(product, unit, **overrides):
     ],
 )
 def test_supplier_can_create_listing_with_each_valid_availability(
-    supplier_client, product, unit, availability
+    supplier_client, supplier, product, unit, availability
 ):
     response = supplier_client.post(
         LIST_URL,
@@ -85,6 +88,18 @@ def test_supplier_can_create_listing_with_each_valid_availability(
     assert response.status_code == status.HTTP_201_CREATED
     assert response.data["availability_status"] == availability
     assert response.data["product_name"] == product.name
+    listing_id = response.data["id"]
+    listing = SupplierListing.objects.get(pk=listing_id)
+    assert listing.supplier == supplier
+
+    collection = supplier_client.get(LIST_URL)
+    assert collection.status_code == status.HTTP_200_OK
+    results = (
+        collection.data["results"]
+        if isinstance(collection.data, dict)
+        else collection.data
+    )
+    assert listing_id in {item["id"] for item in results}
 
 
 def test_unit_lookup_returns_a_plain_array(supplier_client, unit):
@@ -364,6 +379,306 @@ def test_supplier_can_update_listing_availability(
         assert response.data["availability_status"] == next_status
         listing = SupplierListing.objects.get(pk=listing_id)
         assert listing.availability_status == next_status
+
+
+@pytest.mark.django_db(transaction=True)
+def test_creating_compatible_listing_matches_existing_open_request(
+    supplier_client, product, unit
+):
+    request = RequestFactory(region="Oromia", woreda="Adama")
+    RequestLineFactory(
+        request=request,
+        product=product,
+        unit=unit,
+        quantity="10.00",
+        max_unit_price="100.00",
+    )
+    assert request.candidates.count() == 0
+
+    response = supplier_client.post(
+        LIST_URL,
+        listing_payload(product, unit, unit_price="50.00"),
+        format="json",
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+    request.refresh_from_db()
+    assert request.status == RequestStatus.MATCHED
+    candidate = request.candidates.get()
+    assert str(candidate.listing_id) == response.data["id"]
+
+
+@pytest.mark.django_db(transaction=True)
+def test_reactivating_paused_listing_matches_existing_open_request(
+    supplier_client, product, unit
+):
+    response = supplier_client.post(
+        LIST_URL,
+        listing_payload(
+            product, unit, availability_status=AvailabilityStatus.PAUSED
+        ),
+        format="json",
+    )
+    listing_id = response.data["id"]
+    request = RequestFactory(region="Oromia", woreda="Adama")
+    RequestLineFactory(
+        request=request,
+        product=product,
+        unit=unit,
+        quantity="10.00",
+        max_unit_price="100.00",
+    )
+    assert request.candidates.count() == 0
+
+    response = supplier_client.patch(
+        f"{LIST_URL}/{listing_id}",
+        {"availability_status": AvailabilityStatus.ACTIVE},
+        format="json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    request.refresh_from_db()
+    assert request.status == RequestStatus.MATCHED
+    assert request.candidates.count() == 1
+
+    paused = supplier_client.patch(
+        f"{LIST_URL}/{listing_id}",
+        {"availability_status": AvailabilityStatus.PAUSED},
+        format="json",
+    )
+    assert paused.status_code == status.HTTP_200_OK
+    request.refresh_from_db()
+    assert request.status == RequestStatus.OPEN
+    assert request.candidates.count() == 0
+
+    reactivated = supplier_client.patch(
+        f"{LIST_URL}/{listing_id}",
+        {"availability_status": AvailabilityStatus.ACTIVE},
+        format="json",
+    )
+    assert reactivated.status_code == status.HTTP_200_OK
+    request.refresh_from_db()
+    assert request.status == RequestStatus.MATCHED
+    assert request.candidates.count() == 1
+
+
+@pytest.mark.django_db(transaction=True)
+def test_inactive_or_incompatible_listings_do_not_create_candidates(
+    supplier_client, supplier, product, unit
+):
+    supplier.supplier_profile.product_categories = ["seed", "fertilizer"]
+    supplier.supplier_profile.save(update_fields=["product_categories"])
+    request = RequestFactory(region="Oromia", woreda="Adama")
+    RequestLineFactory(
+        request=request,
+        product=product,
+        unit=unit,
+        quantity="10.00",
+        max_unit_price="100.00",
+    )
+    other_product = ProductFactory(category=ProductCategory.FERTILIZER)
+
+    inactive = supplier_client.post(
+        LIST_URL,
+        listing_payload(
+            product, unit, availability_status=AvailabilityStatus.INACTIVE
+        ),
+        format="json",
+    )
+    incompatible = supplier_client.post(
+        LIST_URL,
+        listing_payload(other_product, unit),
+        format="json",
+    )
+
+    assert inactive.status_code == status.HTTP_201_CREATED
+    assert incompatible.status_code == status.HTTP_201_CREATED
+    assert request.candidates.count() == 0
+    assert request.status == RequestStatus.OPEN
+
+
+@pytest.mark.django_db(transaction=True)
+def test_repeated_compatible_listing_updates_do_not_duplicate_candidates(
+    supplier_client, product, unit
+):
+    request = RequestFactory(region="Oromia", woreda="Adama")
+    line = RequestLineFactory(
+        request=request,
+        product=product,
+        unit=unit,
+        quantity="10.00",
+        max_unit_price="100.00",
+    )
+    created = supplier_client.post(
+        LIST_URL,
+        listing_payload(product, unit, unit_price="150.00"),
+        format="json",
+    )
+    assert created.status_code == status.HTTP_201_CREATED
+    listing_url = f"{LIST_URL}/{created.data['id']}"
+    assert line.candidates.count() == 0
+
+    for price in ("45.00", "40.00", "35.00"):
+        response = supplier_client.patch(
+            listing_url, {"unit_price": price}, format="json"
+        )
+        assert response.status_code == status.HTTP_200_OK
+
+    assert line.candidates.filter(listing_id=created.data["id"]).count() == 1
+
+
+@pytest.mark.django_db(transaction=True)
+def test_matching_failure_after_listing_save_returns_success_and_logs(
+    supplier_client, product, unit, monkeypatch, caplog
+):
+    request = RequestFactory(region="Oromia", woreda="Adama")
+    RequestLineFactory(
+        request=request,
+        product=product,
+        unit=unit,
+        quantity="10.00",
+        max_unit_price="100.00",
+    )
+
+    def fail_matching(request):
+        raise RuntimeError("simulated matching failure")
+
+    monkeypatch.setattr("apps.matching.services.run_request_matching", fail_matching)
+    response = supplier_client.post(
+        LIST_URL, listing_payload(product, unit), format="json"
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+    listing = SupplierListing.objects.get()
+    assert str(listing.id) == response.data["id"]
+    assert listing.availability_status == AvailabilityStatus.ACTIVE
+    assert "Failed to refresh request" in caplog.text
+    assert str(request.id) in caplog.text
+    assert MatchCandidate.objects.count() == 0
+
+
+@pytest.mark.django_db(transaction=True)
+def test_product_deactivation_removes_candidates_and_reactivation_restores_them(
+    product, unit
+):
+    request = RequestFactory(region="Oromia", woreda="Adama")
+    line = RequestLineFactory(
+        request=request,
+        product=product,
+        unit=unit,
+        quantity="10.00",
+        max_unit_price="100.00",
+    )
+    SupplierListingFactory(product=product, unit=unit)
+
+    request.refresh_from_db()
+    assert request.status == RequestStatus.MATCHED
+    assert line.candidates.count() == 1
+
+    product.is_active = False
+    product.save(update_fields=["is_active"])
+
+    request.refresh_from_db()
+    assert request.status == RequestStatus.OPEN
+    assert line.candidates.count() == 0
+
+    product.is_active = True
+    product.save(update_fields=["is_active"])
+
+    request.refresh_from_db()
+    assert request.status == RequestStatus.MATCHED
+    assert line.candidates.count() == 1
+
+
+@pytest.mark.django_db(transaction=True)
+def test_new_listing_for_same_category_product_matches_existing_request(unit):
+    requested_product = ProductFactory(
+        name="NPSB 19-38-7", category=ProductCategory.FERTILIZER
+    )
+    listing_product = ProductFactory(
+        name="Urea", category=ProductCategory.FERTILIZER
+    )
+    request = RequestFactory(region="Oromia", woreda="Adama")
+    line = RequestLineFactory(
+        request=request,
+        product=requested_product,
+        unit=unit,
+        quantity="10.00",
+        max_unit_price="100.00",
+    )
+
+    SupplierListingFactory(product=listing_product, unit=unit)
+
+    request.refresh_from_db()
+    assert request.status == RequestStatus.MATCHED
+    assert line.candidates.count() == 1
+    assert line.candidates.get().listing.product_id == listing_product.id
+
+
+@pytest.mark.django_db(transaction=True)
+def test_reactivating_supplier_product_matches_other_product_in_same_category(unit):
+    requested_product = ProductFactory(
+        name="NPSB 19-38-7", category=ProductCategory.FERTILIZER
+    )
+    listing_product = ProductFactory(
+        name="Urea", category=ProductCategory.FERTILIZER, is_active=False
+    )
+    request = RequestFactory(region="Oromia", woreda="Adama")
+    line = RequestLineFactory(
+        request=request,
+        product=requested_product,
+        unit=unit,
+        quantity="10.00",
+        max_unit_price="100.00",
+    )
+    listing = SupplierListingFactory(product=listing_product, unit=unit)
+
+    request.refresh_from_db()
+    assert request.status == RequestStatus.OPEN
+    assert line.candidates.count() == 0
+
+    listing_product.is_active = True
+    listing_product.save(update_fields=["is_active"])
+
+    request.refresh_from_db()
+    assert request.status == RequestStatus.MATCHED
+    assert line.candidates.get().listing_id == listing.id
+
+
+@pytest.mark.django_db(transaction=True)
+def test_unrelated_product_update_does_not_trigger_rematching(
+    product, unit, monkeypatch
+):
+    request = RequestFactory(region="Oromia", woreda="Adama")
+    RequestLineFactory(request=request, product=product, unit=unit)
+    SupplierListingFactory(product=product, unit=unit)
+
+    def unexpected_rematch(request):
+        raise AssertionError("unrelated product update triggered matching")
+
+    monkeypatch.setattr(
+        "apps.matching.services.run_request_matching", unexpected_rematch
+    )
+    product.name = "Renamed product"
+    product.save(update_fields=["name"])
+
+
+@pytest.mark.django_db(transaction=True)
+def test_expiring_listing_removes_candidate_and_reopens_request(product, unit):
+    request = RequestFactory(region="Oromia", woreda="Adama")
+    line = RequestLineFactory(request=request, product=product, unit=unit)
+    listing = SupplierListingFactory(product=product, unit=unit)
+
+    request.refresh_from_db()
+    assert request.status == RequestStatus.MATCHED
+    assert line.candidates.count() == 1
+
+    listing.availability_status = AvailabilityStatus.EXPIRED
+    listing.save(update_fields=["availability_status"])
+
+    request.refresh_from_db()
+    assert request.status == RequestStatus.OPEN
+    assert line.candidates.count() == 0
 
 
 def test_supplier_listing_api_paginates_all_listings_after_twenty_five(

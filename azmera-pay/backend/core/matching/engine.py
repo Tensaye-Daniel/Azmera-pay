@@ -7,7 +7,7 @@ from .constants import (
     FAIL_INVALID_PRICE,
     FAIL_NOT_ACTIVE,
     FAIL_PRICE,
-    FAIL_PRODUCT,
+    FAIL_CATEGORY,
     FAIL_PRODUCT_INACTIVE,
     FAIL_QUANTITY,
     FAIL_REGION,
@@ -21,7 +21,7 @@ from .constants import (
     QUANTITY_MAX_POINTS,
     REASON_ACTIVE_LISTING,
     REASON_ENOUGH_QUANTITY,
-    REASON_PRODUCT_MATCHES,
+    REASON_CATEGORY_MATCHES,
     REASON_WITHIN_BUDGET,
     SAME_REGION,
     SAME_WOREDA,
@@ -46,10 +46,17 @@ def _require_uuid(name, value):
         raise TypeError(f"{name} must be a UUID, got {value!r}")
 
 
+def _require_category(name, value):
+    """Categories are stable catalog identifiers, not product display names."""
+    if not isinstance(value, str) or not value.strip():
+        raise TypeError(f"{name} must be a non-empty category identifier")
+
+
 @dataclass(frozen=True)
 class RequestData:
     """Data needed from a farmer's request."""
     product_id: UUID
+    product_category: str
     unit_id: UUID
     quantity: Decimal
     max_unit_price: Decimal
@@ -59,6 +66,7 @@ class RequestData:
 
     def __post_init__(self):
         _require_uuid("product_id", self.product_id)
+        _require_category("product_category", self.product_category)
         _require_uuid("unit_id", self.unit_id)
         _require_decimal("quantity", self.quantity)
         _require_decimal("max_unit_price", self.max_unit_price)
@@ -69,6 +77,7 @@ class ListingData:
     """Data needed from a supplier listing."""
     id: UUID
     product_id: UUID
+    product_category: str
     unit_id: UUID
     available_quantity: Decimal
     unit_price: Decimal
@@ -80,6 +89,7 @@ class ListingData:
     def __post_init__(self):
         _require_uuid("id", self.id)
         _require_uuid("product_id", self.product_id)
+        _require_category("product_category", self.product_category)
         _require_uuid("unit_id", self.unit_id)
         _require_decimal("available_quantity", self.available_quantity)
         _require_decimal("unit_price", self.unit_price)
@@ -104,8 +114,8 @@ def eligibility_failures(req, lst):
     if not req.product_is_active or not lst.product_is_active:
         failures.append(FAIL_PRODUCT_INACTIVE)
 
-    if lst.product_id != req.product_id:
-        failures.append(FAIL_PRODUCT)
+    if lst.product_category != req.product_category:
+        failures.append(FAIL_CATEGORY)
 
     if lst.unit_id != req.unit_id:
         failures.append(FAIL_UNIT)
@@ -191,7 +201,7 @@ def build_match(req, lst):
         score=_round(sum(parts.values(), ZERO)),
         reasons=[
             location,
-            REASON_PRODUCT_MATCHES,
+            REASON_CATEGORY_MATCHES,
             REASON_ENOUGH_QUANTITY,
             REASON_WITHIN_BUDGET,
             REASON_ACTIVE_LISTING,

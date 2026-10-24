@@ -12,6 +12,7 @@ from rest_framework_simplejwt.serializers import (
 
 from apps.catalog.models import ProductCategory
 from apps.common.utils import normalize_phone
+from core.matching.constants import canonical_region
 
 from .models import Role, SupplierApprovalStatus, SupplierProfile
 
@@ -252,7 +253,12 @@ class SupplierProfileSerializer(serializers.ModelSerializer):
         value = value.strip()
         if not value:
             raise serializers.ValidationError("Region is required.")
-        return value
+        region = canonical_region(value)
+        if region is None:
+            raise serializers.ValidationError(
+                "Region is not an allowed Ethiopian region."
+            )
+        return region
 
     def validate_woreda(self, value):
         value = value.strip()

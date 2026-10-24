@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   fetchSupplierProfile,
+  supplierApiErrorMessage,
   updateSupplierProfile,
   type SupplierProductCategory,
   type SupplierProfile,
@@ -41,10 +42,13 @@ export default function SupplierShopSetup() {
         if (active) {
           setProfile(data)
         }
-      } catch {
+      } catch (reason: unknown) {
         if (active) {
           setError(
-            'Could not load your shop details. Please try again.',
+            supplierApiErrorMessage(
+              reason,
+              'Could not load your shop details. Please try again.',
+            ),
           )
         }
       } finally {
@@ -68,9 +72,7 @@ export default function SupplierShopSetup() {
       return {
         ...current,
         product_categories: selected
-          ? current.product_categories.filter(
-              (item) => item !== category,
-            )
+          ? current.product_categories.filter((item) => item !== category)
           : [...current.product_categories, category],
       }
     })
@@ -100,11 +102,13 @@ export default function SupplierShopSetup() {
       setProfile(updated)
       setSuccess('Your shop details have been saved successfully.')
       navigate('/supplier', { replace: true })
-    } catch {
+    } catch (err: unknown) {
       setError(
-        'Could not save your shop details. Please check your information and try again.',
+        supplierApiErrorMessage(
+          err,
+          'Could not save your shop details. Please check your information and try again.',
+        ),
       )
-    } finally {
       setSaving(false)
     }
   }
@@ -120,15 +124,11 @@ export default function SupplierShopSetup() {
   return (
     <section className="mx-auto max-w-3xl space-y-6 p-4 sm:p-6">
       <div>
-        <p className="text-sm font-medium text-green-700">
-          Supplier account
-        </p>
-        <h1 className="mt-1 text-2xl font-bold text-gray-900">
-          Shop Setup
-        </h1>
+        <p className="text-sm font-medium text-green-700">Supplier account</p>
+        <h1 className="mt-1 text-2xl font-bold text-gray-900">Shop Setup</h1>
         <p className="mt-2 text-sm leading-6 text-gray-600">
-          Manage your shop location and the agricultural products
-          your business supplies.
+          Manage your shop location and the agricultural products your business
+          supplies.
         </p>
       </div>
 
@@ -239,15 +239,11 @@ export default function SupplierShopSetup() {
               >
                 <input
                   type="checkbox"
-                  checked={profile.product_categories.includes(
-                    category.value,
-                  )}
+                  checked={profile.product_categories.includes(category.value)}
                   onChange={() => toggleCategory(category.value)}
                   className="h-4 w-4 accent-green-700"
                 />
-                <span className="text-sm text-gray-800">
-                  {category.label}
-                </span>
+                <span className="text-sm text-gray-800">{category.label}</span>
               </label>
             ))}
           </div>

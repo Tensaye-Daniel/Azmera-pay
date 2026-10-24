@@ -1,5 +1,5 @@
 import { client } from './client'
-import type { Paginated } from '../types/farmer'
+import type { Paginated } from '../types/common'
 
 export type UserRole =
   | 'agent'
@@ -42,6 +42,23 @@ export interface AdminSupplier {
   is_active: boolean
 }
 
+export type FarmerDocumentType =
+  | 'farmer_id'
+  | 'field_photo'
+  | 'farming_proof'
+  | 'other'
+
+export interface AdminFarmerDocument {
+  id: string
+  document_type: FarmerDocumentType
+  document_type_display: string
+  original_filename: string
+  content_type: string
+  size_bytes: number
+  checksum: string
+  created_at: string
+}
+
 export interface AdminFarmer {
   id: string
   user_id: string
@@ -62,9 +79,30 @@ export interface AdminFarmer {
   notes: string
   registered_by_name: string | null
   registered_by_phone: string | null
+  documents: AdminFarmerDocument[]
   is_active: boolean
   created_at: string
   updated_at: string
+}
+
+export interface AdminSummary {
+  users: {
+    total: number
+    by_role: Record<UserRole, number>
+  }
+  farmers: {
+    total: number
+    by_status: Record<FarmerStatus, number>
+  }
+  suppliers: {
+    total: number
+    by_approval: Record<SupplierApprovalStatus, number>
+  }
+}
+
+export async function getAdminSummary() {
+  const { data } = await client.get<AdminSummary>('/dashboard/admin/users/summary')
+  return data
 }
 
 export async function listAdminUsers(params: Record<string, string> = {}) {
@@ -128,6 +166,24 @@ export async function listAdminFarmers(params: Record<string, string> = {}) {
     { params },
   )
   return data.results
+}
+
+export async function getAdminFarmer(id: string) {
+  const { data } = await client.get<AdminFarmer>(
+    `/dashboard/admin/farmers/${id}`,
+  )
+  return data
+}
+
+export async function downloadFarmerDocument(
+  farmerId: string,
+  documentId: string,
+) {
+  const { data } = await client.get<Blob>(
+    `/dashboard/admin/farmers/${farmerId}/documents/${documentId}`,
+    { responseType: 'blob' },
+  )
+  return data
 }
 
 export async function verifyFarmer(id: string) {

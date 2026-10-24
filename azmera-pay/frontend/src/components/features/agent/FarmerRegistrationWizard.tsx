@@ -187,6 +187,13 @@ export default function FarmerRegistrationWizard({
 
   const setDocument = (key: DocumentKey) => (file: File | null) => {
     setDocuments((prev) => ({ ...prev, [key]: file }))
+    setErrors((prev) => {
+      if (!prev.documents && !prev[key]) return prev
+      const next = { ...prev }
+      delete next.documents
+      delete next[key]
+      return next
+    })
   }
 
   const attachedCount = DOCUMENT_FIELDS.filter(
@@ -236,6 +243,9 @@ export default function FarmerRegistrationWizard({
     if (has('primary_crop') && !form.primary_crop.trim()) {
       next.primary_crop = 'Primary crop is required.'
     }
+    if (STEPS[index].title === 'Documents' && !documents.farmer_id) {
+      next.documents = 'Attach the farmer ID document to continue.'
+    }
     return next
   }
 
@@ -260,6 +270,9 @@ export default function FarmerRegistrationWizard({
   }
 
   const stepForField = (field: string): number => {
+    if (['farmer_id', 'field_photo', 'farming_proof', 'documents'].includes(field)) {
+      return STEPS.findIndex((item) => item.title === 'Documents')
+    }
     const index = STEPS.findIndex((item) =>
       item.fields.includes(field as keyof FormState),
     )
@@ -285,8 +298,15 @@ export default function FarmerRegistrationWizard({
       land_ownership_notes: form.land_ownership_notes.trim() || undefined,
     }
 
+    const uploads = Object.fromEntries(
+      DOCUMENT_FIELDS.flatMap(({ key }) => {
+        const file = documents[key]
+        return file ? [[key, file]] : []
+      }),
+    )
+
     try {
-      const farmer = await registerFarmer(payload)
+      const farmer = await registerFarmer(payload, uploads)
       onSuccess(farmer)
     } catch (err) {
       const normalized = normalizeApiError(err)
@@ -497,19 +517,32 @@ export default function FarmerRegistrationWizard({
           <div className="space-y-5">
             <Notice variant="info">
               Attach clear copies now so the verification team can review the
-              farmer. Document storage is not wired to the farmer profile yet —
-              originals may still be requested later.
+              farmer. Files are encrypted before they are stored, and only
+              admins can decrypt them for review. Farmer ID is required.
             </Notice>
+
+            {errors.documents && (
+              <p className="text-sm font-medium text-red-600">
+                {errors.documents}
+              </p>
+            )}
 
             <div className="grid gap-5 sm:grid-cols-2">
               {DOCUMENT_FIELDS.map((doc) => (
-                <Field key={doc.key} id={doc.key} label={doc.label}>
-                  <FileUpload
-                    file={documents[doc.key]}
-                    onChange={setDocument(doc.key)}
-                    hint={doc.hint}
-                  />
-                </Field>
+                <div key={doc.key}>
+                  <Field
+                    id={doc.key}
+                    label={doc.label}
+                    required={doc.key === 'farmer_id'}
+                    error={errors[doc.key]}
+                  >
+                    <FileUpload
+                      file={documents[doc.key]}
+                      onChange={setDocument(doc.key)}
+                      hint={doc.hint}
+                    />
+                  </Field>
+                </div>
               ))}
             </div>
 
@@ -578,7 +611,8 @@ export default function FarmerRegistrationWizard({
 
             <p className="text-xs leading-5 text-stone">
               Submitting sends this farmer for verification and creates their
-              Azmera account number for USSD.
+              Azmera account number for USSD. Supporting documents are encrypted
+              at rest and decrypted only for admin review.
             </p>
           </div>
         )}

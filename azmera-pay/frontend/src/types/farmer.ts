@@ -4,6 +4,23 @@ export type Gender = 'male' | 'female'
 
 export type LandOwnership = 'owned' | 'leased' | 'communal'
 
+export type FarmerDocumentType =
+  | 'farmer_id'
+  | 'field_photo'
+  | 'farming_proof'
+  | 'other'
+
+export interface FarmerDocument {
+  id: string
+  document_type: FarmerDocumentType
+  document_type_display: string
+  original_filename: string
+  content_type: string
+  size_bytes: number
+  checksum: string
+  created_at: string
+}
+
 export interface Farmer {
   id: string
   user_id: string
@@ -22,6 +39,7 @@ export interface Farmer {
   notes: string
   status: FarmerStatus
   registered_by_id: string
+  documents: FarmerDocument[]
   created_at: string
   updated_at: string
 }
@@ -40,6 +58,10 @@ export interface FarmerRegistrationInput {
   land_ownership_notes?: string
   notes?: string
 }
+
+export type FarmerDocumentUploads = Partial<
+  Record<'farmer_id' | 'field_photo' | 'farming_proof', File>
+>
 
 export interface Paginated<T> {
   count: number

@@ -2,7 +2,6 @@
 import LandingLayout from '../components/layout/LandingLayout'
 import SupplierLayout from '../layouts/SupplierLayout'
 import AgentLayout from '../layouts/AgentLayout'
-import AdminLayout from '../layouts/AdminLayout'
 import RequireAuth from './RequireAuth'
 import RequireSupplierSetup from './RequireSupplierSetup'
 import LandingPage from '../pages/public/LandingPage'
@@ -21,10 +20,6 @@ import FarmerDetailPage from '../pages/agent/FarmerDetailPage'
 import FarmerEditPage from '../pages/agent/FarmerEditPage'
 import AgentSettings from '../pages/agent/AgentSettings'
 import SupplierSignup from '../pages/auth/SupplierSignup'
-import AdminDashboard from '../pages/admin/AdminDashboard'
-import AdminFarmers from '../pages/admin/AdminFarmers'
-import AdminSuppliers from '../pages/admin/AdminSuppliers'
-import AdminUsers from '../pages/admin/AdminUsers'
 
 const router = createBrowserRouter([
   {

@@ -6,9 +6,19 @@ from django.contrib.auth import get_user_model
 from apps.accounts.models import Role
 from apps.common.utils import normalize_phone
 
-from .models import FarmerProfile, FarmerStatus
+from .documents import (
+    allowed_document_types,
+    checksum,
+    encrypt_document,
+    max_document_bytes,
+)
+from .models import FarmerDocument, FarmerProfile, FarmerStatus
 
 User = get_user_model()
+
+
+class DocumentValidationError(ValueError):
+    """Raised when an uploaded farmer document fails local validation."""
 
 AZMERA_NUMBER_PREFIX = "AZM"
 AZMERA_NUMBER_DIGITS = 8
@@ -67,4 +77,39 @@ def register_farmer(
         land_ownership_notes=land_ownership_notes,
         notes=notes,
         status=FarmerStatus.PENDING,
+    )
+
+
+def store_farmer_document(*, farmer, document_type, uploaded_file, uploaded_by=None):
+    """Validate, encrypt, and persist a single farmer document.
+
+    The plaintext is never written to storage. Only the Fernet token is saved,
+    alongside metadata used for review and integrity checks.
+    """
+    data = uploaded_file.read()
+    if not data:
+        raise DocumentValidationError("The uploaded file is empty.")
+
+    max_bytes = max_document_bytes()
+    if len(data) > max_bytes:
+        raise DocumentValidationError(
+            f"File is too large. Maximum size is {max_bytes // (1024 * 1024)} MB."
+        )
+
+    content_type = (getattr(uploaded_file, "content_type", "") or "").lower()
+    if content_type not in allowed_document_types():
+        raise DocumentValidationError(
+            "Unsupported file type. Upload a JPEG, PNG, WebP, or PDF file."
+        )
+
+    filename = (getattr(uploaded_file, "name", "") or "document").strip()
+    return FarmerDocument.objects.create(
+        farmer=farmer,
+        document_type=document_type,
+        original_filename=filename[:255],
+        content_type=content_type,
+        size_bytes=len(data),
+        checksum=checksum(data),
+        encrypted_data=encrypt_document(data),
+        uploaded_by=uploaded_by,
     )

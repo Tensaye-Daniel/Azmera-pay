@@ -24,7 +24,7 @@ function normalizePhone(value: string): string {
 export default function Login() {
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
-  const [remember, setRemember] = useState(true)
+  const [remember] = useState(true)
   const [errors, setErrors] = useState<LoginErrors>({})
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)

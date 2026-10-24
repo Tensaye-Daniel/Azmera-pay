@@ -2,20 +2,32 @@
 import re
 
 from django.contrib.auth import get_user_model
+from django.db import transaction
 from rest_framework import serializers
 
 from apps.common.utils import normalize_phone
 from apps.profiles.models import (
     FAYDA_FIN_PATTERN,
+    FarmerDocumentType,
     FarmerProfile,
     Gender,
     LandOwnership,
 )
 from apps.profiles.serializers import FarmerProfileSerializer
-from apps.profiles.services import register_farmer
+from apps.profiles.services import (
+    DocumentValidationError,
+    register_farmer,
+    store_farmer_document,
+)
 from core.matching.constants import ETHIOPIAN_REGIONS, canonical_region
 
 User = get_user_model()
+
+DOCUMENT_FIELDS = (
+    "farmer_id",
+    "field_photo",
+    "farming_proof",
+)
 
 
 class FarmerRegistrationSerializer(serializers.Serializer):
@@ -38,6 +50,9 @@ class FarmerRegistrationSerializer(serializers.Serializer):
     land_ownership = serializers.ChoiceField(choices=LandOwnership.choices)
     land_ownership_notes = serializers.CharField(required=False, allow_blank=True)
     notes = serializers.CharField(required=False, allow_blank=True)
+    farmer_id = serializers.FileField(required=False, write_only=True)
+    field_photo = serializers.FileField(required=False, write_only=True)
+    farming_proof = serializers.FileField(required=False, write_only=True)
 
     def validate_phone(self, value):
         try:
@@ -67,7 +82,27 @@ class FarmerRegistrationSerializer(serializers.Serializer):
         return canonical
 
     def create(self, validated_data):
-        return register_farmer(agent=self.context["request"].user, **validated_data)
+        uploads = {
+            field: validated_data.pop(field)
+            for field in DOCUMENT_FIELDS
+            if field in validated_data
+        }
+        agent = self.context["request"].user
+
+        with transaction.atomic():
+            farmer = register_farmer(agent=agent, **validated_data)
+            for field, uploaded_file in uploads.items():
+                try:
+                    store_farmer_document(
+                        farmer=farmer,
+                        document_type=FarmerDocumentType(field),
+                        uploaded_file=uploaded_file,
+                        uploaded_by=agent,
+                    )
+                except DocumentValidationError as exc:
+                    raise serializers.ValidationError({field: [str(exc)]}) from exc
+
+        return farmer
 
 
 class FarmerUpdateSerializer(FarmerProfileSerializer):

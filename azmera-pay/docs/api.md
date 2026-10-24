@@ -71,14 +71,36 @@ farmers they registered; admins may see all farmers.
 | Method and path | Behavior |
 | --- | --- |
 | `GET /api/v1/dashboard/agent/farmers` | Paginated farmer profile list. |
-| `POST /api/v1/dashboard/agent/farmers` | Registers a farmer. Required JSON fields: `full_name`, `phone`, `region`, `woreda`, `farm_size_hectares`, `primary_crop`, and `land_ownership`. Optional fields: `fayda_fin`, `gender`, `kebele`, `land_ownership_notes`, and `notes`. Returns the created farmer profile with HTTP 201. |
+| `POST /api/v1/dashboard/agent/farmers` | Registers a farmer. Required JSON fields: `full_name`, `phone`, `region`, `woreda`, `farm_size_hectares`, `primary_crop`, and `land_ownership`. Optional fields: `fayda_fin`, `gender`, `kebele`, `land_ownership_notes`, and `notes`. Send as `multipart/form-data` to attach optional documents in `farmer_id`, `field_photo`, and `farming_proof` file fields. Returns the created farmer profile with HTTP 201. |
 | `GET /api/v1/dashboard/agent/farmers/summary` | Returns `total`, counts in `by_status`, and up to five recent farmer profiles. |
 | `GET /api/v1/dashboard/agent/farmers/{uuid}` | Retrieves a farmer in the caller's permitted queryset. |
 | `PATCH /api/v1/dashboard/agent/farmers/{uuid}` | Partially updates a permitted farmer profile. |
 
 The farmer profile representation includes IDs, name, phone, account number,
-Fayda FIN, location and farm fields, status, registering agent ID, and
-timestamps. Invalid registration/update data returns DRF validation errors.
+Fayda FIN, location and farm fields, status, registering agent ID, document
+metadata, and timestamps. Invalid registration/update data returns DRF
+validation errors.
+
+Uploaded documents are limited to JPEG, PNG, WebP, or PDF (5 MB by default) and
+are encrypted with Fernet before being stored. The API only returns document
+metadata; file bytes are never exposed as ciphertext.
+
+## Admin dashboard
+
+Admin-only moderation endpoints live under `/api/v1/dashboard/admin/`.
+
+| Method and path | Behavior |
+| --- | --- |
+| `GET /api/v1/dashboard/admin/users/summary` | Review-queue totals: users by role, farmers by status, suppliers by approval. |
+| `GET /api/v1/dashboard/admin/farmers` | Paginated farmer list including full registration details and document metadata. |
+| `GET /api/v1/dashboard/admin/farmers/{uuid}` | Farmer detail for review. |
+| `PATCH /api/v1/dashboard/admin/farmers/{uuid}/verify` | Approves the farmer and activates the account. |
+| `GET /api/v1/dashboard/admin/farmers/{uuid}/documents/{document_uuid}` | Streams a decrypted document to an authenticated admin for review. |
+| `PATCH /api/v1/dashboard/admin/suppliers/{uuid}/approve` | Approves a supplier application. |
+
+Admin document downloads are decrypted on demand. The encryption key comes from
+`FARMER_DOCUMENT_ENCRYPTION_KEY`; when it is unset, a development key is derived
+from `DJANGO_SECRET_KEY`.
 
 ## USSD callback
 

@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from apps.accounts.models import Role, SupplierApprovalStatus, SupplierProfile, User
 from apps.profiles.models import FarmerProfile, FarmerStatus
+from apps.profiles.serializers import FarmerDocumentSerializer
 
 
 class AdminUserSerializer(serializers.ModelSerializer):
@@ -60,6 +61,7 @@ class AdminFarmerSerializer(serializers.ModelSerializer):
     registered_by_phone = serializers.CharField(
         source="registered_by.phone", read_only=True
     )
+    documents = FarmerDocumentSerializer(many=True, read_only=True)
 
     class Meta:
         model = FarmerProfile
@@ -83,6 +85,7 @@ class AdminFarmerSerializer(serializers.ModelSerializer):
             "notes",
             "registered_by_name",
             "registered_by_phone",
+            "documents",
             "is_active",
             "created_at",
             "updated_at",

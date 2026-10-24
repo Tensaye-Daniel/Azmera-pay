@@ -48,6 +48,7 @@ def make_request(**changes):
     """Farmer wants 10 units, paying at most 100 each, in Oromia / Adama."""
     values = {
         "product_id": PRODUCT_ID,
+        "product_category": "fertilizer",
         "unit_id": UNIT_ID,
         "quantity": D("10"),
         "max_unit_price": D("100"),
@@ -64,6 +65,7 @@ def make_listing(listing_id=None, **changes):
     values = {
         "id": listing_id or uid(1),
         "product_id": PRODUCT_ID,
+        "product_category": "fertilizer",
         "unit_id": UNIT_ID,
         "available_quantity": D("100"),
         "unit_price": D("50"),
@@ -127,7 +129,7 @@ def test_result_exposes_only_service_fields():
         ({"availability_status": "expired"}, "listing_not_active"),
         ({"availability_status": ""}, "listing_not_active"),
         ({"product_is_active": False}, "product_not_active"),
-        ({"product_id": uid(901)}, "product_mismatch"),
+        ({"product_category": "seed"}, "category_mismatch"),
         ({"unit_id": uid(902)}, "unit_mismatch"),
         ({"available_quantity": D("9.99")}, "not_enough_quantity"),
         ({"unit_price": D("0")}, "invalid_listing_price"),
@@ -147,7 +149,7 @@ def test_each_hard_filter_rejects_a_listing_on_its_own(changes, expected_failure
 def test_all_failures_are_reported_together():
     listing = make_listing(
         availability_status="paused",
-        product_id=uid(901),
+        product_category="seed",
         unit_id=uid(902),
         available_quantity=D("1"),
         unit_price=D("999"),
@@ -156,7 +158,7 @@ def test_all_failures_are_reported_together():
 
     assert set(eligibility_failures(REQ, listing)) == {
         "listing_not_active",
-        "product_mismatch",
+        "category_mismatch",
         "unit_mismatch",
         "not_enough_quantity",
         "over_budget",
@@ -171,10 +173,17 @@ def test_inactive_request_product_is_not_matched():
     assert build_match(req, make_listing()) is None
 
 
-def test_request_and_listing_product_references_must_match():
+def test_different_product_ids_match_when_canonical_category_matches():
     listing = make_listing(product_id=uid(901))
 
-    assert eligibility_failures(REQ, listing) == ["product_mismatch"]
+    assert eligibility_failures(REQ, listing) == []
+    assert build_match(REQ, listing) is not None
+
+
+def test_different_categories_do_not_match_even_when_product_ids_match():
+    listing = make_listing(product_category="seed")
+
+    assert eligibility_failures(REQ, listing) == ["category_mismatch"]
     assert build_match(REQ, listing) is None
 
 
@@ -250,7 +259,7 @@ def test_reasons_explain_the_match():
 
     assert set(reasons) == {
         "same_woreda",
-        "product_matches",
+        "category_matches",
         "enough_quantity",
         "within_budget",
         "active_listing",
@@ -493,6 +502,7 @@ def test_required_request_fields_cannot_be_omitted():
     with pytest.raises(TypeError, match="max_unit_price"):
         RequestData(
             product_id=PRODUCT_ID,
+            product_category="fertilizer",
             unit_id=UNIT_ID,
             quantity=D("1"),
             region="Oromia",

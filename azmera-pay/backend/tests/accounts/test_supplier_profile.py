@@ -78,6 +78,34 @@ def test_supplier_can_update_shop_profile(
     assert profile.woreda == "Adama"
     assert profile.product_categories == ["seed", "fertilizer", "pesticide"]
 
+    reloaded = api_client.get(PROFILE_URL)
+    assert reloaded.status_code == status.HTTP_200_OK
+    assert reloaded.data["region"] == "Oromia"
+    assert reloaded.data["woreda"] == "Adama"
+    assert reloaded.data["product_categories"] == [
+        "seed",
+        "fertilizer",
+        "pesticide",
+    ]
+
+
+def test_supplier_partial_shop_profile_update_preserves_other_values(
+    api_client, approved_supplier
+):
+    profile = approved_supplier.supplier_profile
+    profile.region = "Oromia"
+    profile.woreda = "Adama"
+    profile.product_categories = ["seed"]
+    profile.save()
+
+    response = api_client.patch(PROFILE_URL, {"woreda": "Bahir Dar"}, format="json")
+
+    assert response.status_code == status.HTTP_200_OK
+    profile.refresh_from_db()
+    assert profile.region == "Oromia"
+    assert profile.woreda == "Bahir Dar"
+    assert profile.product_categories == ["seed"]
+
 
 def test_supplier_profile_rejects_invalid_category(
     api_client, approved_supplier
@@ -90,6 +118,25 @@ def test_supplier_profile_rejects_invalid_category(
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "product_categories" in response.data
+
+
+def test_supplier_profile_rejects_region_not_supported_by_catalog(
+    api_client, approved_supplier
+):
+    response = api_client.patch(
+        PROFILE_URL,
+        {
+            "region": "Not an Ethiopian region",
+            "woreda": "Adama",
+            "product_categories": ["seed"],
+        },
+        format="json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "region" in response.data
+    approved_supplier.supplier_profile.refresh_from_db()
+    assert approved_supplier.supplier_profile.region == ""
 
 
 def test_supplier_profile_rejects_incomplete_shop_setup(

@@ -3,7 +3,29 @@
 # endpoint lives).
 from rest_framework import serializers
 
-from .models import FarmerProfile
+from .models import FarmerDocument, FarmerProfile
+
+
+class FarmerDocumentSerializer(serializers.ModelSerializer):
+    """Metadata for an encrypted farmer document (never the ciphertext)."""
+
+    document_type_display = serializers.CharField(
+        source="get_document_type_display", read_only=True
+    )
+
+    class Meta:
+        model = FarmerDocument
+        fields = [
+            "id",
+            "document_type",
+            "document_type_display",
+            "original_filename",
+            "content_type",
+            "size_bytes",
+            "checksum",
+            "created_at",
+        ]
+        read_only_fields = fields
 
 
 class FarmerProfileSerializer(serializers.ModelSerializer):
@@ -13,6 +35,7 @@ class FarmerProfileSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(source="user.full_name", read_only=True)
     phone = serializers.CharField(source="user.phone", read_only=True)
     registered_by_id = serializers.UUIDField(source="registered_by.id", read_only=True)
+    documents = FarmerDocumentSerializer(many=True, read_only=True)
 
     class Meta:
         model = FarmerProfile
@@ -34,6 +57,7 @@ class FarmerProfileSerializer(serializers.ModelSerializer):
             "notes",
             "status",
             "registered_by_id",
+            "documents",
             "created_at",
             "updated_at",
         ]

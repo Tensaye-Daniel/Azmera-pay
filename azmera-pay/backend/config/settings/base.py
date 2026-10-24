@@ -122,6 +122,23 @@ SIMPLE_JWT = {
 }
 
 
+# Farmer documents are encrypted at rest (Fernet). Set
+# FARMER_DOCUMENT_ENCRYPTION_KEY in production; when empty a key derived from
+# SECRET_KEY is used for local development and tests.
+FARMER_DOCUMENT_ENCRYPTION_KEY = env(
+    "FARMER_DOCUMENT_ENCRYPTION_KEY", default=""
+)
+FARMER_DOCUMENT_MAX_BYTES = env.int(
+    "FARMER_DOCUMENT_MAX_BYTES", default=5 * 1024 * 1024
+)
+FARMER_DOCUMENT_ALLOWED_TYPES = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "application/pdf",
+]
+
+
 # USSD / SMS channel (Africa's Talking). See apps/channels.
 USSD_GATEWAY = env("USSD_GATEWAY", default="mock")
 AFRICASTALKING_USERNAME = env("AFRICASTALKING_USERNAME", default="")

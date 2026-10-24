@@ -1,6 +1,12 @@
 # Azmera
 
 Azmera is an agricultural marketplace for Ethiopia that connects farmers, agents, suppliers, and buyers. Its intended workflow is **REGISTER → REQUEST → MATCH → CONNECT → AGREE → TRADE**. USSD is an important access channel for farmers using basic phones.
+## Team members
+
+| Name | ID / Handle | Contribution |
+| --- | --- | --- |
+| Tensaye Daniel | CTC-839-26 | Built the agent registration flow, farmer request handling, and the backend/USSD APIs for Module 1. |
+| Mebatsion Nigussie | `nigussiemebatsion-sys` | Worked on supplier listings, marketplace matching, and the supplier response flow for Module 2. |
 
 ## Technology
 
@@ -81,18 +87,25 @@ frontend/src/
 
 Agent farmer management and supplier listing/Shop Setup pages are connected to existing backend endpoints. Supplier Requests and Matches currently show placeholder information. Farmer and buyer dashboards and their request flows remain to be implemented.
 
+## Team members
+
+| Name | ID / Handle | Contribution |
+| --- | --- | --- |
+| Tensaye Daniel | `Tensaye-Daniel` | Built the agent registration flow, farmer request handling, and the backend/USSD APIs for Module 1. |
+| Mebatsion Nigussie | `nigussiemebatsion-sys` | Worked on supplier listings, marketplace matching, and the supplier response flow for Module 2. |
+
 ## Development Modules
 
 ### Module 1: Agent Registration and Farmer USSD Requests (#1)
 
-**Owner:** Tensaye-Daniel
+**Owner:** Tensaye Daniel (`Tensaye-Daniel`)
 
 - Agent JWT access and farmer registration through the Agent dashboard, including unique account numbers and duplicate validation.
 - Implement USSD sessions that create Farmer input requests, and agree on the callback/session contract and Module 2 handoff.
 
 ### Module 2: Supplier Listings and Matching Dashboard (#2)
 
-**Owner:** nigussiemebatsion-sys(Mebatsion Nigussie)
+**Owner:** Mebatsion Nigussie (`nigussiemebatsion-sys`)
 
 - Manage Supplier listings and implement deterministic matching of eligible listings to Farmer requests.
 - Build Supplier match responses, including accept/decline/counteroffers, while protecting Farmer contact details until acceptance.
@@ -148,6 +161,3 @@ The Vite development server runs at `http://localhost:5173/` and proxies `/api` 
 
 The root `.env.example` is a shared sample; Django reads its environment from `backend/.env`. Do not put private credentials in frontend environment variables.
 
-## Development status
-
-Both backend and frontend require ongoing implementation and verification. Account, Agent, Supplier listing, and the farmer USSD request→match flow exist, but the web request/matching APIs and the connect → agree → trade workflow are incomplete or planned. See the code and linked documentation before treating a listed capability as complete.

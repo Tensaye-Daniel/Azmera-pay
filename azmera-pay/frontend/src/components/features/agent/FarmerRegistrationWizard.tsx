@@ -18,6 +18,7 @@ import FileUpload from '../../ui/FileUpload'
 import GenderChoice from '../../ui/GenderChoice'
 import Notice from '../../ui/Notice'
 import ProgressSteps from '../../ui/ProgressSteps'
+import RegionSelect from '../../ui/RegionSelect'
 import Select from '../../ui/Select'
 import TextInput from '../../ui/TextInput'
 import Textarea from '../../ui/Textarea'
@@ -411,19 +412,11 @@ export default function FarmerRegistrationWizard({
         {step === 1 && (
           <div className="grid gap-5 sm:grid-cols-2">
             <Field id="region" label="Region" required error={errors.region}>
-              <Select
+              <RegionSelect
                 value={form.region}
-                onChange={(event) => update('region')(event.target.value)}
-              >
-                <option value="" disabled>
-                  Select region…
-                </option>
-                {ETHIOPIAN_REGIONS.map((region) => (
-                  <option key={region} value={region}>
-                    {region}
-                  </option>
-                ))}
-              </Select>
+                options={ETHIOPIAN_REGIONS}
+                onChange={(region) => update('region')(region)}
+              />
             </Field>
 
             <Field id="woreda" label="Woreda" required error={errors.woreda}>

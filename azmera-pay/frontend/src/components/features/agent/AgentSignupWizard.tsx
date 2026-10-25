@@ -17,6 +17,7 @@ import LegalDialog from '../../ui/LegalDialog'
 import Notice from '../../ui/Notice'
 import PasswordInput from '../../ui/PasswordInput'
 import ProgressSteps from '../../ui/ProgressSteps'
+import RegionSelect from '../../ui/RegionSelect'
 import Select from '../../ui/Select'
 import TextInput from '../../ui/TextInput'
 import {
@@ -160,8 +161,15 @@ function normalizeApiError(error: unknown): {
   if (error instanceof AxiosError && error.response?.data) {
     const data = error.response.data
     if (typeof data === 'object' && data !== null) {
-      if ('detail' in data && typeof data.detail === 'string') {
-        return { fieldErrors: {}, general: data.detail }
+      const record = data as Record<string, unknown>
+      const generalSource = record.detail ?? record.non_field_errors
+      if (generalSource) {
+        return {
+          fieldErrors: {},
+          general: Array.isArray(generalSource)
+            ? generalSource.map(String).join(' ')
+            : String(generalSource),
+        }
       }
       const fieldErrors: FieldErrors = {}
       for (const [field, message] of Object.entries(data)) {
@@ -405,10 +413,10 @@ export default function AgentSignupWizard({ onSuccess }: AgentSignupWizardProps)
           </Field>
 
           <Field id="region" label="Region" required error={errors.region}>
-            <Select
+            <RegionSelect
               value={form.region}
-              onChange={(event) => {
-                const region = event.target.value
+              options={ETHIOPIAN_REGIONS}
+              onChange={(region) => {
                 setForm((prev) => ({
                   ...prev,
                   region,
@@ -421,16 +429,7 @@ export default function AgentSignupWizard({ onSuccess }: AgentSignupWizardProps)
                   return next
                 })
               }}
-            >
-              <option value="" disabled>
-                Select region…
-              </option>
-              {ETHIOPIAN_REGIONS.map((region) => (
-                <option key={region} value={region}>
-                  {region}
-                </option>
-              ))}
-            </Select>
+            />
           </Field>
 
           <Field

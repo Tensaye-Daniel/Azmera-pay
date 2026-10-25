@@ -136,7 +136,6 @@ export default function Login({ variant = 'agent' }: { variant?: LoginVariant })
     <div className="flex min-h-screen flex-col overflow-x-hidden bg-white lg:grid lg:grid-cols-[42%_1fr]">
       <ScrollToTop />
       <AgentSignupHero
-        showOnMobile={variant === 'agent'}
         headline={t('auth.welcomeBackHero')}
         description={copy.heroDescription}
         imageSrc={variant === 'supplier' ? '/images/supplier2.jpg' : undefined}

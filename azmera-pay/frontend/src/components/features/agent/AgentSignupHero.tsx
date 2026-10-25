@@ -1,26 +1,5 @@
-import { Network, Sprout, UserPlus, type LucideIcon } from 'lucide-react'
-
-const BENEFITS: {
-  icon: LucideIcon
-  title: string
-  description: string
-}[] = [
-  {
-    icon: UserPlus,
-    title: 'Register Farmers',
-    description: 'Onboard farmers with trusted, verifiable records.',
-  },
-  {
-    icon: Network,
-    title: 'Build Connections',
-    description: 'Connect farmers with buyers and suppliers.',
-  },
-  {
-    icon: Sprout,
-    title: 'Grow Together',
-    description: 'Create better agricultural opportunities.',
-  },
-]
+import { useTranslation } from 'react-i18next'
+import { Network, Sprout, UserPlus } from 'lucide-react'
 
 interface AgentSignupHeroProps {
   headline?: string
@@ -29,10 +8,33 @@ interface AgentSignupHeroProps {
 }
 
 export default function AgentSignupHero({
-  headline = 'Empowering Agriculture, Together',
-  description = 'Join Azmera as a field agent and help connect Ethiopian farmers with better agricultural opportunities.',
+  headline,
+  description,
   showOnMobile = false,
 }: AgentSignupHeroProps) {
+  const { t } = useTranslation()
+
+  const defaultHeadline = t('auth.heroEmpower')
+  const defaultDescription = t('auth.heroJoin')
+
+  const benefits = [
+    {
+      icon: UserPlus,
+      title: t('auth.benefit1Title'),
+      description: t('auth.benefit1Desc'),
+    },
+    {
+      icon: Network,
+      title: t('auth.benefit2Title'),
+      description: t('auth.benefit2Desc'),
+    },
+    {
+      icon: Sprout,
+      title: t('auth.benefit3Title'),
+      description: t('auth.benefit3Desc'),
+    },
+  ]
+
   return (
     <section
       className={`relative ${showOnMobile ? 'flex min-h-[34rem]' : 'hidden'} flex-col overflow-hidden bg-forest-deeper lg:flex lg:h-full lg:min-h-screen`}
@@ -58,21 +60,23 @@ export default function AgentSignupHero({
             />
           </span>
           <span className="text-sm font-semibold tracking-wide text-forest-deeper">
-            Connect · Trade · Grow
+            {t('auth.heroTagline')}
           </span>
         </div>
 
         <div className="mt-6 max-w-md space-y-3">
           <h1 className="font-serif text-3xl font-semibold leading-tight text-forest-deeper sm:text-4xl">
-            {headline}
+            {headline ?? defaultHeadline}
           </h1>
-          <p className="text-sm leading-6 text-stone-dark">{description}</p>
+          <p className="text-sm leading-6 text-stone-dark">
+            {description ?? defaultDescription}
+          </p>
         </div>
       </div>
 
       <div className="absolute inset-x-4 bottom-4 z-20 rounded-2xl bg-forest-deeper/85 p-4 shadow-lg backdrop-blur-sm sm:inset-x-5 sm:bottom-5 sm:p-5">
         <ul className="grid grid-cols-3 divide-x divide-white/20">
-          {BENEFITS.map((benefit) => (
+          {benefits.map((benefit) => (
             <li
               key={benefit.title}
               className="flex flex-col items-center gap-2 px-2 text-center sm:flex-row sm:items-start sm:gap-3 sm:px-4 sm:text-left"

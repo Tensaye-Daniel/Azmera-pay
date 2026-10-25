@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type SVGProps } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   ChevronDownIcon,
   CloseIcon,
@@ -10,6 +11,7 @@ import {
   SettingsIcon,
 } from '../components/ui/icons'
 import AgentFooter from '../components/layout/AgentFooter'
+import LanguageSwitcher from '../components/ui/LanguageSwitcher'
 import { useAuthStore } from '../store/auth'
 
 function OverviewIcon(props: SVGProps<SVGSVGElement>) {
@@ -32,11 +34,11 @@ function OverviewIcon(props: SVGProps<SVGSVGElement>) {
   )
 }
 
-const navigation = [
-  { label: 'Dashboard', to: '/agent', icon: OverviewIcon, end: true },
-  { label: 'My Farmers', to: '/agent/farmers', icon: UsersIcon },
-  { label: 'Register', to: '/agent/farmers/new', icon: SproutIcon, end: true },
-  { label: 'Settings', to: '/agent/settings', icon: SettingsIcon, end: true },
+const getNavigation = (t: (key: string) => string) => [
+  { label: t('nav.dashboard'), to: '/agent', icon: OverviewIcon, end: true },
+  { label: t('nav.myFarmers'), to: '/agent/farmers', icon: UsersIcon },
+  { label: t('nav.register'), to: '/agent/farmers/new', icon: SproutIcon, end: true },
+  { label: t('nav.settings'), to: '/agent/settings', icon: SettingsIcon, end: true },
 ]
 
 const focusRing =
@@ -51,7 +53,7 @@ const getInitials = (name: string): string =>
     .slice(0, 2)
     .toUpperCase()
 
-function NavItems() {
+function NavItems({ navigation }: { navigation: ReturnType<typeof getNavigation> }) {
   return (
     <ul className="space-y-1">
       {navigation.map(({ label, to, icon: Icon, end }) => (
@@ -89,6 +91,7 @@ function NavItems() {
 }
 
 function RegisterCard() {
+  const { t } = useTranslation()
   return (
     <div className="rounded-2xl border border-forest/10 bg-[#f7faf6] p-4">
       <div className="flex items-center gap-2.5">
@@ -96,18 +99,17 @@ function RegisterCard() {
           <SproutIcon className="size-5" />
         </span>
         <p className="text-sm font-semibold text-forest-deeper">
-          New farmer
+          {t('agent.addNewFarmer')}
         </p>
       </div>
       <p className="mt-3 text-xs leading-5 text-stone">
-        Register a farmer so they can order inputs over USSD with their Azmera
-        account number.
+        {t('agent.shareNumberNotice')}
       </p>
       <NavLink
         to="/agent/farmers/new"
         className={`mt-3 block rounded-xl bg-forest px-3 py-2 text-center text-sm font-semibold text-white transition-colors hover:bg-forest-deeper ${focusRing}`}
       >
-        Register farmer
+        {t('agent.registerFarmerBtn')}
       </NavLink>
     </div>
   )
@@ -120,6 +122,7 @@ function AccountMenu({
   name: string
   onSignOut: () => void
 }) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -181,7 +184,7 @@ function AccountMenu({
             className={`flex w-full items-center gap-2.5 px-4 py-3 text-sm font-medium text-stone-dark transition-colors hover:bg-mint/30 hover:text-forest-deeper ${focusRing}`}
           >
             <LogOutIcon className="size-4" />
-            Sign out
+            {t('nav.signOut')}
           </button>
         </div>
       )}
@@ -190,6 +193,8 @@ function AccountMenu({
 }
 
 export default function AgentLayout() {
+  const { t } = useTranslation()
+  const navigation = getNavigation(t)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [lastPathname, setLastPathname] = useState<string | null>(null)
   const { pathname } = useLocation()
@@ -243,7 +248,7 @@ export default function AgentLayout() {
         href="#agent-main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-forest focus:px-5 focus:py-3 focus:font-semibold focus:text-white"
       >
-        Skip to content
+        {t('nav.skipToContent')}
       </a>
 
       <header className="sticky top-0 z-40 border-b border-forest/10 bg-white/95 shadow-[0_1px_0_0_rgba(0,0,0,0.02),0_4px_16px_-12px_rgba(0,0,0,0.12)] backdrop-blur-md">
@@ -252,7 +257,7 @@ export default function AgentLayout() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen((open) => !open)}
-              aria-label={mobileMenuOpen ? 'Close navigation' : 'Open navigation'}
+              aria-label={mobileMenuOpen ? t('nav.closeMenu') : t('nav.openMenu')}
               aria-expanded={mobileMenuOpen}
               aria-controls="agent-mobile-nav"
               className={`grid size-10 shrink-0 place-items-center rounded-xl border border-forest/15 text-forest transition-colors hover:bg-mint/40 lg:hidden ${focusRing}`}
@@ -284,21 +289,24 @@ export default function AgentLayout() {
             </div>
           </div>
 
-          <AccountMenu
-            name={user?.full_name ?? 'Agent'}
-            onSignOut={handleLogout}
-          />
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <AccountMenu
+              name={user?.full_name ?? 'Agent'}
+              onSignOut={handleLogout}
+            />
+          </div>
         </div>
       </header>
 
       <div className="relative z-10 mx-auto flex min-h-[calc(100vh-68px)] max-w-[1600px]">
         <aside className="sticky top-[68px] hidden h-[calc(100vh-68px)] w-[208px] shrink-0 flex-col border-r border-forest/10 bg-white px-3 py-6 lg:flex">
           <p className="mb-3 px-3 text-xs font-semibold tracking-wide text-stone/75">
-            Agent workspace
+            {t('nav.agentWorkspace')}
           </p>
 
           <nav aria-label="Agent navigation">
-            <NavItems />
+            <NavItems navigation={navigation} />
           </nav>
 
           <div className="mt-auto">
@@ -323,11 +331,11 @@ export default function AgentLayout() {
           }`}
         >
           <p className="mb-3 px-3 text-xs font-semibold tracking-wide text-stone/75">
-            Agent workspace
+            {t('nav.agentWorkspace')}
           </p>
 
           <nav aria-label="Mobile agent navigation">
-            <NavItems />
+            <NavItems navigation={navigation} />
           </nav>
 
           <div className="mt-auto">

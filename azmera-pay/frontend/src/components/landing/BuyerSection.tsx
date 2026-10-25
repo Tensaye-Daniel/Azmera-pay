@@ -1,25 +1,28 @@
+import { useTranslation } from 'react-i18next'
 import Reveal from '../ui/Reveal'
 import { ArrowRightIcon, LocateIcon, ShieldIcon, StoreIcon } from '../ui/icons'
 
-const benefits = [
-  {
-    icon: StoreIcon,
-    title: 'Source quality produce',
-    text: 'Request any quantity of tomatoes and get matched with farmers who can supply it.',
-  },
-  {
-    icon: LocateIcon,
-    title: 'Match with nearby farms',
-    text: 'Location-based matching connects you with the right farms at the right distance.',
-  },
-  {
-    icon: ShieldIcon,
-    title: 'Trade with confidence',
-    text: 'Agree on quantity, price and delivery, then complete your trade through Azmera.',
-  },
-]
-
 export default function BuyerSection() {
+  const { t } = useTranslation()
+
+  const benefits = [
+    {
+      icon: StoreIcon,
+      title: t('landing.buyers.benefit1Title'),
+      text: t('landing.buyers.benefit1Text'),
+    },
+    {
+      icon: LocateIcon,
+      title: t('landing.buyers.benefit2Title'),
+      text: t('landing.buyers.benefit2Text'),
+    },
+    {
+      icon: ShieldIcon,
+      title: t('landing.buyers.benefit3Title'),
+      text: t('landing.buyers.benefit3Text'),
+    },
+  ]
+
   return (
     <section id="buyers" className="relative overflow-hidden bg-snow py-24 lg:py-32">
       <div className="bg-ethiopian-pattern absolute inset-0 opacity-[0.18]" aria-hidden="true" />
@@ -48,16 +51,15 @@ export default function BuyerSection() {
 
           <Reveal delay={150}>
             <p className="text-xs font-semibold tracking-[0.24em] text-gold-dark uppercase">
-              For Buyers
+              {t('landing.buyers.tagline')}
             </p>
             <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-forest-dark sm:text-5xl">
-              Buy Fresh.
+              {t('landing.buyers.titlePart1')}
               <br />
-              <span className="text-gold-dark">Straight from the Farm.</span>
+              <span className="text-gold-dark">{t('landing.buyers.titlePart2')}</span>
             </h2>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-stone-dark sm:text-lg">
-              Tell us what you need and how much. Azmera matches you with farmers who can
-              supply it, at the right distance, with terms agreed directly between you.
+              {t('landing.buyers.description')}
             </p>
 
             <ul className="mt-10 space-y-6">
@@ -85,7 +87,7 @@ export default function BuyerSection() {
                 href="#how-it-works"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-forest px-8 py-4 text-sm font-semibold text-snow shadow-[0_10px_30px_rgba(35,139,69,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-forest-dark"
               >
-                Request Tomatoes
+                {t('landing.buyers.ctaBtn')}
                 <ArrowRightIcon className="size-4" />
               </a>
             </div>

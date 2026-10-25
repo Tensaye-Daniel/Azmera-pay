@@ -65,14 +65,14 @@ PRICE_MAX_POINTS = Decimal("25")
 QUANTITY_MAX_POINTS = Decimal("15")
 QUANTITY_FULL_POINTS_RATIO = Decimal("3")
 
-REASON_PRODUCT_MATCHES = "product_matches"
+REASON_CATEGORY_MATCHES = "category_matches"
 REASON_ENOUGH_QUANTITY = "enough_quantity"
 REASON_WITHIN_BUDGET = "within_budget"
 REASON_ACTIVE_LISTING = "active_listing"
 
 FAIL_NOT_ACTIVE = "listing_not_active"
 FAIL_PRODUCT_INACTIVE = "product_not_active"
-FAIL_PRODUCT = "product_mismatch"
+FAIL_CATEGORY = "category_mismatch"
 FAIL_UNIT = "unit_mismatch"
 FAIL_QUANTITY = "not_enough_quantity"
 FAIL_PRICE = "over_budget"

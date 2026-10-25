@@ -12,6 +12,7 @@ from .models import MatchCandidate
 def _request_data(line, request):
     return RequestData(
         product_id=line.product_id,
+        product_category=line.product.category,
         unit_id=line.unit_id,
         quantity=line.quantity,
         max_unit_price=line.max_unit_price,

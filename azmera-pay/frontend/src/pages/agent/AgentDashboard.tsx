@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   ArrowRightIcon,
   CheckIcon,
@@ -16,6 +17,7 @@ import { getInitials } from '../../utils/farmer'
 import StatusBadge from '../../components/features/agent/StatusBadge'
 
 export default function AgentDashboard() {
+  const { t } = useTranslation()
   const user = useAuthStore((state) => state.user)
   const [summary, setSummary] = useState<AgentSummary | null>(null)
   const [loading, setLoading] = useState(true)
@@ -47,25 +49,25 @@ export default function AgentDashboard() {
 
   const stats = [
     {
-      label: 'Total farmers',
+      label: t('agent.totalFarmers'),
       value: total,
       icon: UsersIcon,
       tone: 'bg-mint/50 text-forest-deeper',
     },
     {
-      label: 'Pending verification',
+      label: t('agent.pendingVerification'),
       value: pending,
       icon: ClockIcon,
       tone: 'bg-[#fdf2d4] text-[#8a6d1b]',
     },
     {
-      label: 'Registered',
+      label: t('agent.registeredFarmers'),
       value: registered,
       icon: CheckIcon,
       tone: 'bg-mint/50 text-forest-deeper',
     },
     {
-      label: 'Unverified',
+      label: t('agent.unverifiedFarmers'),
       value: unverified,
       icon: SproutIcon,
       tone: 'bg-stone/10 text-stone-dark',
@@ -78,24 +80,23 @@ export default function AgentDashboard() {
         <div className="bg-ethiopian-pattern pointer-events-none absolute inset-0 opacity-10" />
 
         <div className="relative max-w-2xl">
-          <p className="mb-3 text-sm font-medium tracking-wide text-mint">
-            AGENT WORKSPACE
+          <p className="mb-3 text-sm font-medium tracking-wide text-mint uppercase">
+            {t('agent.dashboardTitle')}
           </p>
 
           <h1 className="font-serif text-3xl font-semibold leading-tight sm:text-4xl">
-            Welcome back, {user?.full_name?.split(' ')[0] ?? 'agent'}.
+            {t('agent.welcome')}, {user?.full_name?.split(' ')[0] ?? 'agent'}.
           </h1>
 
           <p className="mt-4 max-w-xl text-sm leading-6 text-white/80 sm:text-base">
-            Register farmers and manage their profiles so they can access
-            Azmera Pay by dialing USSD.
+            {t('agent.description')}
           </p>
 
           <Link
             to="/agent/farmers/new"
             className="mt-6 inline-flex items-center gap-2 rounded-full bg-gold px-5 py-3 text-sm font-semibold text-forest-deeper transition-colors hover:bg-white"
           >
-            Register a farmer
+            {t('agent.registerFarmerBtn')}
             <ArrowRightIcon className="size-4" />
           </Link>
         </div>
@@ -108,10 +109,10 @@ export default function AgentDashboard() {
               id="overview-heading"
               className="font-serif text-2xl font-semibold text-forest-deeper"
             >
-              Your overview
+              {t('agent.overviewTitle')}
             </h2>
             <p className="mt-1 text-sm text-stone">
-              A quick look at your farmer base.
+              {t('agent.overviewSubtitle')}
             </p>
           </div>
 
@@ -122,7 +123,7 @@ export default function AgentDashboard() {
             className="inline-flex items-center gap-2 rounded-xl border border-forest/20 px-4 py-2 text-sm font-semibold text-forest-deeper transition-colors hover:bg-mint/30 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? <SpinnerIcon className="size-4" /> : null}
-            {loading ? 'Refreshing…' : 'Refresh'}
+            {loading ? t('common.refreshing') : t('common.refresh')}
           </button>
         </div>
 

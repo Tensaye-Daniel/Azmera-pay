@@ -1,26 +1,29 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Reveal from '../ui/Reveal'
 import { ArrowRightIcon, LocateIcon, TrendingIcon, UsersIcon } from '../ui/icons'
 
-const benefits = [
-  {
-    icon: UsersIcon,
-    title: 'Register farmers with ease',
-    text: 'Create and update farmer profiles (location, crops, capacity and needs) through simple USSD flows on any phone.',
-  },
-  {
-    icon: LocateIcon,
-    title: 'Know your local market',
-    text: 'See active requests and matches in your area, then connect the right farmers and businesses directly.',
-  },
-  {
-    icon: TrendingIcon,
-    title: 'Earn as your community grows',
-    text: 'Build a steady income as the farmers you register start finding buyers and suppliers for every season.',
-  },
-]
-
 export default function AgentSection() {
+  const { t } = useTranslation()
+
+  const benefits = [
+    {
+      icon: UsersIcon,
+      title: t('landing.agents.benefit1Title'),
+      text: t('landing.agents.benefit1Text'),
+    },
+    {
+      icon: LocateIcon,
+      title: t('landing.agents.benefit2Title'),
+      text: t('landing.agents.benefit2Text'),
+    },
+    {
+      icon: TrendingIcon,
+      title: t('landing.agents.benefit3Title'),
+      text: t('landing.agents.benefit3Text'),
+    },
+  ]
+
   return (
     <section id="agents" className="relative overflow-hidden bg-snow py-24 lg:py-32">
       <div className="bg-ethiopian-pattern absolute inset-0 opacity-[0.18]" aria-hidden="true" />
@@ -52,17 +55,15 @@ export default function AgentSection() {
 
           <Reveal delay={150}>
             <p className="text-xs font-semibold tracking-[0.24em] text-gold-dark uppercase">
-              For Agents
+              {t('landing.agents.tagline')}
             </p>
             <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-forest-dark sm:text-5xl">
-              Empower Farmers.
+              {t('landing.agents.titlePart1')}
               <br />
-              <span className="text-gold-dark">Grow Your Own Income.</span>
+              <span className="text-gold-dark">{t('landing.agents.titlePart2')}</span>
             </h2>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-stone-dark sm:text-lg">
-              Azmera Agents are trusted local representatives who bring farmers onto the platform,
-              submit requests on their behalf and help every match happen right from their own
-              community, with no smartphone required.
+              {t('landing.agents.description')}
             </p>
 
             <ul className="mt-10 space-y-6">
@@ -90,7 +91,7 @@ export default function AgentSection() {
                 to="/register/agent"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-forest px-8 py-4 text-sm font-semibold text-snow shadow-[0_10px_30px_rgba(35,139,69,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-forest-dark"
               >
-                Become an Agent
+                {t('landing.agents.ctaBtn')}
                 <ArrowRightIcon className="size-4" />
               </Link>
             </div>

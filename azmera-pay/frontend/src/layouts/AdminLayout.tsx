@@ -1,34 +1,40 @@
 import { NavLink, Outlet } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../store/auth'
-
-const navItems = [
-  { to: '/admin', label: 'Overview', end: true },
-  { to: '/admin/farmers', label: 'Farmers' },
-  { to: '/admin/suppliers', label: 'Suppliers' },
-  { to: '/admin/users', label: 'Users' },
-]
+import LanguageSwitcher from '../components/ui/LanguageSwitcher'
 
 const AdminLayout = () => {
+  const { t } = useTranslation()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
+
+  const navItems = [
+    { to: '/admin', label: t('nav.overview'), end: true },
+    { to: '/admin/farmers', label: t('nav.farmers') },
+    { to: '/admin/suppliers', label: t('nav.suppliers') },
+    { to: '/admin/users', label: t('nav.users') },
+  ]
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <div>
-            <p className="text-sm font-medium text-emerald-700">Azmera Admin</p>
+            <p className="text-sm font-medium text-emerald-700">{t('nav.adminTitle')}</p>
             <p className="text-xs text-slate-500">
               {user?.full_name} · {user?.phone}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={logout}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-          >
-            Sign out
-          </button>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <button
+              type="button"
+              onClick={logout}
+              className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              {t('nav.signOut')}
+            </button>
+          </div>
         </div>
       </header>
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row lg:px-8">

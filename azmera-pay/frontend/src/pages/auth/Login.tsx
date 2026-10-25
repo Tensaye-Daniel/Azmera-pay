@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { AxiosError } from 'axios'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { fetchMe, login } from '../../api/auth'
 import AgentSignupFooter from '../../components/features/agent/AgentSignupFooter'
 import AgentSignupHero from '../../components/features/agent/AgentSignupHero'
@@ -10,6 +11,7 @@ import Field from '../../components/ui/Field'
 import Notice from '../../components/ui/Notice'
 import PasswordInput from '../../components/ui/PasswordInput'
 import TextInput from '../../components/ui/TextInput'
+import LanguageSwitcher from '../../components/ui/LanguageSwitcher'
 import {
   FaydaIcon,
   LockIcon,
@@ -30,29 +32,6 @@ const PHONE_DIGITS = /^\d{9,12}$/
 
 type LoginVariant = 'agent' | 'supplier' | 'admin'
 
-const COPY: Record<
-  LoginVariant,
-  { heroDescription: string; cardDescription: string; registerPath?: string }
-> = {
-  agent: {
-    heroDescription:
-      'Your work helps connect Ethiopian farmers to better opportunities. Sign in to continue making an impact.',
-    cardDescription: 'Sign in to your Azmera agent account.',
-    registerPath: '/register/agent',
-  },
-  supplier: {
-    heroDescription:
-      'Run your agricultural business with Azmera. Sign in to manage your shop, listings and requests from farmers.',
-    cardDescription: 'Sign in to your Azmera supplier account.',
-    registerPath: '/register/supplier',
-  },
-  admin: {
-    heroDescription:
-      'Keep the Azmera marketplace trustworthy by verifying farmers and approving suppliers.',
-    cardDescription: 'Sign in to the Azmera admin dashboard.',
-  },
-}
-
 const homePathFor = (role: string): string => {
   if (role === 'supplier') return '/supplier'
   if (role === 'admin') return '/admin'
@@ -67,7 +46,25 @@ function normalizePhone(value: string): string {
 }
 
 export default function Login({ variant = 'agent' }: { variant?: LoginVariant }) {
-  const copy = COPY[variant]
+  const { t } = useTranslation()
+
+  const copy = {
+    agent: {
+      heroDescription: t('auth.welcomeSubtextAgent'),
+      cardDescription: t('auth.cardDescAgent'),
+      registerPath: '/register/agent',
+    },
+    supplier: {
+      heroDescription: t('auth.welcomeSubtextSupplier'),
+      cardDescription: t('auth.cardDescSupplier'),
+      registerPath: '/register/supplier',
+    },
+    admin: {
+      heroDescription: t('auth.welcomeSubtextAdmin'),
+      cardDescription: t('auth.cardDescAdmin'),
+      registerPath: undefined,
+    },
+  }[variant]
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [remember, setRemember] = useState(true)
@@ -138,7 +135,7 @@ export default function Login({ variant = 'agent' }: { variant?: LoginVariant })
       <ScrollToTop />
       <AgentSignupHero
         showOnMobile={variant === 'agent'}
-        headline="Welcome Back to Azmera"
+        headline={t('auth.welcomeBackHero')}
         description={copy.heroDescription}
       />
 
@@ -153,13 +150,16 @@ export default function Login({ variant = 'agent' }: { variant?: LoginVariant })
           </div>
           <div className="relative w-full max-w-xl">
             <div className="rounded-3xl border border-forest/10 bg-white p-6 shadow-[0_18px_50px_rgba(22,95,48,0.10)] sm:p-8">
-              <header className="mb-6">
-                <h2 className="font-serif text-2xl font-semibold text-forest-deeper">
-                  Welcome Back
-                </h2>
-                <p className="mt-1 text-sm text-stone">
-                  {copy.cardDescription}
-                </p>
+              <header className="mb-6 flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="font-serif text-2xl font-semibold text-forest-deeper">
+                    {t('auth.welcomeBack')}
+                  </h2>
+                  <p className="mt-1 text-sm text-stone">
+                    {copy.cardDescription}
+                  </p>
+                </div>
+                <LanguageSwitcher />
               </header>
 
               {error && (
@@ -177,7 +177,7 @@ export default function Login({ variant = 'agent' }: { variant?: LoginVariant })
               <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                 <Field
                   id="identifier"
-                  label="Phone number or email address"
+                  label={t('common.phone')}
                   required
                   error={errors.identifier}
                   hint="Sign in with the phone number you registered."
@@ -197,7 +197,7 @@ export default function Login({ variant = 'agent' }: { variant?: LoginVariant })
 
                 <Field
                   id="password"
-                  label="Password"
+                  label={t('common.password')}
                   required
                   error={errors.password}
                 >
@@ -209,6 +209,7 @@ export default function Login({ variant = 'agent' }: { variant?: LoginVariant })
                       setErrors((prev) => ({ ...prev, password: undefined }))
                     }}
                     leadingIcon={<LockIcon className="size-5" />}
+                    placeholder={t('auth.passwordPlaceholder')}
                   />
                 </Field>
 
@@ -237,7 +238,7 @@ export default function Login({ variant = 'agent' }: { variant?: LoginVariant })
                 </div>
 
                 <Button type="submit" fullWidth loading={submitting}>
-                  {submitting ? 'Signing In…' : 'Sign In'}
+                  {submitting ? t('auth.signingIn') : t('auth.signInButton')}
                 </Button>
               </form>
 
@@ -263,12 +264,12 @@ export default function Login({ variant = 'agent' }: { variant?: LoginVariant })
 
               {copy.registerPath && (
                 <p className="mt-6 text-center text-sm text-stone">
-                  Don&apos;t have an account?{' '}
+                  {t('auth.noAccount')}{' '}
                   <Link
                     to={copy.registerPath}
                     className="font-semibold text-forest underline-offset-2 hover:underline"
                   >
-                    Create an account
+                    {t('auth.registerHere')}
                   </Link>
                 </p>
               )}

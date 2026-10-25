@@ -3,7 +3,7 @@ from decimal import Decimal
 
 import factory
 
-from apps.accounts.models import Role
+from apps.accounts.models import Role, SupplierApprovalStatus
 from apps.catalog.models import (
     AvailabilityStatus,
     Product,
@@ -35,7 +35,11 @@ class SupplierListingFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = SupplierListing
 
-    supplier = factory.SubFactory(UserFactory, role=Role.SUPPLIER)
+    supplier = factory.SubFactory(
+        UserFactory,
+        role=Role.SUPPLIER,
+        supplier_approval_status=SupplierApprovalStatus.APPROVED,
+    )
     product = factory.SubFactory(ProductFactory)
     available_quantity = Decimal("100.00")
     unit = factory.SubFactory(UnitFactory)

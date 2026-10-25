@@ -7,14 +7,18 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "test:supplier-api": "node --test tests/supplier-pagination.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "axios": "^1.20.0",
+    "i18next": "^26.5.7",
+    "i18next-browser-languagedetector": "^8.2.2",
     "lucide-react": "^1.55.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "react-i18next": "^17.1.5",
     "react-router-dom": "^7.18.4",
     "tailwindcss": "^4.3.3",
     "zustand": "^5.0.15"

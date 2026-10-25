@@ -1,30 +1,33 @@
+import { useTranslation } from 'react-i18next'
 import Reveal from '../ui/Reveal'
 import { NetworkIcon, ShieldIcon, SproutIcon, TagIcon } from '../ui/icons'
 
-const pillars = [
-  {
-    icon: ShieldIcon,
-    title: 'Verified Suppliers',
-    text: 'Suppliers are onboarded and vetted by local Azmera Agents before they trade on the platform.',
-  },
-  {
-    icon: TagIcon,
-    title: 'Transparent Pricing',
-    text: 'Both sides agree on prices and terms directly, with everything clear before anyone commits.',
-  },
-  {
-    icon: NetworkIcon,
-    title: 'Direct Connections',
-    text: 'Farmers, agents, input suppliers and buyers deal with each other directly, with no layers in between.',
-  },
-  {
-    icon: SproutIcon,
-    title: 'USSD-First Access',
-    text: 'Trade with a simple USSD code that works on any phone, anywhere in Ethiopia.',
-  },
-]
-
 export default function TrustSection() {
+  const { t } = useTranslation()
+
+  const pillars = [
+    {
+      icon: ShieldIcon,
+      title: t('landing.trust.pillar1Title'),
+      text: t('landing.trust.pillar1Text'),
+    },
+    {
+      icon: TagIcon,
+      title: t('landing.trust.pillar2Title'),
+      text: t('landing.trust.pillar2Text'),
+    },
+    {
+      icon: NetworkIcon,
+      title: t('landing.trust.pillar3Title'),
+      text: t('landing.trust.pillar3Text'),
+    },
+    {
+      icon: SproutIcon,
+      title: t('landing.trust.pillar4Title'),
+      text: t('landing.trust.pillar4Text'),
+    },
+  ]
+
   return (
     <section id="why-us" className="relative overflow-hidden bg-snow py-24 lg:py-32">
       <div className="bg-ethiopian-pattern absolute inset-0 opacity-[0.18]" aria-hidden="true" />
@@ -39,13 +42,13 @@ export default function TrustSection() {
 
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <p className="text-xs font-semibold tracking-[0.24em] text-gold-dark uppercase">Why Azmera</p>
+          <p className="text-xs font-semibold tracking-[0.24em] text-gold-dark uppercase">{t('landing.trust.tagline')}</p>
           <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-forest-dark sm:text-5xl">
-            Built Around <span className="text-gold-dark">Trust</span>
+            {t('landing.trust.titlePart1')}{' '}
+            <span className="text-gold-dark">{t('landing.trust.titlePart2')}</span>
           </h2>
           <p className="mt-5 text-base leading-relaxed text-stone-dark sm:text-lg">
-            Every part of Azmera is designed to make agricultural trade safer, clearer and
-            fairer for everyone involved.
+            {t('landing.trust.description')}
           </p>
         </Reveal>
 

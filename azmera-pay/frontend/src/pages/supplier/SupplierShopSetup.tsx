@@ -1,24 +1,16 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   fetchSupplierProfile,
+  supplierApiErrorMessage,
   updateSupplierProfile,
   type SupplierProductCategory,
   type SupplierProfile,
 } from '../../api/supplier'
 
-const categories: {
-  value: SupplierProductCategory
-  label: string
-}[] = [
-  { value: 'crop', label: 'Crops' },
-  { value: 'seed', label: 'Seeds' },
-  { value: 'fertilizer', label: 'Fertilizers' },
-  { value: 'pesticide', label: 'Pesticides' },
-  { value: 'other', label: 'Other agricultural products' },
-]
-
 export default function SupplierShopSetup() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [profile, setProfile] = useState<SupplierProfile>({
     company_name: '',
@@ -31,6 +23,17 @@ export default function SupplierShopSetup() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
+  const categories: {
+    value: SupplierProductCategory
+    label: string
+  }[] = [
+    { value: 'crop', label: t('supplier.cropsCategory') },
+    { value: 'seed', label: t('supplier.seedsCategory') },
+    { value: 'fertilizer', label: t('supplier.fertilizersCategory') },
+    { value: 'pesticide', label: t('supplier.pesticidesCategory') },
+    { value: 'other', label: t('supplier.otherAgriProducts') },
+  ]
+
   useEffect(() => {
     let active = true
 
@@ -41,10 +44,13 @@ export default function SupplierShopSetup() {
         if (active) {
           setProfile(data)
         }
-      } catch {
+      } catch (reason: unknown) {
         if (active) {
           setError(
-            'Could not load your shop details. Please try again.',
+            supplierApiErrorMessage(
+              reason,
+              'Could not load your shop details. Please try again.',
+            ),
           )
         }
       } finally {
@@ -68,9 +74,7 @@ export default function SupplierShopSetup() {
       return {
         ...current,
         product_categories: selected
-          ? current.product_categories.filter(
-              (item) => item !== category,
-            )
+          ? current.product_categories.filter((item) => item !== category)
           : [...current.product_categories, category],
       }
     })
@@ -100,11 +104,13 @@ export default function SupplierShopSetup() {
       setProfile(updated)
       setSuccess('Your shop details have been saved successfully.')
       navigate('/supplier', { replace: true })
-    } catch {
+    } catch (err: unknown) {
       setError(
-        'Could not save your shop details. Please check your information and try again.',
+        supplierApiErrorMessage(
+          err,
+          'Could not save your shop details. Please check your information and try again.',
+        ),
       )
-    } finally {
       setSaving(false)
     }
   }
@@ -112,7 +118,7 @@ export default function SupplierShopSetup() {
   if (loading) {
     return (
       <div className="p-6 text-sm text-gray-600">
-        Loading your shop details...
+        {t('common.loading')}
       </div>
     )
   }
@@ -120,15 +126,10 @@ export default function SupplierShopSetup() {
   return (
     <section className="mx-auto max-w-3xl space-y-6 p-4 sm:p-6">
       <div>
-        <p className="text-sm font-medium text-green-700">
-          Supplier account
-        </p>
-        <h1 className="mt-1 text-2xl font-bold text-gray-900">
-          Shop Setup
-        </h1>
+        <p className="text-sm font-medium text-green-700">{t('supplier.workspaceTitle')}</p>
+        <h1 className="mt-1 text-2xl font-bold text-gray-900">{t('supplier.shopSetupTitle')}</h1>
         <p className="mt-2 text-sm leading-6 text-gray-600">
-          Manage your shop location and the agricultural products
-          your business supplies.
+          {t('supplier.shopSetupSubtitle')}
         </p>
       </div>
 
@@ -159,7 +160,7 @@ export default function SupplierShopSetup() {
             htmlFor="company_name"
             className="mb-2 block text-sm font-medium text-gray-700"
           >
-            Shop or company name
+            {t('supplier.shopOrCompanyName')}
           </label>
           <input
             id="company_name"
@@ -169,7 +170,7 @@ export default function SupplierShopSetup() {
             className="w-full rounded-lg border border-gray-300 bg-gray-100 px-3 py-2.5 text-gray-600"
           />
           <p className="mt-1 text-xs text-gray-500">
-            Your registered company name cannot be changed here.
+            {t('supplier.companyNameImmutable')}
           </p>
         </div>
 
@@ -179,7 +180,7 @@ export default function SupplierShopSetup() {
               htmlFor="region"
               className="mb-2 block text-sm font-medium text-gray-700"
             >
-              Region
+              {t('common.region')}
             </label>
             <input
               id="region"
@@ -193,7 +194,7 @@ export default function SupplierShopSetup() {
               }
               required
               maxLength={100}
-              placeholder="Enter your region"
+              placeholder={t('common.region')}
               className="w-full rounded-lg border border-gray-300 px-3 py-2.5 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100"
             />
           </div>
@@ -203,7 +204,7 @@ export default function SupplierShopSetup() {
               htmlFor="woreda"
               className="mb-2 block text-sm font-medium text-gray-700"
             >
-              Woreda
+              {t('common.woreda')}
             </label>
             <input
               id="woreda"
@@ -217,7 +218,7 @@ export default function SupplierShopSetup() {
               }
               required
               maxLength={100}
-              placeholder="Enter your woreda"
+              placeholder={t('common.woreda')}
               className="w-full rounded-lg border border-gray-300 px-3 py-2.5 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100"
             />
           </div>
@@ -225,10 +226,10 @@ export default function SupplierShopSetup() {
 
         <fieldset>
           <legend className="text-sm font-semibold text-gray-900">
-            Products you supply
+            {t('supplier.productsYouSupply')}
           </legend>
           <p className="mt-1 text-sm text-gray-600">
-            Select all categories that apply to your business.
+            {t('supplier.selectCategoriesDesc')}
           </p>
 
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -239,15 +240,11 @@ export default function SupplierShopSetup() {
               >
                 <input
                   type="checkbox"
-                  checked={profile.product_categories.includes(
-                    category.value,
-                  )}
+                  checked={profile.product_categories.includes(category.value)}
                   onChange={() => toggleCategory(category.value)}
                   className="h-4 w-4 accent-green-700"
                 />
-                <span className="text-sm text-gray-800">
-                  {category.label}
-                </span>
+                <span className="text-sm text-gray-800">{category.label}</span>
               </label>
             ))}
           </div>
@@ -259,7 +256,7 @@ export default function SupplierShopSetup() {
             disabled={saving}
             className="rounded-lg bg-green-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {saving ? 'Saving...' : 'Save shop details'}
+            {saving ? t('supplier.savingShopDetails') : t('supplier.saveShopDetails')}
           </button>
         </div>
       </form>

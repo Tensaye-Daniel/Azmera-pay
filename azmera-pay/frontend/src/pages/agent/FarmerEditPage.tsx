@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { getFarmer } from '../../api/farmers'
 import FarmerForm from '../../components/features/agent/FarmerForm'
 import { ArrowLeftIcon } from '../../components/ui/icons'
 import type { Farmer } from '../../types/farmer'
 
 export default function FarmerEditPage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [farmer, setFarmer] = useState<Farmer | null>(null)
@@ -31,20 +33,20 @@ export default function FarmerEditPage() {
   }, [id])
 
   if (loading) {
-    return <p className="text-sm text-stone">Loading farmer…</p>
+    return <p className="text-sm text-stone">{t('agent.loadingFarmer')}</p>
   }
 
   if (error || !farmer) {
     return (
       <div className="space-y-4">
         <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          Could not load this farmer.
+          {t('agent.couldNotLoadFarmer')}
         </p>
         <Link
           to="/agent/farmers"
           className="text-sm font-semibold text-forest hover:text-forest-dark"
         >
-          Back to farmers
+          {t('agent.backToFarmers')}
         </Link>
       </div>
     )
@@ -57,12 +59,12 @@ export default function FarmerEditPage() {
         className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-forest transition-colors hover:bg-mint/30 hover:text-forest-dark"
       >
         <ArrowLeftIcon className="size-4" />
-        Back to farmer
+        {t('agent.backToFarmer')}
       </Link>
 
       <div>
         <h1 className="font-serif text-2xl font-semibold text-forest-deeper">
-          Edit farmer
+          {t('agent.editFarmer')}
         </h1>
         <p className="mt-1 text-sm text-stone">{farmer.full_name}</p>
       </div>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   listAdminUsers,
   updateAdminUser,
@@ -23,6 +24,7 @@ const approvalStyles: Record<SupplierApprovalStatus, string> = {
 }
 
 const AdminUsers = () => {
+  const { t } = useTranslation()
   const [users, setUsers] = useState<AdminUser[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -87,16 +89,16 @@ const AdminUsers = () => {
     <div className="space-y-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Users</h1>
+          <h1 className="text-2xl font-semibold text-slate-900">{t('nav.users')}</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Manage accounts, roles, and access.
+            {t('admin.usersDesc')}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search name, phone, email"
+            placeholder={t('admin.searchUserPlaceholder')}
             className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm sm:w-64"
           />
           <select
@@ -104,11 +106,11 @@ const AdminUsers = () => {
             onChange={(event) => setRole(event.target.value as UserRole | 'all')}
             className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
           >
-            <option value="all">All roles</option>
+            <option value="all">{t('admin.allRoles')}</option>
             <option value="admin">Admin</option>
-            <option value="agent">Agent</option>
-            <option value="supplier">Supplier</option>
-            <option value="farmer">Farmer</option>
+            <option value="agent">{t('agent.agent')}</option>
+            <option value="supplier">{t('nav.suppliers')}</option>
+            <option value="farmer">{t('nav.farmers')}</option>
             <option value="buyer">Buyer</option>
           </select>
           <select
@@ -118,16 +120,16 @@ const AdminUsers = () => {
             }
             className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
           >
-            <option value="all">All accounts</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
+            <option value="all">{t('admin.allAccounts')}</option>
+            <option value="active">{t('admin.activeStatus')}</option>
+            <option value="inactive">{t('admin.inactiveStatus')}</option>
           </select>
           <button
             type="button"
             onClick={applyFilters}
             className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-emerald-700"
           >
-            Apply
+            {t('admin.apply')}
           </button>
         </div>
       </header>
@@ -142,19 +144,19 @@ const AdminUsers = () => {
             <thead className="bg-slate-50">
               <tr>
                 <th className="px-6 py-3 text-left font-medium text-slate-500">
-                  User
+                  {t('admin.userCol')}
                 </th>
                 <th className="px-6 py-3 text-left font-medium text-slate-500">
-                  Role
+                  {t('admin.roleCol')}
                 </th>
                 <th className="px-6 py-3 text-left font-medium text-slate-500">
-                  Supplier approval
+                  {t('admin.supplierApprovalCol')}
                 </th>
                 <th className="px-6 py-3 text-left font-medium text-slate-500">
-                  Status
+                  {t('admin.statusCol')}
                 </th>
                 <th className="px-6 py-3 text-right font-medium text-slate-500">
-                  Actions
+                  {t('admin.actionsCol')}
                 </th>
               </tr>
             </thead>
@@ -162,14 +164,14 @@ const AdminUsers = () => {
               {loading && (
                 <tr>
                   <td className="px-6 py-6 text-center text-slate-500" colSpan={5}>
-                    Loading...
+                    {t('common.loading')}
                   </td>
                 </tr>
               )}
               {!loading && filtered.length === 0 && (
                 <tr>
                   <td className="px-6 py-6 text-center text-slate-500" colSpan={5}>
-                    No users found
+                    {t('admin.noUsersFound')}
                   </td>
                 </tr>
               )}
@@ -189,7 +191,7 @@ const AdminUsers = () => {
                       {user.role}
                     </span>
                     {user.is_staff && (
-                      <p className="mt-1 text-xs text-slate-500">Staff</p>
+                      <p className="mt-1 text-xs text-slate-500">{t('admin.staffBadge')}</p>
                     )}
                   </td>
                   <td className="px-6 py-4">
@@ -201,7 +203,7 @@ const AdminUsers = () => {
                   </td>
                   <td className="px-6 py-4">
                     <p className="text-slate-900">
-                      {user.is_active ? 'Active' : 'Inactive'}
+                      {user.is_active ? t('admin.activeStatus') : t('admin.inactiveStatus')}
                     </p>
                   </td>
                   <td className="px-6 py-4 text-right">
@@ -211,7 +213,7 @@ const AdminUsers = () => {
                       onClick={() => void toggleActive(user)}
                       className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
                     >
-                      {user.is_active ? 'Deactivate' : 'Activate'}
+                      {user.is_active ? t('admin.deactivate') : t('admin.activate')}
                     </button>
                   </td>
                 </tr>

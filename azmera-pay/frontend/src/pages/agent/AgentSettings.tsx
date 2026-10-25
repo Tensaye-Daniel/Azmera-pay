@@ -1,17 +1,19 @@
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../store/auth'
 import { getInitials } from '../../utils/farmer'
 
 export default function AgentSettings() {
+  const { t } = useTranslation()
   const user = useAuthStore((state) => state.user)
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="font-serif text-2xl font-semibold text-forest-deeper">
-          Settings
+          {t('nav.settings')}
         </h1>
         <p className="mt-1 text-sm text-stone">
-          Your account details and agent workspace preferences.
+          {t('agent.settingsSubtitle')}
         </p>
       </div>
 
@@ -24,14 +26,14 @@ export default function AgentSettings() {
             <h2 className="font-serif text-xl font-semibold text-forest-deeper">
               {user?.full_name}
             </h2>
-            <p className="mt-0.5 text-sm text-stone">Agent account</p>
+            <p className="mt-0.5 text-sm text-stone">{t('agent.agentAccount')}</p>
           </div>
         </div>
 
         <dl className="grid grid-cols-1 gap-x-8 px-6 py-4 sm:grid-cols-2">
           <div className="py-2.5">
             <dt className="text-xs font-semibold uppercase tracking-wide text-stone">
-              Full name
+              {t('agent.fullName')}
             </dt>
             <dd className="mt-0.5 text-sm font-medium text-stone-dark">
               {user?.full_name ?? '—'}
@@ -39,7 +41,7 @@ export default function AgentSettings() {
           </div>
           <div className="py-2.5">
             <dt className="text-xs font-semibold uppercase tracking-wide text-stone">
-              Phone number
+              {t('common.phone')}
             </dt>
             <dd className="mt-0.5 text-sm font-medium text-stone-dark">
               {user?.phone ?? '—'}
@@ -47,26 +49,25 @@ export default function AgentSettings() {
           </div>
           <div className="py-2.5">
             <dt className="text-xs font-semibold uppercase tracking-wide text-stone">
-              Role
+              {t('agent.role')}
             </dt>
             <dd className="mt-0.5 text-sm font-medium text-forest">
-              Agent
+              {t('agent.agent')}
             </dd>
           </div>
           <div className="py-2.5">
             <dt className="text-xs font-semibold uppercase tracking-wide text-stone">
-              Workspace
+              {t('agent.workspace')}
             </dt>
             <dd className="mt-0.5 text-sm font-medium text-stone-dark">
-              Agent workspace
+              {t('nav.agentWorkspace')}
             </dd>
           </div>
         </dl>
       </section>
 
       <p className="text-xs leading-5 text-stone">
-        More settings - such as output and network preferences - will appear
-        here in a future release.
+        {t('agent.moreSettingsNotice')}
       </p>
     </div>
   )

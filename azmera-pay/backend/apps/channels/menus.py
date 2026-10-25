@@ -10,10 +10,10 @@ MESSAGES = {
         ),
         "account_footer": "0. Back",
         "help": "Call 8080 or ask your local Azmera agent for help.",
-        "matches_empty": "No matches yet. We will text you when a buyer is found.",
+        "matches_empty": "No matches yet. Check My matches later.",
         "matches_none": "No request yet. Choose 2 to request input.",
         "matches_header": "Your matches:",
-        "match_line": "{rank}. {supplier} - {price} ETB/{unit}",
+        "match_line": "{rank}. {supplier} ({location}) - {price} ETB/{unit}",
         "matches_footer": "Reply 0 to exit.",
         "exit": "Thank you for using Azmera.",
         "invalid": "Invalid option.",
@@ -43,12 +43,14 @@ MESSAGES = {
             "{product}\n{quantity} {unit} at max {price} ETB\n1. Confirm\n2. Cancel"
         ),
         "request_cancelled": "Request cancelled.",
-        "request_saved": (
-            "Request saved. {count} supplier match(es) found. "
-            "Dial again and choose My matches."
+        "request_saved_match": (
+            "Match found. Top {rank} of {count}: {supplier}. "
+            "Location: {location}. Dial again and choose My matches."
         ),
+        "supplier_name_unavailable": "Supplier name unavailable",
+        "location_unavailable": "Location details unavailable",
         "request_saved_no_matches": (
-            "Request saved. No matches yet; we will notify you when suppliers are found."
+            "Request saved. No matches yet. Check My matches later."
         ),
     },
     "am": {
@@ -56,10 +58,10 @@ MESSAGES = {
         "menu_body": ("1. መለያዬ\n2. ግብዓት ጠይቅ\n3. ግጥሚያዎቼ\n4. እርዳታ\n0. ውጣ"),
         "account_footer": "0. ተመለስ",
         "help": "ለእርዳታ 8080 ይደውሉ ወይም ወኪልዎን ይጠይቁ።",
-        "matches_empty": "እስካሁን ግጥሚያ የለም። ገዢ ሲገኝ በSMS እናሳውቅዎታለን።",
+        "matches_empty": "እስካሁን ግጥሚያ የለም።",
         "matches_none": "እስካሁን ጥያቄ የለም። ግብዓት ለመጠየቅ 2 ይምረጡ።",
         "matches_header": "የእርስዎ ግጥሚያዎች:",
-        "match_line": "{rank}. {supplier} - {price} ብር/{unit}",
+        "match_line": "{rank}. {supplier} ({location}) - {price} ብር/{unit}",
         "matches_footer": "ለመውጣት 0 ይምረጡ።",
         "exit": "አዝመራን ስለተጠቀሙ እናመሰግናለን።",
         "invalid": "ልክ ያልሆነ ምርጫ።",
@@ -80,10 +82,13 @@ MESSAGES = {
             "{product}\n{quantity} {unit} በከፍተኛ {price} ብር\n1. አረጋግጥ\n2. ሰርዝ"
         ),
         "request_cancelled": "ጥያቄው ተሰርዟል።",
-        "request_saved": (
-            "ጥያቄዎ ተቀምጧል። {count} የአቅራቢ ግጥሚያ ተገኘ። እንደገና ደውለው ግጥሚያዎቼን ይምረጡ።"
+        "request_saved_match": (
+            "ግጥሚያ ተገኘ። #{rank}/{count}: {supplier}. "
+            "ቦታ: {location}. እንደገና ደውለው 3 ይምረጡ።"
         ),
-        "request_saved_no_matches": ("ጥያቄዎ ተቀምጧል። እስካሁን ግጥሚያ የለም፤ አቅራቢ ሲገኝ እናሳውቅዎታለን።"),
+        "supplier_name_unavailable": "የአቅራቢ ስም የለም",
+        "location_unavailable": "የቦታ መረጃ የለም",
+        "request_saved_no_matches": ("ጥያቄዎ ተቀምጧል። እስካሁን ግጥሚያ የለም።"),
     },
 }
 

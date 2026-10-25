@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { listFarmers } from '../../api/farmers'
 import FarmerList from '../../components/features/agent/FarmerList'
 import type { Farmer } from '../../types/farmer'
 
 export default function FarmerListPage() {
+  const { t } = useTranslation()
   const [farmers, setFarmers] = useState<Farmer[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -38,10 +40,10 @@ export default function FarmerListPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl font-semibold text-forest-deeper">
-            My farmers
+            {t('agent.myFarmers')}
           </h1>
           <p className="mt-1 text-sm text-stone">
-            Farmers registered under your workspace.
+            {t('agent.registeredUnderWorkspace')}
           </p>
         </div>
 
@@ -49,7 +51,7 @@ export default function FarmerListPage() {
           to="/agent/farmers/new"
           className="rounded-xl bg-forest px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-forest-deeper"
         >
-          Register farmer
+          {t('agent.registerFarmer')}
         </Link>
       </div>
 
@@ -71,13 +73,13 @@ export default function FarmerListPage() {
         </div>
       ) : error ? (
         <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          Failed to load farmers.{' '}
+          {t('agent.failedToLoadFarmers')}{' '}
           <button
             type="button"
             onClick={reload}
             className="font-semibold underline underline-offset-2"
           >
-            Try again
+            {t('common.tryAgain')}
           </button>
         </div>
       ) : (

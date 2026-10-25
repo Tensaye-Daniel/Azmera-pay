@@ -1,4 +1,8 @@
+import { useTranslation } from 'react-i18next'
+
 export default function AgentSignupFooter() {
+  const { t } = useTranslation()
+
   return (
     <footer className="border-t border-forest/10 bg-white/80 backdrop-blur">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 sm:flex-row sm:px-6 lg:px-8">
@@ -18,24 +22,24 @@ export default function AgentSignupFooter() {
             href="#terms"
             className="text-xs font-medium text-stone transition-colors hover:text-forest-deeper"
           >
-            Terms
+            {t('common.terms')}
           </a>
           <a
             href="#privacy"
             className="text-xs font-medium text-stone transition-colors hover:text-forest-deeper"
           >
-            Privacy
+            {t('common.privacy')}
           </a>
           <a
             href="mailto:hello@azmera.et"
             className="text-xs font-medium text-stone transition-colors hover:text-forest-deeper"
           >
-            Contact
+            {t('common.contact')}
           </a>
         </nav>
 
         <p className="text-xs text-stone">
-          © 2026 Azmera. Empowering Ethiopian agriculture.
+          {t('landing.footer.copyright')} {t('landing.footer.tagline')}
         </p>
       </div>
     </footer>

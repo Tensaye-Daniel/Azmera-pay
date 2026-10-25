@@ -1,26 +1,29 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Reveal from '../ui/Reveal'
 import { ArrowRightIcon, GlobeIcon, HeartIcon, LeafIcon } from '../ui/icons'
 
-const benefits = [
-  {
-    icon: GlobeIcon,
-    title: 'Reach beyond your local market',
-    text: 'Get matched with buyers across the country and sell where demand is strongest.',
-  },
-  {
-    icon: LeafIcon,
-    title: 'Source reliable inputs',
-    text: 'Find trusted seed and fertilizer suppliers matched to your location, crop and timing.',
-  },
-  {
-    icon: HeartIcon,
-    title: 'Build lasting relationships',
-    text: 'Work with repeat partners who know your business and come back season after season.',
-  },
-]
-
 export default function SupplierSection() {
+  const { t } = useTranslation()
+
+  const benefits = [
+    {
+      icon: GlobeIcon,
+      title: t('landing.suppliers.benefit1Title'),
+      text: t('landing.suppliers.benefit1Text'),
+    },
+    {
+      icon: LeafIcon,
+      title: t('landing.suppliers.benefit2Title'),
+      text: t('landing.suppliers.benefit2Text'),
+    },
+    {
+      icon: HeartIcon,
+      title: t('landing.suppliers.benefit3Title'),
+      text: t('landing.suppliers.benefit3Text'),
+    },
+  ]
+
   return (
     <section id="suppliers" className="relative overflow-hidden bg-snow py-24 lg:py-32">
       <div className="bg-ethiopian-pattern absolute inset-0 opacity-[0.18]" aria-hidden="true" />
@@ -33,17 +36,15 @@ export default function SupplierSection() {
         <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
           <Reveal>
             <p className="text-xs font-semibold tracking-[0.24em] text-gold-dark uppercase">
-              For Suppliers & Farmers
+              {t('landing.suppliers.tagline')}
             </p>
             <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-forest-dark sm:text-5xl">
-              Reach More Buyers.
+              {t('landing.suppliers.titlePart1')}
               <br />
-              <span className="text-gold-dark">Grow Your Market.</span>
+              <span className="text-gold-dark">{t('landing.suppliers.titlePart2')}</span>
             </h2>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-stone-dark sm:text-lg">
-              Whether you grow tomatoes or supply seeds and fertilizer, Azmera puts your
-              offer in front of the right partners, matched by location, negotiated directly,
-              completed from any phone.
+              {t('landing.suppliers.description')}
             </p>
 
             <ul className="mt-10 space-y-6">
@@ -71,7 +72,7 @@ export default function SupplierSection() {
                 to="/register/supplier"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-forest px-8 py-4 text-sm font-semibold text-snow shadow-[0_10px_30px_rgba(35,139,69,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-forest-dark"
               >
-                Become a Supplier
+                {t('landing.suppliers.ctaBtn')}
                 <ArrowRightIcon className="size-4" />
               </Link>
             </div>

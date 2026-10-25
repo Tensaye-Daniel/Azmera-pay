@@ -1,25 +1,28 @@
+import { useTranslation } from 'react-i18next'
 import Reveal from '../ui/Reveal'
 import { LeafIcon, TrendingIcon, UsersIcon } from '../ui/icons'
 
-const features = [
-  {
-    icon: LeafIcon,
-    title: 'Support Farmers',
-    text: 'Farmers list their harvest and their needs with simple USSD codes, guided by local Azmera Agents, on any phone.',
-  },
-  {
-    icon: UsersIcon,
-    title: 'Connect Markets',
-    text: 'Buyers, farmers and input suppliers meet in one trusted marketplace, matched by location and availability.',
-  },
-  {
-    icon: TrendingIcon,
-    title: 'Build a Stronger Future',
-    text: 'Fairer prices, shorter supply chains and stronger incomes for everyone in Ethiopia’s agricultural economy.',
-  },
-]
-
 export default function About() {
+  const { t } = useTranslation()
+
+  const features = [
+    {
+      icon: LeafIcon,
+      title: t('landing.about.card1Title'),
+      text: t('landing.about.card1Text'),
+    },
+    {
+      icon: UsersIcon,
+      title: t('landing.about.card2Title'),
+      text: t('landing.about.card2Text'),
+    },
+    {
+      icon: TrendingIcon,
+      title: t('landing.about.card3Title'),
+      text: t('landing.about.card3Text'),
+    },
+  ]
+
   return (
     <section id="about" className="relative overflow-hidden bg-snow py-24 lg:py-32">
       <div
@@ -34,18 +37,16 @@ export default function About() {
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
         <Reveal className="mx-auto max-w-3xl text-center">
           <p className="text-xs font-semibold tracking-[0.24em] text-gold-dark uppercase">
-            About us
+            {t('landing.about.tagline')}
           </p>
           <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-forest-dark sm:text-5xl">
-            Rooted in Ethiopia.
+            {t('landing.about.titlePart1')}
             <br />
-            Built for a <span className="text-gold-dark">Stronger Tomorrow</span>
+            {t('landing.about.titlePart2')}{' '}
+            <span className="text-gold-dark">{t('landing.about.titlePart3')}</span>
           </h2>
           <p className="mt-6 text-base leading-relaxed text-stone-dark sm:text-lg">
-            Azmera is a USSD-first marketplace that connects Ethiopian tomato farmers with
-            buyers and input suppliers for seeds, fertilizer and more. We make trade simpler,
-            faster and fairer, so farmers earn more, businesses find reliable supply, and
-            Ethiopia’s agricultural potential reaches further.
+            {t('landing.about.description')}
           </p>
         </Reveal>
 

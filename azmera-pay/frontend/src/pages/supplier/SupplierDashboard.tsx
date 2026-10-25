@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { fetchMe } from '../../api/auth'
 import {
   fetchSupplierInventorySummary,
@@ -21,6 +22,7 @@ import {
 } from '../../components/ui/icons'
 
 export default function SupplierDashboard() {
+  const { t } = useTranslation()
   const cachedUser = useAuthStore((state) => state.user)
   const [name, setName] = useState(cachedUser?.full_name ?? '')
   const [shop, setShop] = useState<SupplierProfile | null>(null)
@@ -129,21 +131,20 @@ export default function SupplierDashboard() {
   return (
     <div className="mx-auto max-w-6xl space-y-7">
       <section className="rounded-3xl bg-forest-deeper px-6 py-8 text-white sm:px-9 sm:py-10">
-        <p className="text-sm font-medium tracking-wide text-mint">
-          SUPPLIER WORKSPACE
+        <p className="text-sm font-medium tracking-wide text-mint uppercase">
+          {t('supplier.workspaceTitle')}
         </p>
         <h1 className="mt-3 font-serif text-3xl font-semibold sm:text-4xl">
-          Welcome, {name || 'supplier'}
+          {t('supplier.welcomeName', { name: name || 'supplier' })}
         </h1>
         <p className="mt-2 text-white/80">
-          {shop?.company_name || 'Your shop'} · Keep your products and availability
-          up to date.
+          {shop?.company_name || t('supplier.yourShop')} · {t('supplier.keepProductsUpdated')}
         </p>
         <Link
           to="/supplier/listings"
           className="mt-6 inline-flex rounded-xl bg-gold px-5 py-3 text-sm font-semibold text-forest-deeper"
         >
-          Add a listing
+          {t('supplier.addListingBtn')}
         </Link>
       </section>
 
@@ -164,30 +165,30 @@ export default function SupplierDashboard() {
         className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
       >
         <SupplierStatCard
-          title="Total Listings"
+          title={t('supplier.totalListings')}
           value={inventoryValue(inventorySummary?.total)}
-          description="Products listed by your shop"
+          description={t('supplier.totalListingsDesc')}
           tone="total"
           icon={StoreIcon}
         />
         <SupplierStatCard
-          title="Active Listings"
+          title={t('supplier.activeListings')}
           value={inventoryValue(inventorySummary?.active)}
-          description="Currently available to the marketplace"
+          description={t('supplier.activeListingsDesc')}
           tone="active"
           icon={CheckCircleIcon}
         />
         <SupplierStatCard
-          title="Paused Listings"
+          title={t('supplier.pausedListings')}
           value={inventoryValue(inventorySummary?.paused)}
-          description="Temporarily unavailable"
+          description={t('supplier.pausedListingsDesc')}
           tone="paused"
           icon={ClockIcon}
         />
         <SupplierStatCard
-          title="Inactive Listings"
+          title={t('supplier.inactiveListings')}
           value={inventoryValue(inventorySummary?.inactive)}
-          description="Not currently available"
+          description={t('supplier.inactiveListingsDesc')}
           tone="inactive"
           icon={AlertIcon}
         />
@@ -200,8 +201,7 @@ export default function SupplierDashboard() {
             role="status"
             className="rounded-xl bg-[#f7faf6] p-4 text-sm text-stone"
           >
-            Your inventory is empty. Add a listing to see it reflected in these
-            totals.
+            {t('supplier.emptyInventory')}
           </p>
         )}
 
@@ -209,42 +209,41 @@ export default function SupplierDashboard() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="font-serif text-xl font-semibold text-forest-deeper">
-              Recently updated
+              {t('supplier.recentlyUpdated')}
             </h2>
             <p className="mt-1 text-sm text-stone">
-              Your latest product listings.
+              {t('supplier.latestListings')}
             </p>
           </div>
           <Link
             to="/supplier/listings"
             className="text-sm font-semibold text-forest underline"
           >
-            All listings
+            {t('supplier.allListingsLink')}
           </Link>
         </div>
 
         {loading ? (
           <p role="status" className="py-8 text-sm text-stone">
-            Loading account activity…
+            {t('common.loading')}
           </p>
         ) : listingsError ? (
           <p role="alert" className="py-8 text-sm text-red-800">
-            Your recent listings could not be loaded. Refresh to try again.
+            {t('common.error')}
           </p>
         ) : listings.length === 0 ? (
           <div className="mt-5 rounded-xl bg-[#f7faf6] p-5">
             <p className="font-semibold text-forest-deeper">
-              Your shop is ready for its first listing
+              {t('supplier.shopReadyFirst')}
             </p>
             <p className="mt-1 text-sm text-stone">
-              Add a product name, category, price, and available quantity to get
-              started.
+              {t('supplier.shopReadyDesc')}
             </p>
             <Link
               to="/supplier/listings"
               className="mt-4 inline-flex text-sm font-semibold text-forest underline"
             >
-              Create a listing
+              {t('supplier.createListing')}
             </Link>
           </div>
         ) : (
@@ -276,27 +275,27 @@ export default function SupplierDashboard() {
       </section>
 
       <section className="rounded-2xl border border-forest/10 bg-white p-5">
-        <h2 className="font-semibold text-forest-deeper">Shop details</h2>
+        <h2 className="font-semibold text-forest-deeper">{t('supplier.shopDetails')}</h2>
         {profileError ? (
           <p role="alert" className="mt-3 text-sm text-red-800">
-            Shop details could not be loaded. Refresh to try again.
+            {t('common.error')}
           </p>
         ) : (
           <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
             <p>
-              <span className="text-stone">Personal name:</span>{' '}
+              <span className="text-stone">{t('supplier.personalName')}:</span>{' '}
               {name || '—'}
             </p>
             <p>
-              <span className="text-stone">Business name:</span>{' '}
+              <span className="text-stone">{t('supplier.businessNameLabel')}:</span>{' '}
               {shop?.company_name || '—'}
             </p>
             <p>
-              <span className="text-stone">Location:</span>{' '}
+              <span className="text-stone">{t('supplier.locationLabel')}:</span>{' '}
               {shop ? `${shop.region}, ${shop.woreda}` : '—'}
             </p>
             <p>
-              <span className="text-stone">Configured categories:</span>{' '}
+              <span className="text-stone">{t('supplier.configuredCategories')}:</span>{' '}
               {shop?.product_categories.length ?? '—'}
             </p>
           </div>
@@ -305,7 +304,7 @@ export default function SupplierDashboard() {
           to="/supplier/shop-setup"
           className="mt-4 inline-flex text-sm font-semibold text-forest underline"
         >
-          Manage Shop Setup
+          {t('supplier.manageShopSetup')}
         </Link>
       </section>
     </div>

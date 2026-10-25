@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   activateSupplier,
   approveSupplier,
@@ -17,6 +18,7 @@ const approvalStyles: Record<SupplierApprovalStatus, string> = {
 }
 
 const AdminSuppliers = () => {
+  const { t } = useTranslation()
   const [suppliers, setSuppliers] = useState<AdminSupplier[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -84,16 +86,16 @@ const AdminSuppliers = () => {
     <div className="space-y-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Suppliers</h1>
+          <h1 className="text-2xl font-semibold text-slate-900">{t('nav.suppliers')}</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Approve or reject supplier applications and control access.
+            {t('admin.suppliersDesc')}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search company, TIN, phone"
+            placeholder={t('admin.searchSupplierPlaceholder')}
             className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm sm:w-64"
           />
           <select
@@ -103,11 +105,11 @@ const AdminSuppliers = () => {
             }
             className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
           >
-            <option value="all">All approvals</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-            <option value="not_required">Not required</option>
+            <option value="all">{t('admin.allApprovals')}</option>
+            <option value="pending">{t('common.pending')}</option>
+            <option value="approved">{t('common.approved')}</option>
+            <option value="rejected">{t('common.rejected')}</option>
+            <option value="not_required">{t('admin.notRequired')}</option>
           </select>
           <select
             value={status}
@@ -116,16 +118,16 @@ const AdminSuppliers = () => {
             }
             className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
           >
-            <option value="all">All accounts</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
+            <option value="all">{t('admin.allAccounts')}</option>
+            <option value="active">{t('admin.activeStatus')}</option>
+            <option value="inactive">{t('admin.inactiveStatus')}</option>
           </select>
           <button
             type="button"
             onClick={applyFilters}
             className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-emerald-700"
           >
-            Apply
+            {t('admin.apply')}
           </button>
         </div>
       </header>
@@ -140,19 +142,19 @@ const AdminSuppliers = () => {
             <thead className="bg-slate-50">
               <tr>
                 <th className="px-6 py-3 text-left font-medium text-slate-500">
-                  Supplier
+                  {t('nav.suppliers')}
                 </th>
                 <th className="px-6 py-3 text-left font-medium text-slate-500">
-                  Business
+                  {t('admin.businessCol')}
                 </th>
                 <th className="px-6 py-3 text-left font-medium text-slate-500">
-                  Location
+                  {t('admin.locationCol')}
                 </th>
                 <th className="px-6 py-3 text-left font-medium text-slate-500">
-                  Status
+                  {t('admin.statusCol')}
                 </th>
                 <th className="px-6 py-3 text-right font-medium text-slate-500">
-                  Actions
+                  {t('admin.actionsCol')}
                 </th>
               </tr>
             </thead>
@@ -160,14 +162,14 @@ const AdminSuppliers = () => {
               {loading && (
                 <tr>
                   <td className="px-6 py-6 text-center text-slate-500" colSpan={5}>
-                    Loading...
+                    {t('common.loading')}
                   </td>
                 </tr>
               )}
               {!loading && filtered.length === 0 && (
                 <tr>
                   <td className="px-6 py-6 text-center text-slate-500" colSpan={5}>
-                    No suppliers found
+                    {t('admin.noSuppliersFound')}
                   </td>
                 </tr>
               )}
@@ -204,7 +206,7 @@ const AdminSuppliers = () => {
                       {supplier.supplier_approval_status}
                     </span>
                     <p className="mt-1 text-xs text-slate-500">
-                      {supplier.is_active ? 'Active' : 'Inactive'}
+                      {supplier.is_active ? t('admin.activeStatus') : t('admin.inactiveStatus')}
                     </p>
                   </td>
                   <td className="px-6 py-4 text-right">
@@ -216,7 +218,7 @@ const AdminSuppliers = () => {
                           onClick={() => void runAction(supplier.id, approveSupplier)}
                           className="rounded-lg border border-emerald-200 px-2.5 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-50 disabled:opacity-50"
                         >
-                          Approve
+                          {t('admin.approve')}
                         </button>
                       )}
                       {supplier.supplier_approval_status !== 'rejected' && (
@@ -226,7 +228,7 @@ const AdminSuppliers = () => {
                           onClick={() => void runAction(supplier.id, rejectSupplier)}
                           className="rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-50 disabled:opacity-50"
                         >
-                          Reject
+                          {t('admin.reject')}
                         </button>
                       )}
                       {supplier.is_active ? (
@@ -238,7 +240,7 @@ const AdminSuppliers = () => {
                           }
                           className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
                         >
-                          Deactivate
+                          {t('admin.deactivate')}
                         </button>
                       ) : (
                         <button
@@ -247,7 +249,7 @@ const AdminSuppliers = () => {
                           onClick={() => void runAction(supplier.id, activateSupplier)}
                           className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
                         >
-                          Activate
+                          {t('admin.activate')}
                         </button>
                       )}
                     </div>

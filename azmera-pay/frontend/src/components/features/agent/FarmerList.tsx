@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { PhoneIcon } from '../../ui/icons'
 import type { Farmer } from '../../../types/farmer'
 import StatusBadge from './StatusBadge'
@@ -8,21 +9,22 @@ interface FarmerListProps {
 }
 
 export default function FarmerList({ farmers }: FarmerListProps) {
+  const { t } = useTranslation()
+
   if (farmers.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-forest/25 bg-white p-10 text-center">
         <p className="font-serif text-lg font-semibold text-forest-deeper">
-          No farmers registered yet
+          {t('agent.noFarmersYet')}
         </p>
         <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-stone">
-          Register your first farmer to get started. Each farmer gets a unique
-          Azmera account number they can use on USSD.
+          {t('agent.noFarmersDesc')}
         </p>
         <Link
           to="/agent/farmers/new"
           className="mt-5 inline-block rounded-xl bg-forest px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-forest-deeper"
         >
-          Register a farmer
+          {t('agent.registerFarmerBtn')}
         </Link>
       </div>
     )
@@ -61,7 +63,7 @@ export default function FarmerList({ farmers }: FarmerListProps) {
               to={`/agent/farmers/${farmer.id}`}
               className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition-colors hover:text-forest-dark"
             >
-              View details
+              {t('common.viewDetails')}
             </Link>
           </li>
         ))}
@@ -72,12 +74,12 @@ export default function FarmerList({ farmers }: FarmerListProps) {
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead className="border-b border-forest/10 bg-[#f7faf6] text-xs font-semibold uppercase tracking-wide text-stone">
               <tr>
-                <th className="px-5 py-3.5">Farmer</th>
-                <th className="px-5 py-3.5">Account number</th>
-                <th className="px-5 py-3.5">Location</th>
-                <th className="px-5 py-3.5">Crop</th>
-                <th className="px-5 py-3.5">Status</th>
-                <th className="px-5 py-3.5 text-right">Actions</th>
+                <th className="px-5 py-3.5">{t('agent.farmerName')}</th>
+                <th className="px-5 py-3.5">{t('agent.accountNumber')}</th>
+                <th className="px-5 py-3.5">{t('agent.location')}</th>
+                <th className="px-5 py-3.5">{t('agent.crop')}</th>
+                <th className="px-5 py-3.5">{t('common.status')}</th>
+                <th className="px-5 py-3.5 text-right">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-forest/5">
@@ -108,7 +110,7 @@ export default function FarmerList({ farmers }: FarmerListProps) {
                       to={`/agent/farmers/${farmer.id}`}
                       className="rounded-lg px-3 py-1.5 text-sm font-semibold text-forest transition-colors hover:bg-mint/40 hover:text-forest-dark"
                     >
-                      View
+                      {t('common.viewDetails')}
                     </Link>
                   </td>
                 </tr>

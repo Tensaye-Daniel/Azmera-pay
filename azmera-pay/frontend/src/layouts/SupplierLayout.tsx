@@ -6,6 +6,7 @@ import {
   type SVGProps,
 } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../store/auth'
 import { fetchMe, invalidateRefreshToken } from '../api/auth'
 import { fetchSupplierProfile } from '../api/supplier'
@@ -16,6 +17,7 @@ import {
   UsersIcon,
   NetworkIcon,
 } from '../components/ui/icons'
+import LanguageSwitcher from '../components/ui/LanguageSwitcher'
 
 /* Two small local icons so every nav item has its own icon.
    They match the stroke style of the shared icon set. */
@@ -59,12 +61,12 @@ function ListingsIcon(props: SVGProps<SVGSVGElement>) {
   )
 }
 
-const navigation = [
-  { label: 'Overview', to: '/supplier', icon: OverviewIcon, end: true },
-  { label: 'My Listings', to: '/supplier/listings', icon: ListingsIcon },
-  { label: 'Requests', to: '/supplier/requests', icon: UsersIcon },
-  { label: 'Matches', to: '/supplier/matches', icon: NetworkIcon },
-  { label: 'Shop Setup', to: '/supplier/shop-setup', icon: StoreIcon },
+const getSupplierNavigation = (t: (key: string) => string) => [
+  { label: t('nav.overview'), to: '/supplier', icon: OverviewIcon, end: true },
+  { label: t('nav.listings'), to: '/supplier/listings', icon: ListingsIcon },
+  { label: t('nav.requests'), to: '/supplier/requests', icon: UsersIcon },
+  { label: t('nav.matches'), to: '/supplier/matches', icon: NetworkIcon },
+  { label: t('nav.shopSetup'), to: '/supplier/shop-setup', icon: StoreIcon },
 ]
 
 // Lets links inside the mobile drawer close it, without passing props around.
@@ -82,7 +84,7 @@ const getInitials = (name: string): string =>
 const focusRing =
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/40 focus-visible:ring-offset-2'
 
-function NavItems() {
+function NavItems({ navigation }: { navigation: ReturnType<typeof getSupplierNavigation> }) {
   const onNavigate = useContext(CloseMenuContext)
 
   return (
@@ -190,6 +192,9 @@ export default function SupplierLayout() {
     setMobileMenuOpen(false)
   }
 
+  const { t } = useTranslation()
+  const navigation = getSupplierNavigation(t)
+
   const closeMobileMenu = () => setMobileMenuOpen(false)
   const handleLogout = async () => {
     try { if (refreshToken) await invalidateRefreshToken(refreshToken) }
@@ -226,7 +231,7 @@ export default function SupplierLayout() {
         href="#supplier-main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-forest focus:px-5 focus:py-3 focus:font-semibold focus:text-white"
       >
-        Skip to content
+        {t('nav.skipToContent')}
       </a>
 
       <header className="sticky top-0 z-40 border-b border-forest/10 bg-white/95 shadow-[0_1px_0_0_rgba(0,0,0,0.02),0_4px_16px_-12px_rgba(0,0,0,0.12)] backdrop-blur-md">
@@ -235,7 +240,7 @@ export default function SupplierLayout() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen((open) => !open)}
-              aria-label={mobileMenuOpen ? 'Close navigation' : 'Open navigation'}
+              aria-label={mobileMenuOpen ? t('nav.closeMenu') : t('nav.openMenu')}
               aria-expanded={mobileMenuOpen}
               aria-controls="supplier-mobile-nav"
               className={`grid size-10 shrink-0 place-items-center rounded-xl border border-forest/15 text-forest transition-colors hover:bg-mint/40 lg:hidden ${focusRing}`}
@@ -268,30 +273,41 @@ export default function SupplierLayout() {
             </div>
           </div>
 
-          <div className="flex min-w-0 items-center gap-2.5 rounded-full border border-forest/10 bg-[#f7faf6] py-1 pl-1 pr-1 sm:pl-4 sm:pr-1">
-            <div className="hidden min-w-0 text-right sm:block">
-              <p
-                className="max-w-[180px] truncate text-sm font-semibold leading-5 text-forest-deeper"
-                title={identity.name || 'Supplier account'}
-              >
-                {identity.name || 'Supplier account'}
-              </p>
-              <p
-                className="max-w-[220px] truncate text-xs leading-4 text-stone"
-                title={identity.shopName || 'Shop profile'}
-              >
-                {identity.shopName || 'Shop profile'}
-              </p>
-            </div>
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
 
-            <div
-              role="img"
-              aria-label={`${identity.name || 'Supplier account'}, ${identity.shopName || 'Shop profile'}`}
-              className="grid size-9 shrink-0 place-items-center rounded-full bg-mint/60 text-sm font-semibold text-forest-deeper ring-2 ring-white"
-            >
-              {getInitials(identity.name) || 'S'}
+            <div className="flex min-w-0 items-center gap-2.5 rounded-full border border-forest/10 bg-[#f7faf6] py-1 pl-1 pr-1 sm:pl-4 sm:pr-1">
+              <div className="hidden min-w-0 text-right sm:block">
+                <p
+                  className="max-w-[180px] truncate text-sm font-semibold leading-5 text-forest-deeper"
+                  title={identity.name || 'Supplier account'}
+                >
+                  {identity.name || 'Supplier account'}
+                </p>
+                <p
+                  className="max-w-[220px] truncate text-xs leading-4 text-stone"
+                  title={identity.shopName || 'Shop profile'}
+                >
+                  {identity.shopName || 'Shop profile'}
+                </p>
+              </div>
+
+              <div
+                role="img"
+                aria-label={`${identity.name || 'Supplier account'}, ${identity.shopName || 'Shop profile'}`}
+                className="grid size-9 shrink-0 place-items-center rounded-full bg-mint/60 text-sm font-semibold text-forest-deeper ring-2 ring-white"
+              >
+                {getInitials(identity.name) || 'S'}
+              </div>
+              <button
+                type="button"
+                onClick={() => void handleLogout()}
+                className={`ml-1 rounded-lg px-3 py-2 text-xs font-semibold text-forest hover:bg-mint/50 ${focusRing}`}
+                aria-label={t('nav.signOut')}
+              >
+                {t('nav.signOut')}
+              </button>
             </div>
-            <button type="button" onClick={() => void handleLogout()} className={`ml-1 rounded-lg px-3 py-2 text-xs font-semibold text-forest hover:bg-mint/50 ${focusRing}`} aria-label="Log out">Log out</button>
           </div>
         </div>
       </header>
@@ -300,16 +316,22 @@ export default function SupplierLayout() {
         {/* Desktop sidebar */}
         <aside className="sticky top-[68px] hidden h-[calc(100vh-68px)] w-[208px] shrink-0 flex-col border-r border-forest/10 bg-white px-3 py-6 lg:flex">
           <p className="mb-3 px-3 text-xs font-semibold tracking-wide text-stone/75">
-            Workspace
+            {t('nav.agentWorkspace')}
           </p>
 
           <nav aria-label="Supplier navigation">
-            <NavItems />
+            <NavItems navigation={navigation} />
           </nav>
 
           <div className="mt-auto">
             <BusinessCard shopName={identity.shopName} />
-            <button type="button" onClick={() => void handleLogout()} className={`mt-3 w-full rounded-xl border border-forest/15 px-3 py-2.5 text-sm font-semibold text-forest ${focusRing}`}>Log out</button>
+            <button
+              type="button"
+              onClick={() => void handleLogout()}
+              className={`mt-3 w-full rounded-xl border border-forest/15 px-3 py-2.5 text-sm font-semibold text-forest ${focusRing}`}
+            >
+              {t('nav.signOut')}
+            </button>
           </div>
         </aside>
 
@@ -332,17 +354,23 @@ export default function SupplierLayout() {
           }`}
         >
           <p className="mb-3 px-3 text-xs font-semibold tracking-wide text-stone/75">
-            Workspace
+            {t('nav.agentWorkspace')}
           </p>
 
           <CloseMenuContext.Provider value={closeMobileMenu}>
             <nav aria-label="Mobile supplier navigation">
-              <NavItems />
+              <NavItems navigation={navigation} />
             </nav>
 
             <div className="mt-auto">
               <BusinessCard shopName={identity.shopName} />
-              <button type="button" onClick={() => void handleLogout()} className={`mt-3 w-full rounded-xl border border-forest/15 px-3 py-2.5 text-sm font-semibold text-forest ${focusRing}`}>Log out</button>
+              <button
+                type="button"
+                onClick={() => void handleLogout()}
+                className={`mt-3 w-full rounded-xl border border-forest/15 px-3 py-2.5 text-sm font-semibold text-forest ${focusRing}`}
+              >
+                {t('nav.signOut')}
+              </button>
             </div>
           </CloseMenuContext.Provider>
         </aside>

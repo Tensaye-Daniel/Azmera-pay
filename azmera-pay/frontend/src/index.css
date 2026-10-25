@@ -12,8 +12,8 @@
   --color-stone: #6e675f;
   --color-stone-dark: #4c443c;
 
-  --font-serif: "Fraunces", Georgia, "Times New Roman", serif;
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-serif: "Fraunces", "Noto Sans Ethiopic", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", "Noto Sans Ethiopic", "Nyala", "Abyssinica SIL", ui-sans-serif, system-ui, -apple-system, sans-serif;
 
   --animate-float: float 7s ease-in-out infinite;
 

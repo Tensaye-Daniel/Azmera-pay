@@ -1,6 +1,9 @@
+import { useTranslation } from 'react-i18next'
 import { ArrowRightIcon } from '../ui/icons'
 
 export default function Hero() {
+  const { t } = useTranslation()
+
   return (
     <section id="home" className="relative isolate overflow-hidden py-32 lg:py-44">
       <div className="absolute inset-0 -z-10">
@@ -18,16 +21,16 @@ export default function Hero() {
         <div className="relative mx-auto max-w-4xl px-5 text-center sm:px-8">
           <p className="inline-flex items-center gap-2.5 rounded-full border border-gold/60 bg-snow/70 px-4 py-1.5 text-xs font-semibold tracking-[0.26em] text-gold-dark uppercase backdrop-blur">
             <span className="size-1.5 rounded-full bg-gold" aria-hidden="true" />
-            Ethiopian Agriculture
+            {t('landing.badge')}
           </p>
 
           <h1 className="mx-auto mt-7 max-w-3xl font-serif text-[2.7rem] leading-[1.06] font-semibold tracking-tight text-forest-dark sm:text-6xl xl:text-7xl">
-            Connecting
+            {t('landing.hero.headlinePart1')}
             <br />
-            Ethiopia’s Farms
+            {t('landing.hero.headlinePart2')}
             <br />
             <span className="relative inline-block text-gold-dark">
-              to the Future
+              {t('landing.hero.headlinePart3')}
               <svg
                 aria-hidden="true"
                 viewBox="0 0 220 12"
@@ -40,8 +43,7 @@ export default function Hero() {
           </h1>
 
           <p className="mx-auto mt-8 max-w-2xl text-base leading-relaxed text-forest-dark/80 sm:text-lg">
-            Azmera connects Ethiopian tomato farmers with buyers and input suppliers through
-            smart, location-based matching, from registration to final sale, all from any phone.
+            {t('landing.hero.subtitle')}
           </p>
 
           <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
@@ -49,21 +51,21 @@ export default function Hero() {
               href="#buyers"
               className="inline-flex items-center justify-center gap-2 rounded-full bg-forest px-8 py-4 text-sm font-semibold text-snow shadow-[0_14px_40px_rgba(35,139,69,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-forest-dark"
             >
-              I’m a Buyer
+              {t('landing.hero.buyerBtn')}
               <ArrowRightIcon className="size-4" />
             </a>
             <a
               href="#suppliers"
               className="inline-flex items-center justify-center gap-2 rounded-full border border-forest/50 bg-snow/50 px-8 py-4 text-sm font-semibold text-forest-dark backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:bg-forest hover:text-snow"
             >
-              I’m a Supplier
+              {t('landing.hero.supplierBtn')}
               <ArrowRightIcon className="size-4" />
             </a>
             <a
               href="#agents"
               className="inline-flex items-center justify-center gap-2 rounded-full border border-forest/50 bg-snow/50 px-8 py-4 text-sm font-semibold text-forest-dark backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:bg-forest hover:text-snow"
             >
-              I’m an Agent
+              {t('landing.hero.agentBtn')}
               <ArrowRightIcon className="size-4" />
             </a>
           </div>

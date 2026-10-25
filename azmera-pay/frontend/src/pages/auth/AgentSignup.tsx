@@ -1,15 +1,18 @@
 import { useState } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import AgentSignupFooter from '../../components/features/agent/AgentSignupFooter'
 import AgentSignupHero from '../../components/features/agent/AgentSignupHero'
 import AgentSignupSuccess from '../../components/features/agent/AgentSignupSuccess'
 import AgentSignupWizard from '../../components/features/agent/AgentSignupWizard'
 import ScrollToTop from '../../components/layout/ScrollToTop'
 import LanguageSwitcher from '../../components/ui/LanguageSwitcher'
+import { HomeIcon } from '../../components/ui/icons'
 import { useAuthStore } from '../../store/auth'
 import type { AgentRegistrationResult } from '../../types/agentRegistration'
 
 export default function AgentSignup() {
+  const { t } = useTranslation()
   const [result, setResult] = useState<AgentRegistrationResult | null>(null)
   const user = useAuthStore((state) => state.user)
   const navigate = useNavigate()
@@ -24,7 +27,14 @@ export default function AgentSignup() {
       <AgentSignupHero />
 
       <div className="flex flex-1 flex-col lg:min-h-screen">
-        <div className="flex justify-end p-4 sm:px-6 lg:px-10">
+        <div className="flex items-center justify-between gap-3 p-4 sm:px-6 lg:px-10">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 rounded-full border border-forest/10 bg-white/90 px-3.5 py-2 text-xs font-semibold text-forest-deeper shadow-sm transition-colors hover:bg-mint/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/40 focus-visible:ring-offset-2 sm:text-sm"
+          >
+            <HomeIcon className="size-4" />
+            <span>{t('nav.backToMain')}</span>
+          </Link>
           <LanguageSwitcher variant="light" />
         </div>
         <main className="relative flex flex-1 items-center justify-center px-4 py-6 sm:px-6 lg:px-10">

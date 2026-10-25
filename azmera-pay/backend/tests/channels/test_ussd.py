@@ -40,6 +40,12 @@ def post_text(api_client, text, *, session_id="session-1"):
     return body_of(api_client.post(USSD_URL, payload(session_id=session_id, text=text)))
 
 
+@pytest.fixture(autouse=True)
+def english_ussd_default(settings):
+    """Most flow assertions use English; Amharic tests override this setting."""
+    settings.USSD_DEFAULT_LANGUAGE = "en"
+
+
 @pytest.fixture
 def farmer():
     user = UserFactory(phone=FARMER_PHONE, role=Role.FARMER, full_name="Abebe Kebede")
@@ -518,6 +524,59 @@ def test_amharic_menu_is_served_when_configured(api_client, farmer, settings):
     assert body.startswith("CON ")
     assert "አዝመራ" in body
     assert "ግብዓት ጠይቅ" in body
+    assert "5. English" in body
+
+
+def test_default_ussd_language_is_amharic():
+    from apps.channels.menus import DEFAULT_LANGUAGE
+
+    assert DEFAULT_LANGUAGE == "am"
+
+
+def test_amharic_main_menu_switches_to_english(api_client, farmer, settings):
+    settings.USSD_DEFAULT_LANGUAGE = "am"
+
+    body = post_text(api_client, "5")
+
+    assert body.startswith("CON ")
+    assert "1. My account" in body
+    assert "5. አማርኛ" in body
+
+
+def test_language_switch_persists_across_screens(api_client, farmer, settings):
+    settings.USSD_DEFAULT_LANGUAGE = "am"
+
+    body = post_text(api_client, "5*1")
+
+    assert body.startswith("CON ")
+    assert "AZM:" in body
+    assert "0. Back" in body
+
+
+def test_language_can_switch_back_to_amharic(api_client, farmer, settings):
+    settings.USSD_DEFAULT_LANGUAGE = "am"
+
+    body = post_text(api_client, "5*5")
+
+    assert body.startswith("CON ")
+    assert "አዝመራ" in body
+    assert "1. መለያዬ" in body
+
+
+def test_english_menu_offers_amharic_switch(api_client, farmer):
+    body = post_text(api_client, "")
+
+    assert "5. አማርኛ" in body
+
+
+def test_switched_language_applies_to_request_flow(api_client, farmer, settings):
+    settings.USSD_DEFAULT_LANGUAGE = "am"
+
+    body = post_text(api_client, "5*2")
+
+    assert body.startswith("CON ")
+    assert "Choose input type" in body
+    assert "1. Seed" in body
 
 
 def test_gateway_normalizes_phone_and_reads_fields():

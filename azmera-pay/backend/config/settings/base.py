@@ -125,9 +125,7 @@ SIMPLE_JWT = {
 # Farmer documents are encrypted at rest (Fernet). Set
 # FARMER_DOCUMENT_ENCRYPTION_KEY in production; when empty a key derived from
 # SECRET_KEY is used for local development and tests.
-FARMER_DOCUMENT_ENCRYPTION_KEY = env(
-    "FARMER_DOCUMENT_ENCRYPTION_KEY", default=""
-)
+FARMER_DOCUMENT_ENCRYPTION_KEY = env("FARMER_DOCUMENT_ENCRYPTION_KEY", default="")
 FARMER_DOCUMENT_MAX_BYTES = env.int(
     "FARMER_DOCUMENT_MAX_BYTES", default=5 * 1024 * 1024
 )
@@ -147,8 +145,9 @@ AFRICASTALKING_SHORTCODE = env("AFRICASTALKING_SHORTCODE", default="")
 # When set, callbacks must present this token as ?token=... or the X-USSD-Secret header.
 USSD_CALLBACK_SECRET = env("USSD_CALLBACK_SECRET", default="")
 USSD_MAX_MESSAGE_LENGTH = env.int("USSD_MAX_MESSAGE_LENGTH", default=182)
-# Menu language for the shortcode: "en" or "am".
-USSD_DEFAULT_LANGUAGE = env("USSD_DEFAULT_LANGUAGE", default="en")
+# Menu language for the shortcode: "am" (default) or "en". Users can switch
+# language from the main menu with option 5.
+USSD_DEFAULT_LANGUAGE = env("USSD_DEFAULT_LANGUAGE", default="am")
 
 
 LANGUAGE_CODE = "en-us"

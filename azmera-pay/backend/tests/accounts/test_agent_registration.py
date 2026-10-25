@@ -2,6 +2,7 @@
 import pytest
 
 from apps.accounts.models import Role
+from apps.common.utils import REGISTRATION_CONFLICT_MESSAGE
 
 pytestmark = pytest.mark.django_db
 
@@ -57,7 +58,8 @@ def test_duplicate_phone_is_rejected(api_client):
     )
 
     assert resp.status_code == 400
-    assert "phone" in resp.data
+    assert "phone" not in resp.data
+    assert resp.data["non_field_errors"] == [REGISTRATION_CONFLICT_MESSAGE]
 
 
 def test_all_numeric_password_is_rejected(api_client):

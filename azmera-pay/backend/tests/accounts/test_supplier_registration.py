@@ -2,6 +2,7 @@
 import pytest
 
 from apps.accounts.models import Role, SupplierApprovalStatus, SupplierProfile
+from apps.common.utils import REGISTRATION_CONFLICT_MESSAGE
 
 pytestmark = pytest.mark.django_db
 
@@ -92,7 +93,10 @@ def test_supplier_registration_rejects_duplicate_phone(api_client):
     )
 
     assert second_response.status_code == 400
-    assert "phone" in second_response.data
+    assert "phone" not in second_response.data
+    assert second_response.data["non_field_errors"] == [
+        REGISTRATION_CONFLICT_MESSAGE
+    ]
 
 
 def test_supplier_registration_rejects_duplicate_tin(api_client):
@@ -114,4 +118,7 @@ def test_supplier_registration_rejects_duplicate_tin(api_client):
     )
 
     assert second_response.status_code == 400
-    assert "tin_number" in second_response.data
+    assert "tin_number" not in second_response.data
+    assert second_response.data["non_field_errors"] == [
+        REGISTRATION_CONFLICT_MESSAGE
+    ]

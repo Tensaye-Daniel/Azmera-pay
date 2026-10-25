@@ -11,7 +11,7 @@ from rest_framework_simplejwt.serializers import (
 )
 
 from apps.catalog.models import ProductCategory
-from apps.common.utils import normalize_phone
+from apps.common.utils import REGISTRATION_CONFLICT_MESSAGE, normalize_phone
 from core.matching.constants import canonical_region
 
 from .models import Role, SupplierApprovalStatus, SupplierProfile
@@ -42,17 +42,20 @@ class AgentRegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = ["id", "full_name", "phone", "email", "password"]
         read_only_fields = ["id"]
+        # Uniqueness is checked in validate() so the response cannot reveal
+        # which identifier already belongs to an account.
+        extra_kwargs = {"phone": {"validators": []}}
 
     def validate_phone(self, value):
         try:
-            phone = normalize_phone(value)
+            return normalize_phone(value)
         except ValueError as exc:
             raise serializers.ValidationError(str(exc)) from exc
-        if User.objects.filter(phone=phone).exists():
-            raise serializers.ValidationError(
-                "A user with this phone number already exists."
-            )
-        return phone
+
+    def validate(self, attrs):
+        if User.objects.filter(phone=attrs["phone"]).exists():
+            raise serializers.ValidationError(REGISTRATION_CONFLICT_MESSAGE)
+        return attrs
 
     def validate_email(self, value):
         return (value or "").strip() or None
@@ -100,19 +103,24 @@ class SupplierRegisterSerializer(serializers.ModelSerializer):
             "company_name",
         ]
         read_only_fields = ["id"]
+        # Uniqueness is checked in validate() so the response cannot reveal
+        # which identifier already belongs to an account.
+        extra_kwargs = {"phone": {"validators": []}}
 
     def validate_phone(self, value):
         try:
-            phone = normalize_phone(value)
+            return normalize_phone(value)
         except ValueError as exc:
             raise serializers.ValidationError(str(exc)) from exc
 
-        if User.objects.filter(phone=phone).exists():
-            raise serializers.ValidationError(
-                "A user with this phone number already exists."
-            )
-
-        return phone
+    def validate(self, attrs):
+        phone_exists = User.objects.filter(phone=attrs["phone"]).exists()
+        tin_exists = SupplierProfile.objects.filter(
+            tin_number=attrs["tin_number"]
+        ).exists()
+        if phone_exists or tin_exists:
+            raise serializers.ValidationError(REGISTRATION_CONFLICT_MESSAGE)
+        return attrs
 
     def validate_email(self, value):
         return (value or "").strip() or None
@@ -131,11 +139,6 @@ class SupplierRegisterSerializer(serializers.ModelSerializer):
         if not value.isdigit() or len(value) != 10:
             raise serializers.ValidationError(
                 "TIN must contain exactly 10 numeric digits."
-            )
-
-        if SupplierProfile.objects.filter(tin_number=value).exists():
-            raise serializers.ValidationError(
-                "This TIN number is already registered."
             )
 
         return value

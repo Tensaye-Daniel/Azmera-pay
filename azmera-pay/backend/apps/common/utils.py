@@ -1,6 +1,13 @@
 # Shared helpers (phone normalization so web and USSD phone numbers always match).
 import re
 
+# Deliberately does not say which detail (phone, TIN, Fayda) is already in use.
+# This avoids turning registration into an account-enumeration oracle.
+REGISTRATION_CONFLICT_MESSAGE = (
+    "We couldn't complete this registration. The details may already be in use. "
+    "If you already have an account, sign in instead or contact Azmera support."
+)
+
 
 def normalize_phone(value):
     """Normalize an Ethiopian phone number to E.164 form, e.g. '+251912345678'.

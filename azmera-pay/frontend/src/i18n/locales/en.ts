@@ -24,6 +24,7 @@ export const en = {
     skipToContent: 'Skip to content',
     openMenu: 'Open menu',
     closeMenu: 'Close menu',
+    backToMain: 'Back to main site',
     adminTitle: 'Azmera Admin',
   },
   common: {

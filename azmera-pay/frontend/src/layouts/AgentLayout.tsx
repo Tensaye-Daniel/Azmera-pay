@@ -1,9 +1,16 @@
 import { useEffect, useRef, useState, type SVGProps } from 'react'
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import {
+  Link,
+  NavLink,
+  Outlet,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   ChevronDownIcon,
   CloseIcon,
+  HomeIcon,
   LogOutIcon,
   MenuIcon,
   UsersIcon,
@@ -177,6 +184,15 @@ function AccountMenu({
             </p>
             <p className="text-xs text-stone">Agent</p>
           </div>
+          <Link
+            to="/"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+            className={`flex w-full items-center gap-2.5 px-4 py-3 text-sm font-medium text-stone-dark transition-colors hover:bg-mint/30 hover:text-forest-deeper ${focusRing}`}
+          >
+            <HomeIcon className="size-4" />
+            {t('nav.backToMain')}
+          </Link>
           <button
             type="button"
             role="menuitem"
@@ -311,6 +327,13 @@ export default function AgentLayout() {
 
           <div className="mt-auto">
             <RegisterCard />
+            <NavLink
+              to="/"
+              className={`mt-3 flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-stone-dark transition-colors hover:bg-mint/40 hover:text-forest-deeper ${focusRing}`}
+            >
+              <HomeIcon className="size-5" />
+              <span>{t('nav.backToMain')}</span>
+            </NavLink>
           </div>
         </aside>
 
@@ -340,6 +363,13 @@ export default function AgentLayout() {
 
           <div className="mt-auto">
             <RegisterCard />
+            <NavLink
+              to="/"
+              className={`mt-3 flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-stone-dark transition-colors hover:bg-mint/40 hover:text-forest-deeper ${focusRing}`}
+            >
+              <HomeIcon className="size-5" />
+              <span>{t('nav.backToMain')}</span>
+            </NavLink>
           </div>
         </aside>
 

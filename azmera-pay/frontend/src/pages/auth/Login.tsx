@@ -30,11 +30,10 @@ interface LoginErrors {
 
 const PHONE_DIGITS = /^\d{9,12}$/
 
-type LoginVariant = 'agent' | 'supplier' | 'admin'
+type LoginVariant = 'agent' | 'supplier'
 
 const homePathFor = (role: string): string => {
   if (role === 'supplier') return '/supplier'
-  if (role === 'admin') return '/admin'
   return '/agent'
 }
 
@@ -59,11 +58,6 @@ export default function Login({ variant = 'agent' }: { variant?: LoginVariant })
       cardDescription: t('auth.cardDescSupplier'),
       registerPath: '/register/supplier',
     },
-    admin: {
-      heroDescription: t('auth.welcomeSubtextAdmin'),
-      cardDescription: t('auth.cardDescAdmin'),
-      registerPath: undefined,
-    },
   }[variant]
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
@@ -76,6 +70,7 @@ export default function Login({ variant = 'agent' }: { variant?: LoginVariant })
   const user = useAuthStore((state) => state.user)
   const setSession = useAuthStore((state) => state.setSession)
   const setUser = useAuthStore((state) => state.setUser)
+  const logout = useAuthStore((state) => state.logout)
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -115,6 +110,13 @@ export default function Login({ variant = 'agent' }: { variant?: LoginVariant })
       const tokens = await login(normalizePhone(value), password)
       setSession(tokens.access, tokens.refresh, remember)
       const me = await fetchMe()
+      if (me.role === 'admin') {
+        logout()
+        setError(
+          'Administrator accounts must sign in through the separate Azmera admin portal.',
+        )
+        return
+      }
       setUser(me)
       const from = (location.state as LocationState | null)?.from?.pathname
       navigate(

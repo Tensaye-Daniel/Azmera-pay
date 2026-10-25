@@ -30,7 +30,6 @@ const router = createBrowserRouter([
   },
   { path: '/login', element: <Login variant="agent" /> },
   { path: '/login/supplier', element: <Login variant="supplier" /> },
-  { path: '/login/admin', element: <Login variant="admin" /> },
   { path: '/register', element: <Navigate to="/register/agent" replace /> },
   { path: '/register/agent', element: <AgentSignup /> },
   { path: '/register/supplier', element: <SupplierSignup /> },
@@ -68,20 +67,6 @@ const router = createBrowserRouter([
       { path: 'requests', element: <SupplierRequests /> },
       { path: 'matches', element: <SupplierMatches /> },
       { path: 'shop-setup', element: <SupplierShopSetup /> },
-    ],
-  },
-  {
-    path: '/admin',
-    element: (
-      <RequireAuth allowedRoles={['admin']}>
-        <AdminLayout />
-      </RequireAuth>
-    ),
-    children: [
-      { index: true, element: <AdminDashboard /> },
-      { path: 'farmers', element: <AdminFarmers /> },
-      { path: 'suppliers', element: <AdminSuppliers /> },
-      { path: 'users', element: <AdminUsers /> },
     ],
   },
   { path: '*', element: <NotFound /> },

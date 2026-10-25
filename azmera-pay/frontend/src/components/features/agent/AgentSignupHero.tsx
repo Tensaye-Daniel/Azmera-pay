@@ -22,21 +22,9 @@ export default function AgentSignupHero({
   const defaultDescription = t('auth.heroJoin')
 
   const benefits = [
-    {
-      icon: UserPlus,
-      title: t('auth.benefit1Title'),
-      description: t('auth.benefit1Desc'),
-    },
-    {
-      icon: Network,
-      title: t('auth.benefit2Title'),
-      description: t('auth.benefit2Desc'),
-    },
-    {
-      icon: Sprout,
-      title: t('auth.benefit3Title'),
-      description: t('auth.benefit3Desc'),
-    },
+    { icon: UserPlus, title: t('auth.benefit1Title') },
+    { icon: Network, title: t('auth.benefit2Title') },
+    { icon: Sprout, title: t('auth.benefit3Title') },
   ]
 
   return (
@@ -54,7 +42,7 @@ export default function AgentSignupHero({
         aria-hidden="true"
       />
 
-      <div className="relative z-10 flex flex-1 flex-col p-7 pb-44 sm:p-10 sm:pb-44">
+      <div className="relative z-10 flex flex-1 flex-col p-7 pb-36 sm:p-10 sm:pb-36">
         <div className="flex flex-wrap items-center gap-3">
           <span className="inline-flex items-center rounded-2xl bg-white px-3 py-2 shadow-sm ring-1 ring-forest/10">
             <img
@@ -83,20 +71,15 @@ export default function AgentSignupHero({
           {benefits.map((benefit) => (
             <li
               key={benefit.title}
-              className="flex flex-col items-center gap-2 px-2 text-center sm:flex-row sm:items-start sm:gap-3 sm:px-4 sm:text-left"
+              className="flex flex-col items-center gap-2 px-2 text-center sm:flex-row sm:items-center sm:gap-3 sm:px-4 sm:text-left"
             >
               <benefit.icon
                 className="size-6 shrink-0 text-white"
                 aria-hidden="true"
               />
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-white sm:text-sm">
-                  {benefit.title}
-                </p>
-                <p className="mt-0.5 hidden text-xs leading-5 text-white/75 sm:block">
-                  {benefit.description}
-                </p>
-              </div>
+              <p className="text-xs font-semibold text-white sm:text-sm">
+                {benefit.title}
+              </p>
             </li>
           ))}
         </ul>

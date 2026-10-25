@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { FacebookIcon, InstagramIcon, LinkedInIcon, TelegramIcon, XIcon } from '../ui/icons'
 
 const socials = [
@@ -8,15 +9,17 @@ const socials = [
   { label: 'LinkedIn', href: '#', icon: LinkedInIcon },
 ]
 
-const links = [
-  { label: 'About', href: '#about' },
-  { label: 'How It Works', href: '#how-it-works' },
-  { label: 'For Buyers', href: '#buyers' },
-  { label: 'For Suppliers', href: '#suppliers' },
-  { label: 'For Agents', href: '#agents' },
-]
-
 export default function Footer() {
+  const { t } = useTranslation()
+
+  const links = [
+    { label: t('nav.about'), href: '#about' },
+    { label: t('nav.howItWorks'), href: '#how-it-works' },
+    { label: t('nav.forBuyers'), href: '#buyers' },
+    { label: t('nav.forSuppliers'), href: '#suppliers' },
+    { label: t('nav.forAgents'), href: '#agents' },
+  ]
+
   return (
     <footer className="relative overflow-hidden text-snow">
       <div className="absolute inset-0 bg-gradient-to-b from-forest via-forest-dark to-forest-deeper" />
@@ -52,10 +55,10 @@ export default function Footer() {
           <div className="h-px w-full max-w-2xl bg-gradient-to-r from-transparent via-snow/25 to-transparent" />
 
           <div className="flex flex-col items-center justify-between gap-3 sm:flex-row sm:gap-4">
-            <p className="text-sm text-snow/70">© 2026 Azmera. All rights reserved.</p>
+            <p className="text-sm text-snow/70">{t('landing.footer.copyright')}</p>
             <div className="flex items-center gap-2 text-sm text-snow/70">
               <span className="size-1.5 rounded-full bg-gold" aria-hidden="true" />
-              Made with care for Ethiopian agriculture
+              {t('landing.footer.tagline')}
             </div>
           </div>
         </div>

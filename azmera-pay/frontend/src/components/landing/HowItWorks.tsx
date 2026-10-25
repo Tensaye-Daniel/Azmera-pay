@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import Reveal from '../ui/Reveal'
 import {
   GlobeIcon,
@@ -8,46 +9,48 @@ import {
   UsersIcon,
 } from '../ui/icons'
 
-const steps = [
-  {
-    icon: SproutIcon,
-    step: '01',
-    title: 'Register',
-    text: 'Local Azmera Agents register farmers with a digital profile: location, crops, production capacity and needs.',
-  },
-  {
-    icon: PhoneIcon,
-    step: '02',
-    title: 'Request',
-    text: 'Farmers request inputs like seeds or fertilizer. Buyers request produce and quantities, for example 50,000 kg of tomatoes.',
-  },
-  {
-    icon: GlobeIcon,
-    step: '03',
-    title: 'Match',
-    text: 'Our engine matches each request with suitable partners based on location, distance, availability and price.',
-  },
-  {
-    icon: UsersIcon,
-    step: '04',
-    title: 'Connect',
-    text: 'Matched parties connect directly by phone or in person to discuss the details of the deal.',
-  },
-  {
-    icon: TagIcon,
-    step: '05',
-    title: 'Agree',
-    text: 'Both sides agree on quantity, price, delivery and payment terms before anything moves.',
-  },
-  {
-    icon: ShieldIcon,
-    step: '06',
-    title: 'Trade',
-    text: 'The deal goes forward on clear terms, with Azmera supporting both sides through the transaction.',
-  },
-]
-
 export default function HowItWorks() {
+  const { t } = useTranslation()
+
+  const steps = [
+    {
+      icon: SproutIcon,
+      step: '01',
+      title: t('landing.howItWorks.step1Title'),
+      text: t('landing.howItWorks.step1Text'),
+    },
+    {
+      icon: PhoneIcon,
+      step: '02',
+      title: t('landing.howItWorks.step2Title'),
+      text: t('landing.howItWorks.step2Text'),
+    },
+    {
+      icon: GlobeIcon,
+      step: '03',
+      title: t('landing.howItWorks.step3Title'),
+      text: t('landing.howItWorks.step3Text'),
+    },
+    {
+      icon: UsersIcon,
+      step: '04',
+      title: t('landing.howItWorks.step4Title'),
+      text: t('landing.howItWorks.step4Text'),
+    },
+    {
+      icon: TagIcon,
+      step: '05',
+      title: t('landing.howItWorks.step5Title'),
+      text: t('landing.howItWorks.step5Text'),
+    },
+    {
+      icon: ShieldIcon,
+      step: '06',
+      title: t('landing.howItWorks.step6Title'),
+      text: t('landing.howItWorks.step6Text'),
+    },
+  ]
+
   return (
     <section id="how-it-works" className="relative overflow-hidden bg-snow py-24 lg:py-32">
       <div className="bg-ethiopian-pattern absolute inset-0 opacity-[0.18]" aria-hidden="true" />
@@ -56,13 +59,12 @@ export default function HowItWorks() {
 
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
         <Reveal className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-semibold tracking-[0.24em] text-gold-dark uppercase">The process</p>
+          <p className="text-xs font-semibold tracking-[0.24em] text-gold-dark uppercase">{t('landing.howItWorks.tagline')}</p>
           <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-forest-dark sm:text-5xl">
-            How Azmera Works
+            {t('landing.howItWorks.title')}
           </h2>
           <p className="mt-5 text-base leading-relaxed text-stone-dark sm:text-lg">
-            Six simple steps take you from registration to a completed trade, connecting
-            farmers, agents, suppliers and buyers through location-based matching, from any phone.
+            {t('landing.howItWorks.description')}
           </p>
         </Reveal>
 

@@ -1,4 +1,4 @@
-﻿import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 import LandingLayout from '../components/layout/LandingLayout'
 import SupplierLayout from '../layouts/SupplierLayout'
 import AgentLayout from '../layouts/AgentLayout'
@@ -73,6 +73,20 @@ const router = createBrowserRouter([
       { path: 'requests', element: <SupplierRequests /> },
       { path: 'matches', element: <SupplierMatches /> },
       { path: 'shop-setup', element: <SupplierShopSetup /> },
+    ],
+  },
+  {
+    path: '/admin',
+    element: (
+      <RequireAuth allowedRoles={['admin']}>
+        <AdminLayout />
+      </RequireAuth>
+    ),
+    children: [
+      { index: true, element: <AdminDashboard /> },
+      { path: 'farmers', element: <AdminFarmers /> },
+      { path: 'suppliers', element: <AdminSuppliers /> },
+      { path: 'users', element: <AdminUsers /> },
     ],
   },
   { path: '*', element: <NotFound /> },

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   activateFarmer,
   deactivateFarmer,
@@ -17,6 +18,7 @@ const statusStyles: Record<FarmerStatus, string> = {
 }
 
 const AdminFarmers = () => {
+  const { t } = useTranslation()
   const [farmers, setFarmers] = useState<AdminFarmer[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -82,22 +84,22 @@ const AdminFarmers = () => {
     <div className="space-y-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Farmers</h1>
+          <h1 className="text-2xl font-semibold text-slate-900">{t('nav.farmers')}</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Verify registrations and control account access.
+            {t('admin.farmersDesc')}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search name, phone, AZM, Fayda"
+            placeholder={t('admin.searchFarmerPlaceholder')}
             className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm sm:w-64"
           />
           <input
             value={region}
             onChange={(event) => setRegion(event.target.value)}
-            placeholder="Region"
+            placeholder={t('common.region')}
             className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm sm:w-40"
           />
           <select
@@ -107,17 +109,17 @@ const AdminFarmers = () => {
             }
             className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
           >
-            <option value="all">All statuses</option>
-            <option value="registered">Registered</option>
-            <option value="pending">Pending</option>
-            <option value="unverified">Unverified</option>
+            <option value="all">{t('admin.allStatuses')}</option>
+            <option value="registered">{t('common.registered')}</option>
+            <option value="pending">{t('common.pending')}</option>
+            <option value="unverified">{t('agent.unverifiedFarmers')}</option>
           </select>
           <button
             type="button"
             onClick={applyFilters}
             className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-emerald-700"
           >
-            Apply
+            {t('admin.apply')}
           </button>
         </div>
       </header>
@@ -132,19 +134,19 @@ const AdminFarmers = () => {
             <thead className="bg-slate-50">
               <tr>
                 <th className="px-6 py-3 text-left font-medium text-slate-500">
-                  Farmer
+                  {t('admin.farmerCol')}
                 </th>
                 <th className="px-6 py-3 text-left font-medium text-slate-500">
-                  Location
+                  {t('admin.locationCol')}
                 </th>
                 <th className="px-6 py-3 text-left font-medium text-slate-500">
-                  Details
+                  {t('admin.detailsCol')}
                 </th>
                 <th className="px-6 py-3 text-left font-medium text-slate-500">
-                  Status
+                  {t('admin.statusCol')}
                 </th>
                 <th className="px-6 py-3 text-right font-medium text-slate-500">
-                  Actions
+                  {t('admin.actionsCol')}
                 </th>
               </tr>
             </thead>
@@ -152,14 +154,14 @@ const AdminFarmers = () => {
               {loading && (
                 <tr>
                   <td className="px-6 py-6 text-center text-slate-500" colSpan={5}>
-                    Loading...
+                    {t('common.loading')}
                   </td>
                 </tr>
               )}
               {!loading && filtered.length === 0 && (
                 <tr>
                   <td className="px-6 py-6 text-center text-slate-500" colSpan={5}>
-                    No farmers found
+                    {t('admin.noFarmersFound')}
                   </td>
                 </tr>
               )}
@@ -176,15 +178,15 @@ const AdminFarmers = () => {
                     <p className="text-slate-900">{farmer.region}</p>
                     <p className="text-slate-500">{farmer.woreda}</p>
                     {farmer.kebele && (
-                      <p className="text-slate-500">Kebele: {farmer.kebele}</p>
+                      <p className="text-slate-500">{t('common.kebele')}: {farmer.kebele}</p>
                     )}
                   </td>
                   <td className="px-6 py-4">
                     <p className="text-slate-900">
-                      Crop: {farmer.primary_crop}
+                      {t('agent.crop')}: {farmer.primary_crop}
                     </p>
                     <p className="text-slate-500">
-                      Size: {farmer.farm_size_hectares} ha ·{' '}
+                      {t('agent.farmSize')}: {farmer.farm_size_hectares} ha ·{' '}
                       {farmer.land_ownership}
                     </p>
                     {farmer.fayda_fin && (
@@ -203,7 +205,7 @@ const AdminFarmers = () => {
                       {farmer.status}
                     </span>
                     <p className="mt-1 text-xs text-slate-500">
-                      {farmer.is_active ? 'Active' : 'Inactive'}
+                      {farmer.is_active ? t('admin.activeStatus') : t('admin.inactiveStatus')}
                     </p>
                   </td>
                   <td className="px-6 py-4 text-right">
@@ -215,7 +217,7 @@ const AdminFarmers = () => {
                           onClick={() => void runAction(farmer.id, verifyFarmer)}
                           className="rounded-lg border border-emerald-200 px-2.5 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-50 disabled:opacity-50"
                         >
-                          Verify
+                          {t('admin.approve')}
                         </button>
                       )}
                       {farmer.status !== 'pending' && (
@@ -225,7 +227,7 @@ const AdminFarmers = () => {
                           onClick={() => void runAction(farmer.id, markFarmerPending)}
                           className="rounded-lg border border-amber-200 px-2.5 py-1.5 text-xs font-medium text-amber-700 transition hover:bg-amber-50 disabled:opacity-50"
                         >
-                          Mark pending
+                          {t('admin.markPending')}
                         </button>
                       )}
                       {farmer.status !== 'unverified' && (
@@ -235,7 +237,7 @@ const AdminFarmers = () => {
                           onClick={() => void runAction(farmer.id, unverifyFarmer)}
                           className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
                         >
-                          Unverify
+                          {t('admin.unverify')}
                         </button>
                       )}
                       {farmer.is_active ? (
@@ -245,7 +247,7 @@ const AdminFarmers = () => {
                           onClick={() => void runAction(farmer.id, deactivateFarmer)}
                           className="rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-50 disabled:opacity-50"
                         >
-                          Deactivate
+                          {t('admin.deactivate')}
                         </button>
                       ) : (
                         <button
@@ -254,7 +256,7 @@ const AdminFarmers = () => {
                           onClick={() => void runAction(farmer.id, activateFarmer)}
                           className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
                         >
-                          Activate
+                          {t('admin.activate')}
                         </button>
                       )}
                     </div>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   deleteSupplierListing,
   fetchSupplierListings,
@@ -24,14 +25,6 @@ import {
   StoreIcon,
 } from '../../components/ui/icons'
 
-const categoryLabels: Record<SupplierProductCategory, string> = {
-  crop: 'Crops',
-  seed: 'Seeds',
-  fertilizer: 'Fertilizers',
-  pesticide: 'Pesticides',
-  other: 'Other agricultural products',
-}
-
 const control =
   'w-full rounded-xl border border-forest/15 bg-white px-3 py-2.5 text-sm text-stone-dark outline-none focus-visible:ring-2 focus-visible:ring-forest/30'
 
@@ -44,17 +37,30 @@ const emptyForm = {
   notes: '',
 }
 
-const statusLabel: Record<ListingStatus, string> = {
-  active: 'Active',
-  paused: 'Paused',
-  inactive: 'Inactive',
-  expired: 'Inactive',
-}
-
 const displayStatus = (value: ListingStatus): Exclude<ListingStatus, 'expired'> =>
   value === 'expired' ? 'inactive' : value
 
 export default function SupplierListings() {
+  const { t } = useTranslation()
+
+  const getCategoryLabel = (cat: SupplierProductCategory) => {
+    switch (cat) {
+      case 'crop': return t('agent.crops')
+      case 'seed': return t('supplier.seeds')
+      case 'fertilizer': return t('supplier.fertilizer')
+      case 'pesticide': return t('supplier.chemicals')
+      case 'other': return t('supplier.other')
+      default: return cat
+    }
+  }
+
+  const categoryEntries: [SupplierProductCategory, string][] = [
+    ['crop', t('agent.crops')],
+    ['seed', t('supplier.seeds')],
+    ['fertilizer', t('supplier.fertilizer')],
+    ['pesticide', t('supplier.chemicals')],
+    ['other', t('supplier.other')],
+  ]
   const [listings, setListings] = useState<SupplierListing[]>([])
   const [profile, setProfile] = useState<SupplierProfile | null>(null)
   const [units, setUnits] = useState<SupplierUnit[]>([])
@@ -261,7 +267,7 @@ export default function SupplierListings() {
       setError(
         supplierApiErrorMessage(
           err,
-          `Could not change “${item.product_name}” to ${statusLabel[nextStatus].toLowerCase()}. Please try again.`,
+          `Could not update “${item.product_name}”. Please try again.`,
         ),
       )
     }
@@ -283,12 +289,12 @@ export default function SupplierListings() {
     <div className="mx-auto max-w-6xl space-y-6">
       <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-sm font-medium text-forest">Supplier workspace</p>
+          <p className="text-sm font-medium text-forest uppercase">{t('supplier.workspaceTitle')}</p>
           <h1 className="mt-1 font-serif text-3xl font-semibold text-forest-deeper">
-            My Listings
+            {t('supplier.listingsTitle')}
           </h1>
           <p className="mt-2 text-sm text-stone">
-            Manage the products, prices, and quantities your shop offers.
+            {t('supplier.listingsSubtitle')}
           </p>
         </div>
         <button
@@ -302,7 +308,7 @@ export default function SupplierListings() {
           }
           className="rounded-xl bg-forest px-5 py-3 text-sm font-semibold text-white hover:bg-forest-deeper"
         >
-          {formOpen ? 'Close form' : '+ Add listing'}
+          {formOpen ? t('supplier.closeForm') : `+ ${t('supplier.addListing')}`}
         </button>
       </header>
 
@@ -322,11 +328,10 @@ export default function SupplierListings() {
         >
           <div>
             <h2 className="font-serif text-xl font-semibold text-forest-deeper">
-              {editing ? 'Edit listing' : 'Add a listing'}
+              {editing ? t('supplier.editListingTitle') : t('supplier.addListingTitle')}
             </h2>
             <p className="mt-1 text-sm text-stone">
-              Product name is stored in the product catalog. Choose a category
-              enabled in your Shop Setup.
+              {t('supplier.productNameCatalogDesc')}
             </p>
           </div>
 
@@ -342,7 +347,7 @@ export default function SupplierListings() {
             <div className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">
               Set up at least one product category before creating listings.{' '}
               <Link className="font-semibold underline" to="/supplier/shop-setup">
-                Go to Shop Setup
+                {t('supplier.manageShopSetup')}
               </Link>
             </div>
           ) : loadErrors.units || units.length === 0 ? (
@@ -357,7 +362,7 @@ export default function SupplierListings() {
             <>
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="text-sm font-medium text-forest-deeper">
-                  Product name
+                  {t('supplier.productName')}
                   <input
                     required
                     maxLength={100}
@@ -369,7 +374,7 @@ export default function SupplierListings() {
                 </label>
 
                 <label className="text-sm font-medium text-forest-deeper">
-                  Product category
+                  {t('supplier.category')}
                   <select
                     required
                     value={form.category}
@@ -381,24 +386,24 @@ export default function SupplierListings() {
                     }
                     className={`${control} mt-1`}
                   >
-                    <option value="">Choose category</option>
+                    <option value="">{t('supplier.chooseCategory')}</option>
                     {profile.product_categories.map((item) => (
                       <option key={item} value={item}>
-                        {categoryLabels[item]}
+                        {getCategoryLabel(item)}
                       </option>
                     ))}
                     {editing &&
                       form.category &&
                       !profile.product_categories.includes(form.category) && (
                         <option value={form.category}>
-                          {categoryLabels[form.category]} (previously configured)
+                          {getCategoryLabel(form.category)} (previously configured)
                         </option>
                       )}
                   </select>
                 </label>
 
                 <label className="text-sm font-medium text-forest-deeper">
-                  Available quantity
+                  {t('supplier.availableQuantity')}
                   <input
                     required
                     type="number"
@@ -413,14 +418,14 @@ export default function SupplierListings() {
                 </label>
 
                 <label className="text-sm font-medium text-forest-deeper">
-                  Unit
+                  {t('supplier.unit')}
                   <select
                     required
                     value={form.unit}
                     onChange={(e) => setForm({ ...form, unit: e.target.value })}
                     className={`${control} mt-1`}
                   >
-                    <option value="">Choose unit</option>
+                    <option value="">{t('supplier.chooseUnit')}</option>
                     {units.map((item) => (
                       <option key={item.id} value={item.id}>
                         {item.name} ({item.code})
@@ -430,7 +435,7 @@ export default function SupplierListings() {
                 </label>
 
                 <label className="text-sm font-medium text-forest-deeper">
-                  Price per unit (ETB)
+                  {t('supplier.pricePerUnit')}
                   <input
                     required
                     type="number"
@@ -445,7 +450,7 @@ export default function SupplierListings() {
                 </label>
 
                 <label className="text-sm font-medium text-forest-deeper">
-                  Notes <span className="font-normal text-stone">(optional)</span>
+                  {t('supplier.notes')} <span className="font-normal text-stone">({t('supplier.optional')})</span>
                   <input
                     value={form.notes}
                     onChange={(e) => setForm({ ...form, notes: e.target.value })}
@@ -468,17 +473,17 @@ export default function SupplierListings() {
                   }}
                   className="rounded-xl border border-forest/20 px-4 py-2.5 text-sm font-semibold text-forest"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   disabled={saving}
                   className="rounded-xl bg-forest px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
                 >
                   {saving
-                    ? 'Saving…'
+                    ? t('common.saving')
                     : editing
-                      ? 'Save changes'
-                      : 'Create listing'}
+                      ? t('supplier.saveChanges')
+                      : t('supplier.addListing')}
                 </button>
               </div>
             </>
@@ -491,30 +496,30 @@ export default function SupplierListings() {
         className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
       >
         <SupplierStatCard
-          title="Total Listings"
+          title={t('supplier.totalListings')}
           value={loading ? '…' : listings.length}
-          description="Products listed by your shop"
+          description={t('supplier.totalListingsDesc')}
           tone="total"
           icon={StoreIcon}
         />
         <SupplierStatCard
-          title="Active Listings"
+          title={t('supplier.activeListings')}
           value={loading ? '…' : activeCount}
-          description="Currently available to the marketplace"
+          description={t('supplier.activeListingsDesc')}
           tone="active"
           icon={CheckCircleIcon}
         />
         <SupplierStatCard
-          title="Paused Listings"
+          title={t('supplier.pausedListings')}
           value={loading ? '…' : pausedCount}
-          description="Temporarily unavailable"
+          description={t('supplier.pausedListingsDesc')}
           tone="paused"
           icon={ClockIcon}
         />
         <SupplierStatCard
-          title="Inactive Listings"
+          title={t('supplier.inactiveListings')}
           value={loading ? '…' : inactiveCount}
-          description="Not currently available"
+          description={t('supplier.inactiveListingsDesc')}
           tone="inactive"
           icon={AlertIcon}
         />
@@ -523,24 +528,24 @@ export default function SupplierListings() {
       <section className="rounded-2xl border border-forest/10 bg-white p-5 sm:p-6">
         <div className="grid gap-3 sm:grid-cols-3">
           <label>
-            <span className="sr-only">Search by product</span>
+            <span className="sr-only">{t('common.search')}</span>
             <input
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search product name"
+              placeholder={t('common.search')}
               className={control}
             />
           </label>
           <label>
-            <span className="sr-only">Filter category</span>
+            <span className="sr-only">{t('common.filter')}</span>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className={control}
             >
-              <option value="all">All categories</option>
-              {Object.entries(categoryLabels).map(([value, label]) => (
+              <option value="all">{t('common.all')}</option>
+              {categoryEntries.map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
                 </option>
@@ -548,40 +553,39 @@ export default function SupplierListings() {
             </select>
           </label>
           <label>
-            <span className="sr-only">Filter status</span>
+            <span className="sr-only">{t('common.status')}</span>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
               className={control}
             >
-              <option value="all">All statuses</option>
-              <option value="active">Active</option>
-              <option value="paused">Paused</option>
-              <option value="inactive">Inactive</option>
+              <option value="all">{t('common.all')}</option>
+              <option value="active">{t('common.active')}</option>
+              <option value="paused">{t('common.paused')}</option>
+              <option value="inactive">{t('common.inactive')}</option>
             </select>
           </label>
         </div>
 
         {loading ? (
           <p role="status" className="py-12 text-center text-sm text-stone">
-            Loading your listings…
+            {t('common.loading')}
           </p>
         ) : loadErrors.listings ? (
           <p role="alert" className="py-12 text-center text-sm text-red-800">
-            Listings could not be loaded. Reload to try again.
+            {t('common.error')}
           </p>
         ) : listings.length === 0 ? (
           <div className="py-12 text-center">
-            <h2 className="font-semibold text-forest-deeper">No listings yet</h2>
+            <h2 className="font-semibold text-forest-deeper">{t('supplier.noListingsYet')}</h2>
             <p className="mt-1 text-sm text-stone">
-              Add your first product to make your stock visible to the
-              marketplace.
+              {t('supplier.shopReadyDesc')}
             </p>
             <button
               onClick={openCreate}
               className="mt-4 rounded-xl bg-forest px-4 py-2.5 text-sm font-semibold text-white"
             >
-              Add your first listing
+              {t('supplier.addListing')}
             </button>
           </div>
         ) : visible.length === 0 ? (
@@ -594,12 +598,12 @@ export default function SupplierListings() {
               <thead className="bg-[#f7faf6] text-xs uppercase tracking-wide text-stone">
                 <tr>
                   {[
-                    'Product',
-                    'Category',
-                    'Available',
-                    'Price / unit',
-                    'Status',
-                    'Actions',
+                    t('supplier.productName'),
+                    t('supplier.category'),
+                    t('supplier.availableQuantity'),
+                    t('supplier.pricePerUnit'),
+                    t('common.status'),
+                    t('common.actions'),
                   ].map((head) => (
                     <th key={head} className="px-4 py-3">
                       {head}
@@ -620,7 +624,7 @@ export default function SupplierListings() {
                     </td>
                     <td className="px-4 py-4 text-sm">
                       {item.product_category
-                        ? categoryLabels[item.product_category]
+                        ? getCategoryLabel(item.product_category)
                         : '—'}
                     </td>
                     <td className="px-4 py-4 text-sm">
@@ -655,9 +659,9 @@ export default function SupplierListings() {
                           }
                           className={`${control} max-w-36 py-1.5 text-xs`}
                         >
-                          <option value="active">Active</option>
-                          <option value="paused">Paused</option>
-                          <option value="inactive">Inactive</option>
+                          <option value="active">{t('common.active')}</option>
+                          <option value="paused">{t('common.paused')}</option>
+                          <option value="inactive">{t('common.inactive')}</option>
                         </select>
                       </label>
                     </td>
@@ -667,13 +671,13 @@ export default function SupplierListings() {
                           onClick={() => openEdit(item)}
                           className="text-forest underline"
                         >
-                          Edit
+                          {t('common.edit')}
                         </button>
                         <button
                           onClick={() => void remove(item)}
                           className="text-red-700 underline"
                         >
-                          Delete
+                          {t('common.delete')}
                         </button>
                       </div>
                     </td>

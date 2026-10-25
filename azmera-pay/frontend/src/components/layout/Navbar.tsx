@@ -1,18 +1,21 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CloseIcon, MenuIcon } from '../ui/icons'
-
-const links = [
-  { label: 'Home', href: '#home' },
-  { label: 'About', href: '#about' },
-  { label: 'How It Works', href: '#how-it-works' },
-  { label: 'For Buyers', href: '#buyers' },
-  { label: 'For Suppliers', href: '#suppliers' },
-  { label: 'For Agents', href: '#agents' },
-]
+import LanguageSwitcher from '../ui/LanguageSwitcher'
 
 export default function Navbar() {
+  const { t } = useTranslation()
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+
+  const links = [
+    { label: t('nav.home'), href: '#home' },
+    { label: t('nav.about'), href: '#about' },
+    { label: t('nav.howItWorks'), href: '#how-it-works' },
+    { label: t('nav.forBuyers'), href: '#buyers' },
+    { label: t('nav.forSuppliers'), href: '#suppliers' },
+    { label: t('nav.forAgents'), href: '#agents' },
+  ]
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -64,10 +67,12 @@ export default function Navbar() {
         </ul>
 
         <div className="flex items-center gap-3">
+          <LanguageSwitcher />
+
           <button
             type="button"
             onClick={() => setOpen(!open)}
-            aria-label={open ? 'Close menu' : 'Open menu'}
+            aria-label={open ? t('nav.closeMenu') : t('nav.openMenu')}
             aria-expanded={open}
             className={`grid size-11 place-items-center rounded-full border border-forest/20 bg-white/90 text-forest backdrop-blur transition-colors hover:bg-forest hover:text-snow lg:hidden ${
               open ? 'border-snow/40 bg-snow/10 text-snow hover:bg-snow/20' : ''
@@ -92,8 +97,9 @@ export default function Navbar() {
           }`}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="mb-8 w-max">
+          <div className="mb-8 flex items-center justify-between">
             <img src="/images/logo.png" alt="Azmera" width={1280} height={698} className="h-12 w-auto object-contain drop-shadow-lg" />
+            <LanguageSwitcher theme="dark" />
           </div>
           <ul className="space-y-2">
             {links.map((link, i) => (

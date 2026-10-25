@@ -5,12 +5,16 @@ interface AgentSignupHeroProps {
   headline?: string
   description?: string
   showOnMobile?: boolean
+  imageSrc?: string
+  imageAlt?: string
 }
 
 export default function AgentSignupHero({
   headline,
   description,
   showOnMobile = false,
+  imageSrc = '/images/agentPic.jpg',
+  imageAlt = 'Azmera field agent in branded clothing using a smartphone',
 }: AgentSignupHeroProps) {
   const { t } = useTranslation()
 
@@ -40,8 +44,8 @@ export default function AgentSignupHero({
       className={`relative ${showOnMobile ? 'flex min-h-[34rem]' : 'hidden'} flex-col overflow-hidden bg-forest-deeper lg:flex lg:h-full lg:min-h-screen`}
     >
       <img
-        src="/images/agentPic.jpg"
-        alt="Azmera field agent in branded clothing using a smartphone"
+        src={imageSrc}
+        alt={imageAlt}
         className="absolute inset-0 size-full object-cover object-center"
       />
 

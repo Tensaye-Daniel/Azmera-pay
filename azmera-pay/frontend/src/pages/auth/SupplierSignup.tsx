@@ -96,6 +96,8 @@ export default function SupplierSignup() {
       <AgentSignupHero
         headline={t('auth.supplierSignupTitle')}
         description={t('auth.supplierSignupSubtitle')}
+        imageSrc="/images/supplier2.jpg"
+        imageAlt="Azmera supplier at a produce market"
       />
       <div className="flex flex-1 flex-col lg:min-h-screen">
         <div className="flex justify-end p-4 sm:px-6 lg:px-10">

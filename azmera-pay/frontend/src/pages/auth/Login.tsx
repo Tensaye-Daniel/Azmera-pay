@@ -137,6 +137,12 @@ export default function Login({ variant = 'agent' }: { variant?: LoginVariant })
         showOnMobile={variant === 'agent'}
         headline={t('auth.welcomeBackHero')}
         description={copy.heroDescription}
+        imageSrc={variant === 'supplier' ? '/images/supplier2.jpg' : undefined}
+        imageAlt={
+          variant === 'supplier'
+            ? 'Azmera supplier at a produce market'
+            : undefined
+        }
       />
 
       <div className="flex flex-1 flex-col lg:min-h-screen">

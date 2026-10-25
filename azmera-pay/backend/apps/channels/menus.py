@@ -1,12 +1,13 @@
 # USSD menu copy, keyed by language. English and Amharic ship today; the flow
 # engine only ever looks strings up through get_text().
-DEFAULT_LANGUAGE = "en"
+DEFAULT_LANGUAGE = "am"
+LANGUAGE_SWITCH_OPTION = "5"
 
 MESSAGES = {
     "en": {
         "title": "Azmera",
         "menu_body": (
-            "1. My account\n2. Request input\n3. My matches\n4. Help\n0. Exit"
+            "1. My account\n2. Request input\n3. My matches\n4. Help\n5. አማርኛ\n0. Exit"
         ),
         "account_footer": "0. Back",
         "help": "Call 8080 or ask your local Azmera agent for help.",
@@ -55,7 +56,7 @@ MESSAGES = {
     },
     "am": {
         "title": "አዝመራ",
-        "menu_body": ("1. መለያዬ\n2. ግብዓት ጠይቅ\n3. ግጥሚያዎቼ\n4. እርዳታ\n0. ውጣ"),
+        "menu_body": ("1. መለያዬ\n2. ግብዓት ጠይቅ\n3. ግጥሚያዎቼ\n4. እርዳታ\n5. English\n0. ውጣ"),
         "account_footer": "0. ተመለስ",
         "help": "ለእርዳታ 8080 ይደውሉ ወይም ወኪልዎን ይጠይቁ።",
         "matches_empty": "እስካሁን ግጥሚያ የለም።",
@@ -83,8 +84,7 @@ MESSAGES = {
         ),
         "request_cancelled": "ጥያቄው ተሰርዟል።",
         "request_saved_match": (
-            "ግጥሚያ ተገኘ። #{rank}/{count}: {supplier}. "
-            "ቦታ: {location}. እንደገና ደውለው 3 ይምረጡ።"
+            "ግጥሚያ ተገኘ። #{rank}/{count}: {supplier}. ቦታ: {location}. እንደገና ደውለው 3 ይምረጡ።"
         ),
         "supplier_name_unavailable": "የአቅራቢ ስም የለም",
         "location_unavailable": "የቦታ መረጃ የለም",
@@ -94,9 +94,13 @@ MESSAGES = {
 
 
 def get_text(key, *, language=DEFAULT_LANGUAGE, **values):
-    """Look up a menu string, falling back to English for unknown languages."""
-    bundle = MESSAGES.get(language, MESSAGES[DEFAULT_LANGUAGE])
-    template = bundle.get(key) or MESSAGES[DEFAULT_LANGUAGE].get(key, "")
+    """Look up a menu string, falling back to the default language then English."""
+    bundle = MESSAGES.get(language, {})
+    template = (
+        bundle.get(key)
+        or MESSAGES[DEFAULT_LANGUAGE].get(key)
+        or MESSAGES["en"].get(key, "")
+    )
     return template.format(**values) if values else template
 
 

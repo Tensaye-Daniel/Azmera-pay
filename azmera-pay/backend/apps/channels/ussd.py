@@ -17,7 +17,13 @@ from apps.requests.models import (
     RequestStatus,
 )
 
-from .menus import DEFAULT_LANGUAGE, MESSAGES, get_text, main_menu
+from .menus import (
+    DEFAULT_LANGUAGE,
+    LANGUAGE_SWITCH_OPTION,
+    MESSAGES,
+    get_text,
+    main_menu,
+)
 
 MAX_OPTIONS = 5
 MIN_DECIMAL = Decimal("0.01")
@@ -55,6 +61,7 @@ def handle_ussd(*, farmer, text, language=None, session_id=None):
 
     parts = [part for part in text.split("*") if part] if text else []
 
+    language, parts = _apply_language_switches(parts, language)
     if not parts:
         return UssdResponse(main_menu(language=language), end=False)
 
@@ -76,6 +83,14 @@ def handle_ussd(*, farmer, text, language=None, session_id=None):
         f"{get_text('invalid', language=language)}\n\n{main_menu(language=language)}",
         end=False,
     )
+
+
+def _apply_language_switches(parts, language):
+    """Toggle language for each leading language choice in the cumulative text."""
+    while parts and parts[0] == LANGUAGE_SWITCH_OPTION:
+        language = "en" if language == "am" else "am"
+        parts = parts[1:]
+    return language, parts
 
 
 def _account_screen(farmer, parts, language):
@@ -390,7 +405,11 @@ def _listing_location(listing, language=DEFAULT_LANGUAGE):
         for value in (listing.woreda, listing.region)
         if value and value.strip()
     ]
-    return ", ".join(location) if location else get_text("location_unavailable", language=language)
+    return (
+        ", ".join(location)
+        if location
+        else get_text("location_unavailable", language=language)
+    )
 
 
 def _short(value, limit):

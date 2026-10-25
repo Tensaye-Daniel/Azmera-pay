@@ -121,7 +121,7 @@ paths or payloads from older drafts as live API contracts.
 - `POST /ussd/` — Africa's Talking callback. Form fields: `sessionId`, `phoneNumber`, `text`, `serviceCode`. Responds with `CON <prompt>` or `END <message>`.
 - `GET /ussd/` — health check for the configured callback URL.
 - Optional shared secret: append `?token=...` or send `X-USSD-Secret` matching `USSD_CALLBACK_SECRET`.
-- Menu language: `USSD_DEFAULT_LANGUAGE` (`en` or `am`). Messages are clamped to `USSD_MAX_MESSAGE_LENGTH`.
+- Menu language: `USSD_DEFAULT_LANGUAGE` (`am` by default, or `en`). The main menu offers option 5 to switch language for the rest of the session. Messages are clamped to `USSD_MAX_MESSAGE_LENGTH`.
 - Farmer flow: My account → Request input (category, product, unit, quantity, max price, confirm) → matching runs synchronously → My matches shows the top ranked candidates.
 
 ## dashboard (per role — one workspace per role)

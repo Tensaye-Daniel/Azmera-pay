@@ -408,6 +408,24 @@ export function ChevronDownIcon(props: IconProps) {
   )
 }
 
+export function SearchIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="m16 16 4 4" />
+    </svg>
+  )
+}
+
+export function HomeIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="m3.5 10.5 8.5-7 8.5 7" />
+      <path d="M5.5 9.2V20a1 1 0 0 0 1 1h4v-6h3v6h4a1 1 0 0 0 1-1V9.2" />
+    </svg>
+  )
+}
+
 export function LogOutIcon(props: IconProps) {
   return (
     <svg {...base(props)}>

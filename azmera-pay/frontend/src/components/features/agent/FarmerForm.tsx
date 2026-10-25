@@ -9,6 +9,7 @@ import { normalizeApiError } from '../../../utils/apiError'
 import Button from '../../ui/Button'
 import Field from '../../ui/Field'
 import Notice from '../../ui/Notice'
+import RegionSelect from '../../ui/RegionSelect'
 import Select from '../../ui/Select'
 import TextInput from '../../ui/TextInput'
 import Textarea from '../../ui/Textarea'
@@ -179,19 +180,11 @@ export default function FarmerForm({
         </Field>
 
         <Field id="region" label="Region" required error={errors.region}>
-          <Select
+          <RegionSelect
             value={form.region}
-            onChange={(event) => update('region')(event.target.value)}
-          >
-            <option value="" disabled>
-              Select region…
-            </option>
-            {ETHIOPIAN_REGIONS.map((region) => (
-              <option key={region} value={region}>
-                {region}
-              </option>
-            ))}
-          </Select>
+            options={ETHIOPIAN_REGIONS}
+            onChange={(region) => update('region')(region)}
+          />
         </Field>
 
         <Field id="woreda" label="Woreda" required error={errors.woreda}>

@@ -2,6 +2,7 @@
 import pytest
 
 from apps.accounts.models import Role
+from apps.common.utils import REGISTRATION_CONFLICT_MESSAGE
 from apps.profiles.models import FarmerProfile, FarmerStatus
 from tests.factories.accounts import create_web_user
 from tests.factories.profiles import FarmerProfileFactory
@@ -50,7 +51,8 @@ def test_duplicate_phone_number_is_rejected(agent_client):
     )
 
     assert resp.status_code == 400
-    assert "phone" in resp.data
+    assert "phone" not in resp.data
+    assert resp.data["non_field_errors"] == [REGISTRATION_CONFLICT_MESSAGE]
 
 
 def test_duplicate_fayda_fin_is_rejected(agent_client):
@@ -63,7 +65,8 @@ def test_duplicate_fayda_fin_is_rejected(agent_client):
     )
 
     assert resp.status_code == 400
-    assert "fayda_fin" in resp.data
+    assert "fayda_fin" not in resp.data
+    assert resp.data["non_field_errors"] == [REGISTRATION_CONFLICT_MESSAGE]
 
 
 def test_blank_fayda_fin_is_optional(agent_client):
@@ -167,6 +170,38 @@ def test_agent_can_update_a_farmer(agent_client, agent):
     farmer.refresh_from_db()
     assert farmer.woreda == "Bishoftu"
     assert farmer.farm_size_hectares == 5.00
+
+
+def test_update_rejects_duplicate_phone_without_revealing_it(agent_client, agent):
+    existing = FarmerProfileFactory(registered_by=agent)
+    farmer = FarmerProfileFactory(registered_by=agent)
+
+    resp = agent_client.patch(
+        f"/api/v1/dashboard/agent/farmers/{farmer.pk}",
+        data={"phone": existing.user.phone},
+        format="json",
+    )
+
+    assert resp.status_code == 400
+    assert "phone" not in resp.data
+    assert resp.data["non_field_errors"] == [REGISTRATION_CONFLICT_MESSAGE]
+
+
+def test_update_rejects_duplicate_fayda_fin_without_revealing_it(
+    agent_client, agent
+):
+    existing = FarmerProfileFactory(registered_by=agent, fayda_fin="123456789012345")
+    farmer = FarmerProfileFactory(registered_by=agent)
+
+    resp = agent_client.patch(
+        f"/api/v1/dashboard/agent/farmers/{farmer.pk}",
+        data={"fayda_fin": existing.fayda_fin},
+        format="json",
+    )
+
+    assert resp.status_code == 400
+    assert "fayda_fin" not in resp.data
+    assert resp.data["non_field_errors"] == [REGISTRATION_CONFLICT_MESSAGE]
 
 
 def test_registration_requires_required_fields(agent_client):

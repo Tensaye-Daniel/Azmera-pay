@@ -8,6 +8,8 @@ import {
   type SupplierProductCategory,
   type SupplierProfile,
 } from '../../api/supplier'
+import { ETHIOPIAN_REGIONS } from '../../data/reference'
+import RegionSelect from '../../components/ui/RegionSelect'
 
 export default function SupplierShopSetup() {
   const { t } = useTranslation()
@@ -182,20 +184,12 @@ export default function SupplierShopSetup() {
             >
               {t('common.region')}
             </label>
-            <input
+            <RegionSelect
               id="region"
-              type="text"
               value={profile.region}
-              onChange={(event) =>
-                setProfile({
-                  ...profile,
-                  region: event.target.value,
-                })
-              }
-              required
-              maxLength={100}
+              options={ETHIOPIAN_REGIONS}
+              onChange={(region) => setProfile({ ...profile, region })}
               placeholder={t('common.region')}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100"
             />
           </div>
 

@@ -11,18 +11,25 @@ export function normalizeApiError(err: unknown): NormalizedApiError {
   if (err instanceof AxiosError && err.response?.data) {
     const data = err.response.data
     if (typeof data === 'object' && data !== null) {
-      if ('detail' in data && typeof data.detail === 'string') {
-        return { fieldErrors: {}, general: data.detail }
-      }
+      const record = data as Record<string, unknown>
       const fieldErrors: Record<string, string> = {}
-      for (const [field, message] of Object.entries(data)) {
+      for (const [field, message] of Object.entries(record)) {
+        if (field === 'detail' || field === 'non_field_errors') continue
         if (Array.isArray(message)) {
           fieldErrors[field] = message.map(String).join(' ')
         } else if (typeof message === 'string') {
           fieldErrors[field] = message
         }
       }
-      return { fieldErrors, general: null }
+
+      const generalSource = record.detail ?? record.non_field_errors
+      const general = Array.isArray(generalSource)
+        ? generalSource.map(String).join(' ')
+        : typeof generalSource === 'string'
+          ? generalSource
+          : null
+
+      return { fieldErrors, general }
     }
   }
   return { fieldErrors: {}, general: 'Something went wrong. Please try again.' }

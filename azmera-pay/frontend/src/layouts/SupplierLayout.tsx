@@ -12,6 +12,7 @@ import { fetchMe, invalidateRefreshToken } from '../api/auth'
 import { fetchSupplierProfile } from '../api/supplier'
 import {
   CloseIcon,
+  HomeIcon,
   MenuIcon,
   StoreIcon,
   UsersIcon,
@@ -332,6 +333,13 @@ export default function SupplierLayout() {
             >
               {t('nav.signOut')}
             </button>
+            <NavLink
+              to="/"
+              className={`mt-3 flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-stone-dark transition-colors hover:bg-mint/40 hover:text-forest-deeper ${focusRing}`}
+            >
+              <HomeIcon className="size-5" />
+              <span>{t('nav.backToMain')}</span>
+            </NavLink>
           </div>
         </aside>
 
@@ -371,6 +379,14 @@ export default function SupplierLayout() {
               >
                 {t('nav.signOut')}
               </button>
+              <NavLink
+                to="/"
+                onClick={closeMobileMenu}
+                className={`mt-3 flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-stone-dark transition-colors hover:bg-mint/40 hover:text-forest-deeper ${focusRing}`}
+              >
+                <HomeIcon className="size-5" />
+                <span>{t('nav.backToMain')}</span>
+              </NavLink>
             </div>
           </CloseMenuContext.Provider>
         </aside>

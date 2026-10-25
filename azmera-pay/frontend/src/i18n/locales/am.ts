@@ -24,6 +24,7 @@ export const am = {
     skipToContent: 'ወደ ይዘቱ ይለፉ',
     openMenu: 'ምናሌውን ክፈት',
     closeMenu: 'ምናሌውን ዝጋ',
+    backToMain: 'ወደ ዋናው ገጽ ተመለስ',
     adminTitle: 'አዝመራ አስተዳዳሪ',
   },
   common: {

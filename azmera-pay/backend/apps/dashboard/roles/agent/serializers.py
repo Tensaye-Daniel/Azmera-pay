@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework import serializers
 
-from apps.common.utils import normalize_phone
+from apps.common.utils import REGISTRATION_CONFLICT_MESSAGE, normalize_phone
 from apps.profiles.models import (
     FAYDA_FIN_PATTERN,
     FarmerDocumentType,
@@ -56,12 +56,9 @@ class FarmerRegistrationSerializer(serializers.Serializer):
 
     def validate_phone(self, value):
         try:
-            phone = normalize_phone(value)
+            return normalize_phone(value)
         except ValueError as exc:
             raise serializers.ValidationError(str(exc)) from exc
-        if User.objects.filter(phone=phone).exists():
-            raise serializers.ValidationError("A user with this phone number already exists.")
-        return phone
 
     def validate_fayda_fin(self, value):
         value = (value or "").strip()
@@ -69,9 +66,17 @@ class FarmerRegistrationSerializer(serializers.Serializer):
             return None
         if not re.fullmatch(FAYDA_FIN_PATTERN, value):
             raise serializers.ValidationError("Fayda FIN must be a 15-digit number.")
-        if FarmerProfile.objects.filter(fayda_fin=value).exists():
-            raise serializers.ValidationError("A farmer with this Fayda FIN already exists.")
         return value
+
+    def validate(self, attrs):
+        phone_exists = User.objects.filter(phone=attrs["phone"]).exists()
+        fayda_fin = attrs.get("fayda_fin")
+        fayda_exists = bool(fayda_fin) and FarmerProfile.objects.filter(
+            fayda_fin=fayda_fin
+        ).exists()
+        if phone_exists or fayda_exists:
+            raise serializers.ValidationError(REGISTRATION_CONFLICT_MESSAGE)
+        return attrs
 
     def validate_region(self, value):
         canonical = canonical_region(value)
@@ -114,13 +119,9 @@ class FarmerUpdateSerializer(FarmerProfileSerializer):
 
     def validate_phone(self, value):
         try:
-            phone = normalize_phone(value)
+            return normalize_phone(value)
         except ValueError as exc:
             raise serializers.ValidationError(str(exc)) from exc
-        qs = User.objects.filter(phone=phone).exclude(pk=self.instance.user_id)
-        if qs.exists():
-            raise serializers.ValidationError("A user with this phone number already exists.")
-        return phone
 
     def validate_fayda_fin(self, value):
         value = (value or "").strip()
@@ -128,10 +129,20 @@ class FarmerUpdateSerializer(FarmerProfileSerializer):
             return None
         if not re.fullmatch(FAYDA_FIN_PATTERN, value):
             raise serializers.ValidationError("Fayda FIN must be a 15-digit number.")
-        qs = FarmerProfile.objects.filter(fayda_fin=value).exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise serializers.ValidationError("A farmer with this Fayda FIN already exists.")
         return value
+
+    def validate(self, attrs):
+        phone = attrs.get("phone")
+        phone_exists = bool(phone) and User.objects.filter(
+            phone=phone
+        ).exclude(pk=self.instance.user_id).exists()
+        fayda_fin = attrs.get("fayda_fin")
+        fayda_exists = bool(fayda_fin) and FarmerProfile.objects.filter(
+            fayda_fin=fayda_fin
+        ).exclude(pk=self.instance.pk).exists()
+        if phone_exists or fayda_exists:
+            raise serializers.ValidationError(REGISTRATION_CONFLICT_MESSAGE)
+        return attrs
 
     def validate_region(self, value):
         canonical = canonical_region(value)

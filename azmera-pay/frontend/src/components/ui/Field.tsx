@@ -20,17 +20,26 @@ export default function Field({
   className = '',
   children,
 }: FieldProps) {
+  const labelId = `${id}-label`
   const errorId = `${id}-error`
   const hintId = `${id}-hint`
   const describedBy = error ? errorId : hint ? hintId : undefined
 
   return (
     <FieldContext.Provider
-      value={{ id, errorId, hintId, describedBy, invalid: Boolean(error) }}
+      value={{
+        id,
+        labelId,
+        errorId,
+        hintId,
+        describedBy,
+        invalid: Boolean(error),
+      }}
     >
       <div className={className}>
         <label
           htmlFor={id}
+          id={labelId}
           className="mb-1.5 block text-sm font-medium text-stone-dark"
         >
           {label}

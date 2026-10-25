@@ -87,6 +87,13 @@ frontend/src/
 
 Agent farmer management and supplier listing/Shop Setup pages are connected to existing backend endpoints. Supplier Requests and Matches currently show placeholder information. Farmer and buyer dashboards and their request flows remain to be implemented.
 
+## Team members
+
+| Name | ID / Handle | Contribution |
+| --- | --- | --- |
+| Tensaye Daniel | `Tensaye-Daniel` | Built the agent registration flow, farmer request handling, and the backend/USSD APIs for Module 1. |
+| Mebatsion Nigussie | `nigussiemebatsion-sys` | Worked on supplier listings, marketplace matching, and the supplier response flow for Module 2. |
+
 ## Development Modules
 
 ### Module 1: Agent Registration and Farmer USSD Requests (#1)

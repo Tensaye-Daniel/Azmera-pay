@@ -15,6 +15,7 @@ import { normalizeApiError } from '../../../utils/apiError'
 import Button from '../../ui/Button'
 import Field from '../../ui/Field'
 import FileUpload from '../../ui/FileUpload'
+import GenderChoice from '../../ui/GenderChoice'
 import Notice from '../../ui/Notice'
 import ProgressSteps from '../../ui/ProgressSteps'
 import Select from '../../ui/Select'
@@ -384,19 +385,10 @@ export default function FarmerRegistrationWizard({
             </Field>
 
             <Field id="gender" label="Gender" required error={errors.gender}>
-              <Select
+              <GenderChoice
                 value={form.gender}
-                onChange={(event) => update('gender')(event.target.value)}
-              >
-                <option value="" disabled>
-                  Select gender…
-                </option>
-                {GENDER_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </Select>
+                onChange={update('gender')}
+              />
             </Field>
 
             <Field

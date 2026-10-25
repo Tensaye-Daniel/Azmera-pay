@@ -9,8 +9,10 @@ import {
   type AgentRegistrationResult,
 } from '../../../types/agentRegistration'
 import Button from '../../ui/Button'
+import DatePicker from '../../ui/DatePicker'
 import Field from '../../ui/Field'
 import FileUpload from '../../ui/FileUpload'
+import GenderChoice from '../../ui/GenderChoice'
 import LegalDialog from '../../ui/LegalDialog'
 import Notice from '../../ui/Notice'
 import PasswordInput from '../../ui/PasswordInput'
@@ -21,7 +23,6 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   BriefcaseIcon,
-  CalendarIcon,
   CheckIcon,
   FaydaIcon,
   HashIcon,
@@ -50,6 +51,9 @@ const STEP_SUMMARIES = [
 
 const PHONE_PATTERN = /^(?:\+251|0)?[79]\d{8}$/
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+const now = new Date()
+const TODAY_ISO = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
 
 const API_FIELD_MAP: Record<string, keyof AgentRegistrationFormData> = {
   full_name: 'fullName',
@@ -379,34 +383,25 @@ export default function AgentSignupWizard({ onSuccess }: AgentSignupWizardProps)
             required
             error={errors.dateOfBirth}
           >
-            <TextInput
-              type="date"
-              autoComplete="bday"
+            <DatePicker
               value={form.dateOfBirth}
-              onChange={(event) => update('dateOfBirth', event.target.value)}
-              leadingIcon={<CalendarIcon className="size-5" />}
+              min="1900-01-01"
+              max={TODAY_ISO}
+              placeholder="Select your birth date"
+              onChange={(value) => update('dateOfBirth', value)}
             />
           </Field>
 
           <Field id="gender" label="Gender" required error={errors.gender}>
-            <Select
+            <GenderChoice
               value={form.gender}
-              onChange={(event) =>
+              onChange={(value) =>
                 update(
                   'gender',
-                  event.target.value as AgentRegistrationFormData['gender'],
+                  value as AgentRegistrationFormData['gender'],
                 )
               }
-            >
-              <option value="" disabled>
-                Select gender…
-              </option>
-              {GENDER_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
+            />
           </Field>
 
           <Field id="region" label="Region" required error={errors.region}>

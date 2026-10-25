@@ -2,6 +2,7 @@ import { createContext, useContext } from 'react'
 
 export interface FieldContextValue {
   id: string
+  labelId: string
   errorId: string
   hintId: string
   describedBy?: string

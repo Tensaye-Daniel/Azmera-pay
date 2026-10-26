@@ -8,6 +8,9 @@ Azmera is an agricultural marketplace for Ethiopia that connects farmers, agents
 | Tensaye Daniel | CTC-839-26 | Built the agent registration flow, farmer request handling, and the backend/USSD APIs for Module 1. |
 | Mebatsion Nigussie | CTC-030-26| Worked on supplier listings, marketplace matching, and the supplier response flow for Module 2. |
 
+## Video Link
+https://drive.google.com/file/d/1Epf6CLWJdVy1j4eh3VGh_APpgGfC9GVh/view?usp=sharing
+
 ## Technology
 
 - **Backend:** Django, Django REST Framework, PostgreSQL, JWT authentication (SimpleJWT)

@@ -1,7 +1,7 @@
 # Azmera
 
-**GitHub Repository:** https://github.com/<your-username>/<your-repo>
-**Video Presentation (5 min, with voice over):** https://drive.google.com/file/d/1Epf6CLWJdVy1j4eh3VGh_APpgGfC9GVh/view?usp=sharing
+**Video Presentation (5 min, with voice over):**
+https://drive.google.com/file/d/1Epf6CLWJdVy1j4eh3VGh_APpgGfC9GVh/view?usp=sharing
 
 ## Project Description
 
